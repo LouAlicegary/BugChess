@@ -16,14 +16,14 @@
 	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 		
-	<script type="text/javascript" src="js/HexagonTools.js"></script>
-	<script type="text/javascript" src="js/Grid.js"></script>
-	<script type="text/javascript" src="js/Support.js"></script>
+	<script type="text/javascript" src="js/hex/HexagonTools.js"></script>
+	<script type="text/javascript" src="js/hex/Grid.js"></script>
+	<script type="text/javascript" src="js/hex/Support.js"></script>
 	
 	<!-- Scroller -->
-	<script src="src/Animate.js"></script>
-	<script src="src/Scroller.js"></script>
-	<script src="src/EasyScroller.js"></script>
+	<script src="js/scroller/Animate.js"></script>
+	<script src="js/scroller/Scroller.js"></script>
+	<script src="js/scroller/EasyScroller.js"></script>
 	
 	<style type="text/css">
 		body { background-color: #EEE; overflow: hidden; padding: 0; }
@@ -31,17 +31,17 @@
 		#content { padding: 10px; position: absolute; }
 		
 		.game_piece { width: 100px; height: 80px; border: 0px; }
-		.black_spider { background-image:url('black_spider.png'); }
-		.black_grasshopper { background-image:url('black_grasshopper.png'); }
-		.black_ant { background-image:url('black_ant.png'); }
-		.black_beetle { background-image:url('black_beetle.png'); }
-		.black_bee { background-image:url('black_bee.png'); }
+		.black_spider { background-image:url('pieces/black_spider.png'); }
+		.black_grasshopper { background-image:url('pieces/black_grasshopper.png'); }
+		.black_ant { background-image:url('pieces/black_ant.png'); }
+		.black_beetle { background-image:url('pieces/black_beetle.png'); }
+		.black_bee { background-image:url('pieces/black_bee.png'); }
 		
-		.white_spider { background-image:url('white_spider.png'); }
-		.white_grasshopper { background-image:url('white_grasshopper.png'); }
-		.white_ant { background-image:url('white_ant.png'); }
-		.white_beetle { background-image:url('white_beetle.png'); }
-		.white_bee { background-image:url('white_bee.png'); }
+		.white_spider { background-image:url('pieces/white_spider.png'); }
+		.white_grasshopper { background-image:url('pieces/white_grasshopper.png'); }
+		.white_ant { background-image:url('pieces/white_ant.png'); }
+		.white_beetle { background-image:url('pieces/white_beetle.png'); }
+		.white_bee { background-image:url('pieces/white_bee.png'); }
 
 	</style>
 
@@ -129,7 +129,7 @@
 				$("#" + arr_value).css({ //moves center of tile to where I clicked
        				top: new_point.Y-35,
        				left: new_point.X-45,
-       				background: 'url("' + new_bg + '")'
+       				background: 'url("pieces/' + new_bg + '")'
      			});
      			
 				$("#" + arr_value).show();

@@ -108,7 +108,7 @@ HT.Hexagon.prototype.draw = function(ctx) {
    		//PLACE IMAGE
    		var midPoint = this.MidPoint;
    		var imageObj = new Image();
-   		imageObj.src = array_val.substring(0, array_val.length-1) + ".png";
+   		imageObj.src = "pieces/" + array_val.substring(0, array_val.length-1) + ".png";
 		imageObj.onload = function() {
         	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
       	};
