@@ -100,14 +100,15 @@ HT.Hexagon.prototype.draw = function(ctx) {
 	
 	// fill hexagon if it's been clicked previously
 	//console.log("draw");
-	if (arr[this.PathCoOrdX][this.PathCoOrdY] == 1) {
-		console.log(this.Id + " is filled.");
+	var array_val = arr[this.PathCoOrdX][this.PathCoOrdY];
+	if ( array_val != 0) {
+		console.log(this.Id + " contains " + array_val);
 		//ctx.fillStyle = '#8ED6FF';
    		//ctx.fill();
    		//PLACE IMAGE
    		var midPoint = this.MidPoint;
    		var imageObj = new Image();
-   		imageObj.src = 'piece.png';
+   		imageObj.src = array_val.substring(0, array_val.length-1) + ".png";
 		imageObj.onload = function() {
         	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
       	};
@@ -115,6 +116,7 @@ HT.Hexagon.prototype.draw = function(ctx) {
 	}
 	
 	// draw text A1, B2, etc
+	/*
 	if (this.Id)
 	{
 		ctx.fillStyle = "black";
@@ -124,6 +126,7 @@ HT.Hexagon.prototype.draw = function(ctx) {
 		//var textWidth = ctx.measureText(this.Planet.BoundingHex.Id);
 		ctx.fillText(this.Id, this.MidPoint.X, this.MidPoint.Y);
 	}
+	*/
 	
 	// draw co-ordinates (3, 6), (5, 9), etc
 	if (this.PathCoOrdX !== null && this.PathCoOrdY !== null && typeof(this.PathCoOrdX) != "undefined" && typeof(this.PathCoOrdY) != "undefined")
@@ -133,7 +136,7 @@ HT.Hexagon.prototype.draw = function(ctx) {
 		ctx.textAlign = "center";
 		ctx.textBaseline = 'middle';
 		//var textWidth = ctx.measureText(this.Planet.BoundingHex.Id);
-		ctx.fillText("("+this.PathCoOrdX+","+this.PathCoOrdY+")", this.MidPoint.X, this.MidPoint.Y + 10);
+		ctx.fillText("("+this.PathCoOrdX+","+this.PathCoOrdY+")", this.MidPoint.X, this.MidPoint.Y);
 	}
 	
 	/*

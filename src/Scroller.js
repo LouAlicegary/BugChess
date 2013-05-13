@@ -42,7 +42,7 @@ var Scroller;
 			bouncing: true,
 
 			/** Enable locking to the main axis if user moves only slightly on one of them at start */
-			locking: true,
+			locking: false,
 
 			/** Enable pagination mode (switching between full page content panes) */
 			paging: false,
