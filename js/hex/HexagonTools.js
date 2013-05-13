@@ -102,6 +102,8 @@ HT.Hexagon.prototype.draw = function(ctx) {
 	//console.log("draw");
 	var array_val = arr[this.PathCoOrdX][this.PathCoOrdY];
 	if ( array_val != 0) {
+		var piece_stack = array_val.split(",");
+		array_val = piece_stack[(piece_stack.length)-1];
 		console.log(this.Id + " contains " + array_val);
 		//ctx.fillStyle = '#8ED6FF';
    		//ctx.fill();

@@ -2,6 +2,7 @@
 <html>
 
 <head>
+	<title>loualicegary.com / Bug Chess (alpha)</title>
 
 	<script type="text/javascript">
 		var arr = [];
@@ -15,6 +16,7 @@
 
 	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="https://raw.github.com/furf/jquery-ui-touch-punch/master/jquery.ui.touch-punch.js"></script>
 		
 	<script type="text/javascript" src="js/hex/HexagonTools.js"></script>
 	<script type="text/javascript" src="js/hex/Grid.js"></script>
@@ -48,43 +50,36 @@
 </head>
  
 <body>
-	<div id="black_spider2" class="game_piece black_spider" style="z-index: 2; position: absolute; top: 40px;"></div>
-	<div id="black_spider1" class="game_piece black_spider" style="z-index: 3; position: absolute; top: 80px;"></div>
-
-	<div id="black_ant3" class="game_piece black_ant" style="z-index: 4; position: absolute; top: 120px;"></div>
-	<div id="black_ant2" class="game_piece black_ant" style="z-index: 5; position: absolute; top: 160px;"></div>
-	<div id="black_ant1" class="game_piece black_ant" style="z-index: 6; position: absolute; top: 200px;"></div>
-
-	<div id="black_grasshopper3" class="game_piece black_grasshopper" style="z-index: 7; position: absolute; top: 240px;"></div>
-	<div id="black_grasshopper2" class="game_piece black_grasshopper" style="z-index: 8; position: absolute; top: 280px;"></div>
-	<div id="black_grasshopper1" class="game_piece black_grasshopper" style="z-index: 9; position: absolute; top: 320px;"></div>
-
-	<div id="black_beetle2" class="game_piece black_beetle" style="z-index: 10; position: absolute; top: 360px;"></div>
-	<div id="black_beetle1" class="game_piece black_beetle" style="z-index: 11; position: absolute; top: 400px;"></div>
-	
-	<div id="black_bee1" class="game_piece black_bee" style="z-index: 12; position: absolute; top: 440px;"></div>	
-	
-	
-	<div id="white_spider2" class="game_piece white_spider" style="position: absolute;"></div>
-	<div id="white_spider1" class="game_piece white_spider" style="position: absolute;"></div>
-	
+	<!-- WHITE PIECES -->
 	<div id="white_ant3" class="game_piece white_ant" style="position: absolute;"></div>
 	<div id="white_ant2" class="game_piece white_ant" style="position: absolute;"></div>
 	<div id="white_ant1" class="game_piece white_ant" style="position: absolute;"></div>
-	
 	<div id="white_grasshopper3" class="game_piece white_grasshopper" style="position: absolute;"></div>
 	<div id="white_grasshopper2" class="game_piece white_grasshopper" style="position: absolute;"></div>
 	<div id="white_grasshopper1" class="game_piece white_grasshopper" style="position: absolute;"></div>
-	
+	<div id="white_spider2" class="game_piece white_spider" style="position: absolute;"></div>
+	<div id="white_spider1" class="game_piece white_spider" style="position: absolute;"></div>
 	<div id="white_beetle2" class="game_piece white_beetle" style="position: absolute;"></div>
 	<div id="white_beetle1" class="game_piece white_beetle" style="position: absolute;"></div>
-	
 	<div id="white_bee1" class="game_piece white_bee" style="position: absolute;"></div>
+	
+	<!-- BLACK PIECES -->	
+	<div id="black_ant3" class="game_piece black_ant" style="position: absolute;"></div>
+	<div id="black_ant2" class="game_piece black_ant" style="position: absolute;"></div>
+	<div id="black_ant1" class="game_piece black_ant" style="position: absolute;"></div>
+	<div id="black_spider2" class="game_piece black_spider" style="position: absolute;"></div>
+	<div id="black_spider1" class="game_piece black_spider" style="position: absolute;"></div>
+	<div id="black_grasshopper3" class="game_piece black_grasshopper" style="position: absolute;"></div>
+	<div id="black_grasshopper2" class="game_piece black_grasshopper" style="position: absolute;"></div>
+	<div id="black_grasshopper1" class="game_piece black_grasshopper" style="position: absolute;"></div>
+	<div id="black_beetle2" class="game_piece black_beetle" style="position: absolute;"></div>
+	<div id="black_beetle1" class="game_piece black_beetle" style="position: absolute;"></div>
+	<div id="black_bee1" class="game_piece black_bee" style="position: absolute;"></div>	
 	
 	
 	<div id="container" style="z-index: 1;">
 		<div id="content" data-scrollable="true" data-zoomable="0.5-2.0">
-			<canvas id="hexCanvas">Your browser does not support HTML5.</canvas>
+			<canvas id="hexCanvas">Your browser does not support HTML5, so the game won't work. Sorry.</canvas>
 		</div>
 	</div>
 	
@@ -94,10 +89,9 @@
 		
 		$("#container").droppable({
       		drop: function( event, ui ) {
-      			var pos = $(ui.draggable).position(); //THIS WOULD BE MORE ACCURATE INSTEAD OF PAGEX/Y BUT NEED TO ADJUST CENTER BASED ON IMG SIZE
-      			updateGrid(event.pageX, event.pageY, ui);
-      			$(ui.draggable).hide();
-        		//alert("Pos: " + pos.left + ", " + pos.top + " Event: " + event.pageX + ", " + event.pageY + " MidPoint: " + getHexByCoords(event.pageX, event.pageY).MidPoint.X + ", " + getHexByCoords(event.pageX, event.pageY).MidPoint.Y);
+      			var pos = $(ui.draggable).position();
+      			updateGrid(pos.left + 50, pos.top + 40, ui);
+      			$(ui.draggable).hide(); 
       		}
     	});
 		
@@ -115,26 +109,45 @@
 		
 		var canvas = document.getElementById('hexCanvas');
 		canvas.addEventListener('click', clickHandler, false);
+		canvas.addEventListener('touchstart', clickHandler, false);
 				
 		function clickHandler(event) {
+			// GET CLICKED HEX
 			var clicked_hex = getHexByCoords(event.pageX, event.pageY);
 			var arr_value = arr[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
+			
+			// IF HEX IS FILLED
 			if ( arr_value != 0) {
+				
+				var n = arr_value.lastIndexOf(",");
+				if (n) {
+					// IF HEX HAS 2+ PIECES
+					arr_value = arr_value.substring(n+1);
+				}
 				removePieceFromGrid(event.pageX, event.pageY);
 				
 				var new_point = gridToPageCoords(getHexByCoords(event.pageX, event.pageY).MidPoint.X, getHexByCoords(event.pageX, event.pageY).MidPoint.Y);
-				
 				var new_bg = "selected" + arr_value.substring(5, arr_value.length-1) + ".png";
-				
-				$("#" + arr_value).css({ //moves center of tile to where I clicked
+				$("#" + arr_value).css({ // CENTERS TILE OVER HEX. 35/45 vs 40/50 BECAUSE OF 5PX CANVAS DIV BORDER
        				top: new_point.Y-35,
        				left: new_point.X-45,
        				background: 'url("pieces/' + new_bg + '")'
      			});
-     			
 				$("#" + arr_value).show();
 			}		
-	    }		
+	    }	
+	    
+	    // THIS SECTION FLOATS HOVERED-OVER PIECE TO TOP OF Z STACK
+	    var zdex = 0;
+	    
+        $(".game_piece").mouseenter(function(){
+        	zdex = $(this).css('zIndex');
+  			$(this).css({'z-index': 50}); 
+  		});
+  		
+  		$(".game_piece").mouseleave(function(){
+  			$(this).css({'z-index': zdex});
+		});	
 	   
 	});    	
 	</script>

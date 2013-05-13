@@ -123,13 +123,33 @@ function getHexByCoords(thepageX, thepageY)
 function updateGrid(thepageX, thepageY, theui)
 {
 	var the_hex = getHexByCoords(thepageX, thepageY);
-	arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY] = $(theui.draggable).attr('id');	
+	var stack_string = arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY];
+	if (stack_string) {
+		arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY] += "," + $(theui.draggable).attr('id');
+	}
+	else {
+		arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY] = $(theui.draggable).attr('id');
+	}
+		
 	getHexGridWH();	
 }
 
 function removePieceFromGrid(thepageX, thepageY) 
 {
 	var the_hex = getHexByCoords(thepageX, thepageY);
-	arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY] = 0;	
+	var old_value = arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY];
+	var piece_stack = old_value.split(",");
+	var stack_string = "";
+	if (piece_stack.length > 1) {
+		for (i=0; i<piece_stack.length-1; i++) {
+			stack_string += piece_stack[i] + ","; 
+		}
+		stack_string = stack_string.substring(0, (stack_string.length)-1);
+		arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY] = stack_string;
+	}
+	else {
+		arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY] = 0;
+	}
+		
 	getHexGridWH();	
 }
