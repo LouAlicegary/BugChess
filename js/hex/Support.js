@@ -124,6 +124,7 @@ function updateGrid(thepageX, thepageY, theui)
 {
 	var the_hex = getHexByCoords(thepageX, thepageY);
 	var stack_string = arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY];
+	//MODEL
 	if (stack_string) {
 		arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY] += "," + $(theui.draggable).attr('id');
 	}
@@ -132,6 +133,9 @@ function updateGrid(thepageX, thepageY, theui)
 	}
 		
 	getHexGridWH();	
+	
+	var the_string = the_hex.PathCoOrdX + "," + the_hex.PathCoOrdY;
+	return the_string;
 }
 
 function removePieceFromGrid(thepageX, thepageY) 
@@ -140,6 +144,7 @@ function removePieceFromGrid(thepageX, thepageY)
 	var old_value = arr[the_hex.PathCoOrdX][the_hex.PathCoOrdY];
 	var piece_stack = old_value.split(",");
 	var stack_string = "";
+	//MODEL
 	if (piece_stack.length > 1) {
 		for (i=0; i<piece_stack.length-1; i++) {
 			stack_string += piece_stack[i] + ","; 

@@ -99,15 +99,13 @@ HT.Hexagon.prototype.draw = function(ctx) {
 	ctx.stroke();
 	
 	// fill hexagon if it's been clicked previously
-	//console.log("draw");
+	//MODEL
 	var array_val = arr[this.PathCoOrdX][this.PathCoOrdY];
 	if ( array_val != 0) {
 		var piece_stack = array_val.split(",");
 		array_val = piece_stack[(piece_stack.length)-1];
 		console.log(this.Id + " contains " + array_val);
-		//ctx.fillStyle = '#8ED6FF';
-   		//ctx.fill();
-   		//PLACE IMAGE
+
    		var midPoint = this.MidPoint;
    		var imageObj = new Image();
    		imageObj.src = "pieces/" + array_val.substring(0, array_val.length-1) + ".png";
@@ -117,19 +115,6 @@ HT.Hexagon.prototype.draw = function(ctx) {
       	
 	}
 	
-	// draw text A1, B2, etc
-	/*
-	if (this.Id)
-	{
-		ctx.fillStyle = "black";
-		ctx.font = "bolder 8pt Trebuchet MS,Tahoma,Verdana,Arial,sans-serif";
-		ctx.textAlign = "center";
-		ctx.textBaseline = 'middle';
-		//var textWidth = ctx.measureText(this.Planet.BoundingHex.Id);
-		ctx.fillText(this.Id, this.MidPoint.X, this.MidPoint.Y);
-	}
-	*/
-	
 	// draw co-ordinates (3, 6), (5, 9), etc
 	if (this.PathCoOrdX !== null && this.PathCoOrdY !== null && typeof(this.PathCoOrdX) != "undefined" && typeof(this.PathCoOrdY) != "undefined")
 	{
@@ -138,34 +123,9 @@ HT.Hexagon.prototype.draw = function(ctx) {
 		ctx.textAlign = "center";
 		ctx.textBaseline = 'middle';
 		//var textWidth = ctx.measureText(this.Planet.BoundingHex.Id);
-		ctx.fillText("("+this.PathCoOrdX+","+this.PathCoOrdY+")", this.MidPoint.X, this.MidPoint.Y);
+		ctx.fillText("(" + this.PathCoOrdX + "," + this.PathCoOrdY + ")", this.MidPoint.X, this.MidPoint.Y);
 	}
 	
-	/*
-	if (HT.Hexagon.Static.DRAWSTATS)
-	{
-		ctx.strokeStyle = "black";
-		ctx.lineWidth = 2;
-		//draw our x1, y1, and z
-		ctx.beginPath();
-		ctx.moveTo(this.P1.X, this.y);
-		ctx.lineTo(this.P1.X, this.P1.Y);
-		ctx.lineTo(this.x, this.P1.Y);
-		ctx.closePath();
-		ctx.stroke();
-		
-		ctx.fillStyle = "black"
-		ctx.font = "bolder 8pt Trebuchet MS,Tahoma,Verdana,Arial,sans-serif";
-		ctx.textAlign = "left";
-		ctx.textBaseline = 'middle';
-		//var textWidth = ctx.measureText(this.Planet.BoundingHex.Id);
-		ctx.fillText("z", this.x + this.x1/2 - 8, this.y + this.y1/2);
-		ctx.fillText("x", this.x + this.x1/2, this.P1.Y + 10);
-		ctx.fillText("y", this.P1.X + 2, this.y + this.y1/2);
-		ctx.fillText("z = " + HT.Hexagon.Static.SIDE, this.P1.X, this.P1.Y + this.y1 + 10);
-		ctx.fillText("(" + this.x1.toFixed(2) + "," + this.y1.toFixed(2) + ")", this.P1.X, this.P1.Y + 10);
-	}
-	*/
 };
 
 /**
@@ -230,10 +190,13 @@ HT.Hexagon.Orientation = {
 	Rotated: 1
 };
 
-HT.Hexagon.Static = {HEIGHT:91.14378277661477
-					, WIDTH:91.14378277661477
-					, SIDE:50.0
-					, ORIENTATION:HT.Hexagon.Orientation.Normal
-					, DRAWSTATS: false}; //hexagons will have 25 unit sides for now
+HT.Hexagon.Static = {
+	// THIS GETS SET DYNAMICALLY IN SUPPORT.JS
+	HEIGHT:91.14378277661477, 
+	WIDTH:91.14378277661477, 
+	SIDE:50.0, 
+	ORIENTATION:HT.Hexagon.Orientation.Normal, 
+	DRAWSTATS: false
+};
 
 
