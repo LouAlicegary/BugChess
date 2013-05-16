@@ -35,29 +35,17 @@ HT.Line = function(x1, y1, x2, y2) {
  * @constructor
  */
 HT.Hexagon = function(id, x, y) {
+	
+	var x1 = (HT.Hexagon.Static.WIDTH - HT.Hexagon.Static.SIDE)/2;
+	var y1 = (HT.Hexagon.Static.HEIGHT / 2);
+	
 	this.Points = [];//Polygon Base
-	var x1 = null;
-	var y1 = null;
-	if(HT.Hexagon.Static.ORIENTATION == HT.Hexagon.Orientation.Normal) {
-		x1 = (HT.Hexagon.Static.WIDTH - HT.Hexagon.Static.SIDE)/2;
-		y1 = (HT.Hexagon.Static.HEIGHT / 2);
-		this.Points.push(new HT.Point(x1 + x, y));
-		this.Points.push(new HT.Point(x1 + HT.Hexagon.Static.SIDE + x, y));
-		this.Points.push(new HT.Point(HT.Hexagon.Static.WIDTH + x, y1 + y));
-		this.Points.push(new HT.Point(x1 + HT.Hexagon.Static.SIDE + x, HT.Hexagon.Static.HEIGHT + y));
-		this.Points.push(new HT.Point(x1 + x, HT.Hexagon.Static.HEIGHT + y));
-		this.Points.push(new HT.Point(x, y1 + y));
-	}
-	else {
-		x1 = (HT.Hexagon.Static.WIDTH / 2);
-		y1 = (HT.Hexagon.Static.HEIGHT - HT.Hexagon.Static.SIDE)/2;
-		this.Points.push(new HT.Point(x1 + x, y));
-		this.Points.push(new HT.Point(HT.Hexagon.Static.WIDTH + x, y1 + y));
-		this.Points.push(new HT.Point(HT.Hexagon.Static.WIDTH + x, y1 + HT.Hexagon.Static.SIDE + y));
-		this.Points.push(new HT.Point(x1 + x, HT.Hexagon.Static.HEIGHT + y));
-		this.Points.push(new HT.Point(x, y1 + HT.Hexagon.Static.SIDE + y));
-		this.Points.push(new HT.Point(x, y1 + y));
-	}
+	this.Points.push(new HT.Point(x1 + x, y));
+	this.Points.push(new HT.Point(x1 + HT.Hexagon.Static.SIDE + x, y));
+	this.Points.push(new HT.Point(HT.Hexagon.Static.WIDTH + x, y1 + y));
+	this.Points.push(new HT.Point(x1 + HT.Hexagon.Static.SIDE + x, HT.Hexagon.Static.HEIGHT + y));
+	this.Points.push(new HT.Point(x1 + x, HT.Hexagon.Static.HEIGHT + y));
+	this.Points.push(new HT.Point(x, y1 + y));
 	
 	this.Id = id;
 	
@@ -73,8 +61,7 @@ HT.Hexagon = function(id, x, y) {
 	this.P1 = new HT.Point(x + x1, y + y1);
 	
 	this.selected = false;
-	
-	//this.filled = 0;
+
 };
 	
 /**
@@ -98,17 +85,29 @@ HT.Hexagon.prototype.draw = function(ctx) {
 	ctx.closePath();
 	ctx.stroke();
 	
-	// fill hexagon if it's been clicked previously
+	
 	//MODEL
-	var array_val = arr[this.PathCoOrdX][this.PathCoOrdY];
-	if ( array_val != 0) {
-		var piece_stack = array_val.split(",");
-		array_val = piece_stack[(piece_stack.length)-1];
-		console.log(this.Id + " contains " + array_val);
+	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
+	if ( array_val != 0) { // fill hexagon in canvas if a piece exists there
+		
+		var piece_stack = Array();
+		
+		if (array_val.indexOf(",") != -1) {
+			piece_stack = array_val.split(",");
+		}	
+		else {
+			piece_stack[0] = array_val;
+		}
+			
+		for (var i=0; i<piece_stack.length; i++) {
+			$("#" + piece_stack[i]).hide();
+		}
+		
+		top_piece = piece_stack[piece_stack.length-1];
 
    		var midPoint = this.MidPoint;
    		var imageObj = new Image();
-   		imageObj.src = "pieces/" + array_val.substring(0, array_val.length-1) + ".png";
+   		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
 		imageObj.onload = function() {
         	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
       	};
@@ -126,6 +125,107 @@ HT.Hexagon.prototype.draw = function(ctx) {
 		ctx.fillText("(" + this.PathCoOrdX + "," + this.PathCoOrdY + ")", this.MidPoint.X, this.MidPoint.Y);
 	}
 	
+};
+
+
+
+/**
+ * draws this Hexagon to the canvas
+ * @this {HT.Hexagon}
+ */
+HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
+
+	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
+	if ( array_val != 0) { // fill hexagon in canvas if a piece exists there
+		
+		var piece_stack = Array();
+		
+		if (array_val.indexOf(",") != -1) {
+			piece_stack = array_val.split(",");
+		}	
+		else {
+			piece_stack[0] = array_val;
+		}
+			
+		for (var i=0; i<piece_stack.length; i++) {
+			$("#" + piece_stack[i]).hide();
+		}
+		
+		top_piece = piece_stack[piece_stack.length-1];
+
+   		var midPoint = this.MidPoint;
+   		var imageObj = new Image();
+   		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
+		imageObj.onload = function() {
+        	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
+      	};
+      	
+	}
+	
+	//Logger("HT: (165) PIECE DRAWN TO CANVAS");
+	
+};
+
+
+/**
+ * draws this Hexagon to the canvas
+ * @this {HT.Hexagon}
+ */
+HT.Hexagon.prototype.removePieceFromCanvas = function(ctx) {
+
+	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
+	//Logger("HT: (177) Contents of hex after removal = " + array_val);
+	
+	if ( array_val != 0) { // fill hexagon in canvas if a piece exists there
+		
+		var piece_stack = Array();
+		
+		if (array_val.indexOf(",") != -1) {
+			piece_stack = array_val.split(",");
+			Logger("piece_stack = " + piece_stack.length)
+		}	
+		else {
+			piece_stack[0] = array_val;
+		}
+			
+		for (var i=0; i<piece_stack.length; i++) {
+			$("#" + piece_stack[i]).hide();
+		}
+		
+		top_piece = piece_stack[piece_stack.length-1];
+		//Logger("HT: (195) Piece Drawn to Canvas in source hex = " + top_piece);
+
+   		var midPoint = this.MidPoint;
+   		var imageObj = new Image();
+   		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
+		imageObj.onload = function() {
+        	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
+      	};
+      	
+	}
+	else { // draw co-ordinates (3, 6), (5, 9), etc
+		//Logger("HT: (207) Hex is now blank");
+		ctx.strokeStyle = "grey";
+		ctx.fillStyle = "white";
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(this.Points[0].X, this.Points[0].Y);
+		for(var i = 1; i < this.Points.length; i++)
+		{
+			var p = this.Points[i];
+			ctx.lineTo(p.X, p.Y);
+		}
+		ctx.closePath();
+		ctx.fill();
+		ctx.stroke();		
+
+		ctx.fillStyle = "red";
+		ctx.font = "bolder 8pt Trebuchet MS,Tahoma,Verdana,Arial,sans-serif";
+		ctx.textAlign = "center";
+		ctx.textBaseline = 'middle';
+		ctx.fillText("(" + this.PathCoOrdX + "," + this.PathCoOrdY + ")", this.MidPoint.X, this.MidPoint.Y);	
+	}
+	//Logger("HT: PIECE REMOVED FROM CANVAS");
 };
 
 /**
@@ -151,10 +251,6 @@ HT.Hexagon.prototype.isInHexBounds = function(/*Point*/ p) {
 	return false;
 };
 
-//grabbed from:
-//http://www.developingfor.net/c-20/testing-to-see-if-a-point-is-within-a-polygon.html
-//and
-//http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html#The%20C%20Code
 /**
  * Returns true if the point is inside this hexagon, it first uses the quick isInHexBounds contains, then check the boundaries
  * @this {HT.Hexagon}
@@ -183,6 +279,13 @@ HT.Hexagon.prototype.Contains = function(/*Point*/ p) {
 
 HT.Hexagon.prototype.GetID = function() {
 	return this.Id;
+}
+
+HT.Hexagon.prototype.GetLocation = function() {
+	var x_coord = this.PathCoOrdX;
+	var y_coord = this.PathCoOrdY;
+	var the_string = x_coord + "," + y_coord;
+	return the_string;
 }
 
 HT.Hexagon.Orientation = {

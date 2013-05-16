@@ -6,23 +6,26 @@
 
 	<script type="text/javascript">
 		//MODEL
-		var arr = [];
-		for(var x = 0; x < 100; x++) {
-		    arr[x] = [];    
-		    for(var y = 0; y < 100; y++) { 
-		        arr[x][y] = 0;    
-		    }    
-		}	
+	
 			
 	</script>
 
-	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-	<script src="https://raw.github.com/furf/jquery-ui-touch-punch/master/jquery.ui.touch-punch.js"></script>
-		
-	<script type="text/javascript" src="js/hex/HexagonTools.js"></script>
-	<script type="text/javascript" src="js/hex/Grid.js"></script>
-	<script type="text/javascript" src="js/hex/Support.js"></script>
+	<!-- jQuery -->
+	<script src="js/jquery//jquery-1.9.1.min.js"></script>
+	<script src="js/jquery/jquery-ui-1.10.3.min.js"></script>
+	<script src="js/jquery/jquery.ui.touch-punch.min.js"></script>
+	<!-- jQuery Touch Punch -->
+	
+	
+	<!-- MVC Architecture -->
+	<script src="js/MODEL.js"></script>
+	<script src="js/VIEW.js"></script>
+	<script src="js/logger.js"></script>
+	
+	<!-- Hex -->	
+	<script src="js/hex/HexagonTools.js"></script>
+	<script src="js/hex/Grid.js"></script>
+	<script src="js/hex/Support.js"></script>
 	
 	<!-- Scroller -->
 	<script src="js/scroller/Animate.js"></script>
@@ -87,108 +90,80 @@
 	
 	<script type="text/javascript">
 	$(document).ready(function() {
-		
-		var request = $.ajax({
-		 	url: "get_board_from_db.php",
-			type: "POST",
-			data: {},
-			dataType: "json"
-		});
-    	request.success(function(data) {
-        	for (i=0; i < arr.length; i++) {
-        		arr[i] = data[i];
-        		for (j=0; j < arr[0].length; j++)
-        			if (arr[i][j] != "")
-        				console.log(arr[i][j] + " found at " + i + "," + j);
-        	}
-        	getHexGridWH();
-     	});
-		request.fail(function(jqXHR, textStatus) {
-  			alert( "Request failed: " + textStatus );
-  			 //alert( jqXHR.responseText);
-		});
-		
-		
-		var origin = ""; // USED TO STORE INITIAL LOCATION OF MOVED PIECE
-		
+				
 		$(".game_piece").draggable({revert: "invalid"});
+		$(".game_piece").attr('origin', '');
 		
 		$("#container").droppable({
       		drop: function( event, ui ) {
-      			var pos = $(ui.draggable).position();
-      			var destination_string = updateGrid(pos.left + 50, pos.top + 40, ui);
-      			$(ui.draggable).hide();
       			
+      			var pos = $(ui.draggable).position();
+      			var hex_midpoint = new HT.Point(pos.left + 50, pos.top + 40);
       			var piece_id = $(ui.draggable).attr("id");
-      			//piece_id = piece_id.substring(0, piece_id.length-1);
+      			var origin = $(ui.draggable).attr('origin');
+				var the_hex = getHexByCoords(hex_midpoint.X, hex_midpoint.Y);
+      			var destination_string = the_hex.GetLocation();
+      			//Logger("DROP FUNCTION: PIECE " + piece_id + " MOVED FROM " + origin + " TO " + destination_string);
+
       			//MODEL
-				var request = $.ajax({
-				 	url: "place_piece.php",
-					type: "POST",
-					data: {piece : piece_id, destination : destination_string, origin : origin},
-					dataType: "html"
-				});
-				origin = "";
+				MODEL_addPieceToGrid(destination_string, piece_id);
+				MODEL_addMoveToDB(piece_id, destination_string, origin);
+
+				//VIEW
+				$(ui.draggable).hide();
+				$("#" + piece_id).hide();
+				$("#" + piece_id).attr('origin', the_hex.GetLocation());  
+				VIEW_draw_piece_on_canvas(the_hex);
+				//getHexGridWH();
+				
+				Logger("---------------------------------------------------------*");
       		}
     	});
 		
-		$(".game_piece").each(function(i, obj) {
-    		y_offset = (i % 11) * 40 + 100;
-    		x_offset = Math.floor(i / 11) * (.9 * window.innerWidth) + (((window.innerWidth/10)-100)/2);
-    		$('#' + obj.getAttribute('id')).css({
-    			'top': y_offset,
-    			'left': x_offset,
-    			'z-index': i+2
-    		})
-		});
+		VIEW_initGamePieces();
 		
-		getHexGridWH(); //MOVED TO AJAX SUCCESS
+		VIEW_draw_empty_grid();
 		
 		var canvas = document.getElementById('hexCanvas');
 		canvas.addEventListener('click', clickHandler, false);
 		canvas.addEventListener('touchstart', clickHandler, false);
-				
-		function clickHandler(event) {
-			// GET CLICKED HEX
-			var clicked_hex = getHexByCoords(event.pageX, event.pageY);
-			var arr_value = arr[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
-			origin = clicked_hex.PathCoOrdX + "," + clicked_hex.PathCoOrdY;
+
+		var moves_array = Array();
+		var da_width = $("#hexCanvas").innerWidth();
+		var da_height = $("#hexCanvas").innerWidth();
+		var grid = new HT.Grid(da_width, da_height); 
+
+		// POLLS SERVER FOR UPDATES TO SERVER
+		
+		$(function(){window.setInterval(function(){
+			Logger("*----------------------------------------------------------");
+			Logger("POLLER");
 			
-			// IF HEX IS FILLED
-			if ( arr_value != 0) {
-				
-				var n = arr_value.lastIndexOf(",");
-				if (n) {
-					// IF HEX HAS 2+ PIECES
-					arr_value = arr_value.substring(n+1);
+			// get new moves from model
+			// for each move, update view based on single move
+			
+			var moves_array = MODEL_updateArrayFromDB();
+			Logger("POLLER: (141) moves_array len " + moves_array.length);
+
+				for (var i=0; i < moves_array.length; i++) {
+					//Logger("POLLER: (147) moves_array[" + i + "] len = " + moves_array[i].length);
+   					
+   					if (moves_array[i][3] !== "") {
+   						//Logger("moves_array[" + i + "][3] = " + moves_array[i][3]);
+   						VIEW_removePieceFromCanvas(grid.GetHexByXYIndex(moves_array[i][3]));
+   					}
+   					// destination add piece
+   					VIEW_draw_piece_on_canvas(grid.GetHexByXYIndex(moves_array[i][4]));
 				}
-				//MODEL
-				removePieceFromGrid(event.pageX, event.pageY);
-				
-				var new_point = gridToPageCoords(getHexByCoords(event.pageX, event.pageY).MidPoint.X, getHexByCoords(event.pageX, event.pageY).MidPoint.Y);
-				var new_bg = "selected" + arr_value.substring(5, arr_value.length-1) + ".png";
-				$("#" + arr_value).css({ // CENTERS TILE OVER HEX. 35/45 vs 40/50 BECAUSE OF 5PX CANVAS DIV BORDER
-       				top: new_point.Y-35,
-       				left: new_point.X-45,
-       				background: 'url("pieces/' + new_bg + '")'
-     			});
-				$("#" + arr_value).show();
-			}		
-	    }	
-	    
-	    // THIS SECTION FLOATS HOVERED-OVER PIECE TO TOP OF Z STACK
-	    var zdex = 0;
-	    
-        $(".game_piece").mouseenter(function(){
-        	zdex = $(this).css('zIndex');
-  			$(this).css({'z-index': 50}); 
-  		});
-  		
-  		$(".game_piece").mouseleave(function(){
-  			$(this).css({'z-index': zdex});
-		});	
-	   
-	});    	
+			
+			Logger("----------------------------------------------------------*");
+		},3000)});	
+		
+		
+		
+		
+	}); 	
+	
 	</script>
 
 </body>

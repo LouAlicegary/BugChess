@@ -18,10 +18,7 @@ HT.Grid = function(/*double*/ width, /*double*/ height) {
 		
 		if (row % 2 == 1)
 		{
-			if(HT.Hexagon.Static.ORIENTATION == HT.Hexagon.Orientation.Normal)
-				offset = (HT.Hexagon.Static.WIDTH - HT.Hexagon.Static.SIDE)/2 + HT.Hexagon.Static.SIDE;
-			else
-				offset = HT.Hexagon.Static.WIDTH / 2;
+			offset = (HT.Hexagon.Static.WIDTH - HT.Hexagon.Static.SIDE)/2 + HT.Hexagon.Static.SIDE;
 			col = 1;
 		}
 		
@@ -33,15 +30,7 @@ HT.Grid = function(/*double*/ width, /*double*/ height) {
 			var h = new HT.Hexagon(hexId, x, y);
 			var pathCoOrd = col;
 			
-			if (HT.Hexagon.Static.ORIENTATION == HT.Hexagon.Orientation.Normal) {
-				h.PathCoOrdX = col;
-				//the column is the x coordinate of the hex, for the y coordinate we need to get more fancy
-			}
-			else {
-				h.PathCoOrdY = row;
-				pathCoOrd = row;
-			}
-			
+			h.PathCoOrdX = col;
 			this.Hexes.push(h);
 			
 			if (!HexagonsByXOrYCoOrd[pathCoOrd])
@@ -51,18 +40,12 @@ HT.Grid = function(/*double*/ width, /*double*/ height) {
 
 			col+=2;
 			
-			if(HT.Hexagon.Static.ORIENTATION == HT.Hexagon.Orientation.Normal)
-				x += HT.Hexagon.Static.WIDTH + HT.Hexagon.Static.SIDE;
-			else
-				x += HT.Hexagon.Static.WIDTH;
+			x += HT.Hexagon.Static.WIDTH + HT.Hexagon.Static.SIDE;
 		}
 		
 		row++;
 		
-		if(HT.Hexagon.Static.ORIENTATION == HT.Hexagon.Orientation.Normal)
-			y += HT.Hexagon.Static.HEIGHT / 2;
-		else
-			y += (HT.Hexagon.Static.HEIGHT - HT.Hexagon.Static.SIDE)/2 + HT.Hexagon.Static.SIDE;
+		y += HT.Hexagon.Static.HEIGHT / 2;
 	}
 
 	//finally go through our list of hexagons by their x co-ordinate to assign the y co-ordinate
@@ -73,10 +56,7 @@ HT.Grid = function(/*double*/ width, /*double*/ height) {
 		for (var i in hexagonsByXOrY)
 		{
 			var h = hexagonsByXOrY[i];//Hexagon
-			if(HT.Hexagon.Static.ORIENTATION == HT.Hexagon.Orientation.Normal)
-				h.PathCoOrdY = coOrd2++;
-			else
-				h.PathCoOrdX = coOrd2++;
+			h.PathCoOrdY = coOrd2++;
 		}
 	}
 };
@@ -106,7 +86,6 @@ HT.Grid.prototype.GetHexAt = function(/*Point*/ p) {
 	{
 		if (this.Hexes[h].Contains(p))
 		{
-			//alert("CONTAINS P");
 			return this.Hexes[h];
 		}
 	}
@@ -136,6 +115,23 @@ HT.Grid.prototype.GetHexById = function(id) {
 	for(var i in this.Hexes)
 	{
 		if(this.Hexes[i].Id == id)
+		{
+			return this.Hexes[i];
+		}
+	}
+	return null;
+};
+
+/**
+ * Returns a distance between two hexes
+ * @this {HT.Grid}
+ * @return {HT.Hexagon}
+ */
+HT.Grid.prototype.GetHexByXYIndex = function(xy_string) {
+	xy_array = xy_string.split(",");
+	for(var i in this.Hexes)
+	{
+		if(this.Hexes[i].PathCoOrdX == xy_array[0] && this.Hexes[i].PathCoOrdY == xy_array[1])
 		{
 			return this.Hexes[i];
 		}
