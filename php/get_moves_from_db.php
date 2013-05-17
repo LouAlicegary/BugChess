@@ -2,15 +2,6 @@
 
 	$a = array(array(0)); // array of columns
 	
-	//$a["moves"] = array();
-	/*
-	for($c=0; $c<100; $c++){
-	    $a[$c] = array(); // array of cells for column $c
-	    for($r=0; $r<100; $r++){
-	        $a[$c][$r] = 0;//"";
-	    }
-	}
-	*/
 	mysql_connect("localhost", "sweetlou_bc", "sweetlou_bc") or die(mysql_error());
     mysql_select_db("sweetlou_bugchess") or die(mysql_error());
     

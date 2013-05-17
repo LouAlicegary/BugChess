@@ -86,34 +86,6 @@ HT.Hexagon.prototype.draw = function(ctx) {
 	ctx.stroke();
 	
 	
-	//MODEL
-	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
-	if ( array_val != 0) { // fill hexagon in canvas if a piece exists there
-		
-		var piece_stack = Array();
-		
-		if (array_val.indexOf(",") != -1) {
-			piece_stack = array_val.split(",");
-		}	
-		else {
-			piece_stack[0] = array_val;
-		}
-			
-		for (var i=0; i<piece_stack.length; i++) {
-			$("#" + piece_stack[i]).hide();
-		}
-		
-		top_piece = piece_stack[piece_stack.length-1];
-
-   		var midPoint = this.MidPoint;
-   		var imageObj = new Image();
-   		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
-		imageObj.onload = function() {
-        	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
-      	};
-      	
-	}
-	
 	// draw co-ordinates (3, 6), (5, 9), etc
 	if (this.PathCoOrdX !== null && this.PathCoOrdY !== null && typeof(this.PathCoOrdX) != "undefined" && typeof(this.PathCoOrdY) != "undefined")
 	{
@@ -182,7 +154,7 @@ HT.Hexagon.prototype.removePieceFromCanvas = function(ctx) {
 		
 		if (array_val.indexOf(",") != -1) {
 			piece_stack = array_val.split(",");
-			Logger("piece_stack = " + piece_stack.length)
+			//Logger("piece_stack = " + piece_stack.length)
 		}	
 		else {
 			piece_stack[0] = array_val;

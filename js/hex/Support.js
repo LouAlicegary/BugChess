@@ -21,10 +21,7 @@ function pageToGridCoords(thepageX, thepageY)
 	var y_scroll = string_array[5].slice(0, - 1);
     canvasX = thepageX - totalOffsetX - x_scroll;
     canvasY = thepageY - totalOffsetY - y_scroll;   
-	//alert("Hex ID: " + grid.GetHexAt(new HT.Point(canvasX, canvasY)).id);
-	//console.log("canvasX (" + canvasX + ") = event.pageX (" + thepageX + ") - totalOffsetX (" + totalOffsetX + ") - x_scroll (" + x_scroll + ")")
-	//console.log("canvasY (" + canvasY + ") = event.pageY (" + thepageY + ") - totalOffsetY (" + totalOffsetY + ") - y_scroll (" + y_scroll + ")")
-		
+
 	var new_point = new HT.Point(canvasX, canvasY);
 	return new_point;
 }
@@ -69,22 +66,43 @@ function getHexByCoords(thepageX, thepageY)
 
 
 function clickHandler(event) {
-	// GET CLICKED HEX
-	Logger("*---------------------------------------------------------");
+
 	var clicked_hex = getHexByCoords(event.pageX, event.pageY);
-	var arr_value = GRID_ARRAY[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
+	var hex_contents = GRID_ARRAY[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
 	var new_point = gridToPageCoords(getHexByCoords(event.pageX, event.pageY).MidPoint.X, getHexByCoords(event.pageX, event.pageY).MidPoint.Y);
 	
-	$("#" + arr_value).attr('origin', clicked_hex.GetLocation());
-	Logger("CLICKED ON " + $('#' + arr_value).attr('origin') + "arr_value = " + arr_value); 
+	$("#" + hex_contents).attr('origin', clicked_hex.GetLocation());
+	Logger("CLICKED ON " + $('#' + hex_contents).attr('origin') + "hex_contents = " + hex_contents); 
 
 	// IF HEX IS FILLED
-	if ( arr_value != 0) {
+	if ( hex_contents != 0) {
 
-		//MODEL_removePieceFromGrid(event.pageX, event.pageY);
-		MODEL_removePieceFromGrid(clicked_hex.PathCoOrdX, clicked_hex.PathCoOrdY);
+		MODEL_removePieceFromArray(clicked_hex.PathCoOrdX, clicked_hex.PathCoOrdY);
 		
-		VIEW_showDraggablePiece(arr_value, new_point);
+		VIEW_showDraggablePiece(hex_contents, new_point);
 		VIEW_removePieceFromCanvas(clicked_hex);
 	}		
 }	
+
+function dropFunction( event, ui ) {
+      			
+	var pos = $(ui.draggable).position();
+	var hex_midpoint = new HT.Point(pos.left + 50, pos.top + 40);
+	var piece_id = $(ui.draggable).attr("id");
+	var origin = $(ui.draggable).attr('origin');
+	var the_hex = getHexByCoords(hex_midpoint.X, hex_midpoint.Y);
+	var destination_string = the_hex.GetLocation();
+	//Logger("DROP FUNCTION: PIECE " + piece_id + " MOVED FROM " + origin + " TO " + destination_string);
+
+	//MODEL
+	MODEL_addPieceToArray(destination_string, piece_id);
+	MODEL_addMoveToDB(piece_id, destination_string, origin);
+
+	//VIEW
+	$(ui.draggable).css({ background: "url('pieces/" + piece_id.substring(0, piece_id.length-1) + ".png')" });
+	$(ui.draggable).hide();
+	$(ui.draggable).trigger('mouseleave');
+	$(ui.draggable).attr('origin', the_hex.GetLocation());  
+	
+	VIEW_draw_piece_on_canvas(the_hex);
+}

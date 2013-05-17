@@ -61,6 +61,7 @@ HT.Grid = function(/*double*/ width, /*double*/ height) {
 	}
 };
 
+
 HT.Grid.Static = {Letters:'ABCDEFGHIJKLMNOPQRSTUVWXYZ'};
 
 HT.Grid.prototype.GetHexId = function(row, col) {
@@ -74,6 +75,9 @@ HT.Grid.prototype.GetHexId = function(row, col) {
 		
 	return HT.Grid.Static.Letters[letterIndex] + letters + (col + 1);
 };
+
+
+
 
 /**
  * Returns a hex at a given point
