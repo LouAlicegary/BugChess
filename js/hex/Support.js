@@ -1,4 +1,5 @@
-function pageToGridCoords(thepageX, thepageY)
+// USED ONLY IN SUPPORT_getHexByWindowCoords
+function SUPPORT_pageToGridCoords(thepageX, thepageY)
 {
     var totalOffsetX = 0;
     var totalOffsetY = 0;
@@ -26,7 +27,8 @@ function pageToGridCoords(thepageX, thepageY)
 	return new_point;
 }
 
-function gridToPageCoords(canvasX, canvasY) //receive midpoints of hex
+// USED ONLY IN CLICK HANDLER FUNCTION
+function SUPPORT_gridToPageCoords(canvasX, canvasY) //receive midpoints of hex
 {
     var totalOffsetX = 0;
     var totalOffsetY = 0;
@@ -50,59 +52,103 @@ function gridToPageCoords(canvasX, canvasY) //receive midpoints of hex
 	return new_point;	
 }
 
-function getHexByCoords(thepageX, thepageY)
-{
-	var real_point = pageToGridCoords(thepageX, thepageY);
+// USED IN CLICK AND DROP EVENTS
+function SUPPORT_getHexByWindowCoords(thepageX, thepageY)
+{	
+	var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());   	
+	
+	var real_point = SUPPORT_pageToGridCoords(thepageX, thepageY);
 	canvasX = real_point.X;
-	canvasY = real_point.Y;
+	canvasY = real_point.Y; 	
 	
-	var da_width = $("#hexCanvas").innerWidth();
-	var da_height = $("#hexCanvas").innerWidth();
-	var grid = new HT.Grid(da_width, da_height);   	
+	var the_hex = grid.GetHexAt(new HT.Point(canvasX, canvasY));
 	
-	return grid.GetHexAt(new HT.Point(canvasX, canvasY));	
+	var max_array = grid.GetMaxXY(); 
+	
+	if (the_hex) {
+		if ( (the_hex.PathCoOrdX <= max_array[0]) && (the_hex.PathCoOrdY <= max_array[1]) )
+			return the_hex;
+		else
+			return 0;		
+	}	
+	else {
+		return 0;
+	}
+
 }
 
 
 
-function clickHandler(event) {
+function clickOnCanvas(event) {
 
-	var clicked_hex = getHexByCoords(event.pageX, event.pageY);
-	var hex_contents = GRID_ARRAY[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
-	var new_point = gridToPageCoords(getHexByCoords(event.pageX, event.pageY).MidPoint.X, getHexByCoords(event.pageX, event.pageY).MidPoint.Y);
+	var clicked_hex = SUPPORT_getHexByWindowCoords(event.pageX, event.pageY);
 	
-	$("#" + hex_contents).attr('origin', clicked_hex.GetLocation());
-	Logger("CLICKED ON " + $('#' + hex_contents).attr('origin') + "hex_contents = " + hex_contents); 
-
-	// IF HEX IS FILLED
-	if ( hex_contents != 0) {
-
-		MODEL_removePieceFromArray(clicked_hex.PathCoOrdX, clicked_hex.PathCoOrdY);
-		
-		VIEW_showDraggablePiece(hex_contents, new_point);
-		VIEW_removePieceFromCanvas(clicked_hex);
-	}		
+	// IF ACTUAL HEX IS CLICKED AND NOT BLANK SPACE
+	if (clicked_hex) {
+		var hex_contents = GRID_ARRAY[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
+		var hex_midpoint = SUPPORT_gridToPageCoords(clicked_hex.MidPoint.X, clicked_hex.MidPoint.Y);		
+		var this_piece;
+		// IF HEX IS FILLED
+		if ( hex_contents != 0) {
+			var hex_array = hex_contents.split(",");
+			if (hex_array.length > 1) {
+				this_piece = hex_array[hex_array.length-1];
+			}
+			else {
+				this_piece = hex_array[0];
+			}
+			$("#" + this_piece).attr('origin', clicked_hex.GetXYLocation());
+			//Logger("SUPPORT: (95) origin = " + $('#' + hex_contents).attr('origin') + " hex_contents = " + hex_contents + " hex_mid = " + hex_midpoint); 
+			
+			VIEW_removePieceFromCanvas(clicked_hex);
+			VIEW_showDraggablePiece(this_piece, hex_midpoint);
+		}	
+	}	
 }	
 
-function dropFunction( event, ui ) {
-      			
-	var pos = $(ui.draggable).position();
-	var hex_midpoint = new HT.Point(pos.left + 50, pos.top + 40);
-	var piece_id = $(ui.draggable).attr("id");
-	var origin = $(ui.draggable).attr('origin');
-	var the_hex = getHexByCoords(hex_midpoint.X, hex_midpoint.Y);
-	var destination_string = the_hex.GetLocation();
-	//Logger("DROP FUNCTION: PIECE " + piece_id + " MOVED FROM " + origin + " TO " + destination_string);
-
-	//MODEL
-	MODEL_addPieceToArray(destination_string, piece_id);
-	MODEL_addMoveToDB(piece_id, destination_string, origin);
-
-	//VIEW
-	$(ui.draggable).css({ background: "url('pieces/" + piece_id.substring(0, piece_id.length-1) + ".png')" });
-	$(ui.draggable).hide();
-	$(ui.draggable).trigger('mouseleave');
-	$(ui.draggable).attr('origin', the_hex.GetLocation());  
+function dropFunction( event, ui ) {  			
+	//Logger("DROP");
+	clearInterval(piece_rotate_interval);
 	
-	VIEW_draw_piece_on_canvas(the_hex);
+	var pos = $(ui.draggable).position();
+	var piece_id = $(ui.draggable).attr("id");
+	var origin = $(ui.draggable).attr('origin');	
+	var hex_midpoint = new HT.Point(pos.left + (PIECE_WIDTH/2), pos.top + (PIECE_HEIGHT/2));
+	var the_hex = SUPPORT_getHexByWindowCoords(hex_midpoint.X, hex_midpoint.Y);
+	var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());
+	//Logger("DROP FUNCTION" + the_hex.GetXYLocation());		
+	$(ui.draggable).trigger('mouseleave');
+	$(ui.draggable).css({ background: "url('pieces/" + piece_id.substring(0, piece_id.length-1) + ".png')" });
+				
+	if (the_hex) { // IF DROPPED ON AN ACTUAL HEX ON GRID
+		
+		if (the_hex.GetXYLocation() == origin) { // IF PIECE HASN'T MOVED
+			$(ui.draggable).hide();		
+			var the_hex = grid.GetHexByXYIndex(origin);
+			VIEW_drawPieceOnCanvas(the_hex);
+		}
+		else { // IF PIECE MOVEMENT IS LEGITIMATE
+			//MODEL
+			var dest = the_hex.GetXYLocation();
+			if (origin) 
+				MODEL_removePieceFromArray(origin);
+				//Logger("SUPPORT: (133) SHOULD BE ADDING PIECE TO ARRAY HERE");
+			MODEL_addPieceToArray(dest, piece_id);
+			MODEL_addMoveToDB(piece_id, dest, origin);
+			//VIEW
+			$(ui.draggable).hide();
+			$(ui.draggable).attr('origin', the_hex.GetXYLocation());  
+			VIEW_drawPieceOnCanvas(the_hex);			
+		}
+		
+	}
+	else if (origin) { // IF DROPPED FROM BOARD TO BLANK SPACE ON EDGE OF CANVAS
+		$(ui.draggable).hide();		
+		var the_hex = grid.GetHexByXYIndex(origin);
+		VIEW_drawPieceOnCanvas(the_hex);	
+	}	
+
+	VIEW_repositionUnplacedPieces();
+
 }
+

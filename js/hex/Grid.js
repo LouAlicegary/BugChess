@@ -61,7 +61,6 @@ HT.Grid = function(/*double*/ width, /*double*/ height) {
 	}
 };
 
-
 HT.Grid.Static = {Letters:'ABCDEFGHIJKLMNOPQRSTUVWXYZ'};
 
 HT.Grid.prototype.GetHexId = function(row, col) {
@@ -75,9 +74,6 @@ HT.Grid.prototype.GetHexId = function(row, col) {
 		
 	return HT.Grid.Static.Letters[letterIndex] + letters + (col + 1);
 };
-
-
-
 
 /**
  * Returns a hex at a given point
@@ -141,4 +137,25 @@ HT.Grid.prototype.GetHexByXYIndex = function(xy_string) {
 		}
 	}
 	return null;
+};
+
+
+/**
+ * Returns a distance between two hexes
+ * @this {HT.Grid}
+ * @return {HT.Hexagon}
+ */
+HT.Grid.prototype.GetMaxXY = function() {
+	var max_col = 0;
+	var max_row = 0;
+	
+	for(var i in this.Hexes)
+	{
+		if ( this.Hexes[i].PathCoOrdX > max_col) 
+			max_col = this.Hexes[i].PathCoOrdX;
+		if ( this.Hexes[i].PathCoOrdY > max_row) 
+			max_row = this.Hexes[i].PathCoOrdY;
+	}
+	
+	return new Array(max_col, max_row);
 };

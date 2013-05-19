@@ -38,10 +38,11 @@
 <body>
 	
 	<div id="game_title">Bug Chess</div>
-	<div id="reset_button" class=".ui-corner-all">reset board</div>
 	
-	<div id="white_mask_box" class="mask_box .ui-corner-all"></div>
-	<div id="black_mask_box" class="mask_box .ui-corner-all"></div>
+	<div id="reset_button" class="ui-corner-all">reset</div>
+	
+	<div id="white_mask_box" class="mask_box ui-corner-all"></div>
+	<div id="black_mask_box" class="mask_box ui-corner-all"></div>
 	
 	<!-- WHITE PIECES -->
 	<div id="white_ant3" class="game_piece white_ant"></div>
@@ -70,27 +71,13 @@
 	<div id="black_bee1" class="game_piece black_bee"></div>	
 	
 	
-	<div id="container" style="z-index: 1;">
+	<div id="container">
 		<div id="content" data-scrollable="true">
 			<canvas id="hexCanvas"></canvas>
 		</div>
 	</div>
 	
-	<script type="text/javascript">
-	$(document).ready(function() {
-			
-		VIEW_setAllViewProperties();
-		VIEW_drawEmptyGrid();
-		VIEW_initGameWindow();
-
-		document.getElementById('hexCanvas').addEventListener('click', clickHandler, false);
-		document.getElementById('hexCanvas').addEventListener('touchstart', clickHandler, false);
-		document.getElementById('reset_button').addEventListener('click', CONTROLLER_resetGame, false);
-					
-		CONTROLLER_pollingFunction(3000); // POLLS SERVER FOR UPDATES TO SERVER
-
-	}); 	
-	</script>
+	<script type="text/javascript">$(document).ready(CONTROLLER_MAIN);</script>
 
 </body>
 

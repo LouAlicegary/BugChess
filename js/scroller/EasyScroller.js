@@ -19,10 +19,12 @@ var EasyScroller = function(content, options) {
 	// reflow for the first time
 	this.reflow();
 	
-	//ADDED 5.12.2013
-	var container = document.getElementById("container");
-	var box_y = 1000 - (container.offsetHeight/2);
-	var box_x = 1250 - (container.offsetWidth/2);
+	
+	// ADDED 5.12.2013 --> Resets scroller position to middle of grid
+	//var container = document.getElementById("container");
+	//var canvas = document.getElementById('hexCanvas');
+	var box_y = (content.offsetHeight / 2) - (container.offsetHeight/2);
+	var box_x = (content.offsetWidth / 2) - (container.offsetWidth/2);
 	this.scroller.scrollBy(box_x, box_y, false);
 
 };

@@ -1,4 +1,30 @@
-var HT = HT || {};
+var bugs = Array("white_ant", "white_grasshopper", "white_spider", "white_beetle", "white_bee", "black_ant", "black_grasshopper", "black_spider", "black_beetle", "black_bee");
+var img_obj_array = Array();
+var load_counter = 0;
+
+Logger("IMAGE PRELOADER STARTED");
+
+for (var i=0; i < bugs.length; i++) {
+	var imageObj = new Image();
+	imageObj.src = "pieces/" + bugs[i] + ".png";  
+	imageObj.onload = function() {
+		load_counter++;
+	};       	
+	img_obj_array[bugs[i]] = imageObj; 
+}
+
+	
+//var to = setInterval(function() {Logger("LOAD COUNTER = " + load_counter);}, 20);
+var to = setInterval(function() {
+	if (load_counter == 10)
+	{
+		Logger("IMAGES ALL LOADED.");
+		clearInterval(to);
+	}
+}, 50);
+
+
+var HT = HT || {}; // FIRST TIME HT IS REFERENCED, A NEW OBJECT IS CREATED. AFTERWARD, SAME OBJECT USED.
 /**
  * A Point is simply x and y coordinates
  * @constructor
@@ -7,6 +33,7 @@ HT.Point = function(x, y) {
 	this.X = x;
 	this.Y = y;
 };
+
 
 /**
  * A Rectangle is x and y origin and width and height
@@ -99,8 +126,6 @@ HT.Hexagon.prototype.draw = function(ctx) {
 	
 };
 
-
-
 /**
  * draws this Hexagon to the canvas
  * @this {HT.Hexagon}
@@ -126,18 +151,21 @@ HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
 		top_piece = piece_stack[piece_stack.length-1];
 
    		var midPoint = this.MidPoint;
-   		var imageObj = new Image();
+   		
+   		Logger("DRAW IMAGE:  " + top_piece.substring(0, top_piece.length-1) + " (" + this.PathCoOrdX + "," + this.PathCoOrdY + ")");// + " @ " + midPoint.X-50 + "," + midPoint.Y-40);
+   		ctx.drawImage(img_obj_array[top_piece.substring(0, top_piece.length-1)], midPoint.X-50, midPoint.Y-40);
+   		/*var imageObj = new Image();
    		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
 		imageObj.onload = function() {
         	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
-      	};
-      	
+         	Logger("IMAGE FULLY LOADED");
+      	}; */  
+    
 	}
 	
 	//Logger("HT: (165) PIECE DRAWN TO CANVAS");
 	
 };
-
 
 /**
  * draws this Hexagon to the canvas
@@ -146,25 +174,17 @@ HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
 HT.Hexagon.prototype.removePieceFromCanvas = function(ctx) {
 
 	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
-	//Logger("HT: (177) Contents of hex after removal = " + array_val);
+	Logger("HT: (147) Contents of hex array cell at " + this.PathCoOrdX + " " + this.PathCoOrdY + " = " + array_val);
 	
-	if ( array_val != 0) { // fill hexagon in canvas if a piece exists there
+	if ( array_val.indexOf(",") != -1) { // fill hexagon in canvas if another piece exists there
 		
-		var piece_stack = Array();
-		
-		if (array_val.indexOf(",") != -1) {
-			piece_stack = array_val.split(",");
-			//Logger("piece_stack = " + piece_stack.length)
-		}	
-		else {
-			piece_stack[0] = array_val;
-		}
-			
+		var piece_stack = array_val.split(",");
+					
 		for (var i=0; i<piece_stack.length; i++) {
 			$("#" + piece_stack[i]).hide();
 		}
 		
-		top_piece = piece_stack[piece_stack.length-1];
+		top_piece = piece_stack[piece_stack.length-2];
 		//Logger("HT: (195) Piece Drawn to Canvas in source hex = " + top_piece);
 
    		var midPoint = this.MidPoint;
@@ -176,7 +196,6 @@ HT.Hexagon.prototype.removePieceFromCanvas = function(ctx) {
       	
 	}
 	else { // draw co-ordinates (3, 6), (5, 9), etc
-		//Logger("HT: (207) Hex is now blank");
 		ctx.strokeStyle = "grey";
 		ctx.fillStyle = "white";
 		ctx.lineWidth = 1;
@@ -196,6 +215,7 @@ HT.Hexagon.prototype.removePieceFromCanvas = function(ctx) {
 		ctx.textAlign = "center";
 		ctx.textBaseline = 'middle';
 		ctx.fillText("(" + this.PathCoOrdX + "," + this.PathCoOrdY + ")", this.MidPoint.X, this.MidPoint.Y);	
+		//Logger("Coords should have been written to canvas");
 	}
 	//Logger("HT: PIECE REMOVED FROM CANVAS");
 };
@@ -209,7 +229,6 @@ HT.Hexagon.prototype.isInBounds = function(x, y) {
 	return this.Contains(new HT.Point(x, y));
 };
 	
-
 /**
  * Returns true if the point is inside this hexagon, it is a quick contains
  * @this {HT.Hexagon}
@@ -253,7 +272,7 @@ HT.Hexagon.prototype.GetID = function() {
 	return this.Id;
 }
 
-HT.Hexagon.prototype.GetLocation = function() {
+HT.Hexagon.prototype.GetXYLocation = function() {
 	var x_coord = this.PathCoOrdX;
 	var y_coord = this.PathCoOrdY;
 	var the_string = x_coord + "," + y_coord;
@@ -266,7 +285,7 @@ HT.Hexagon.Orientation = {
 };
 
 HT.Hexagon.Static = {
-	// THIS GETS SET DYNAMICALLY IN SUPPORT.JS
+	// THIS GETS SET DYNAMICALLY IN VIEW
 	HEIGHT:91.14378277661477, 
 	WIDTH:91.14378277661477, 
 	SIDE:50.0, 
