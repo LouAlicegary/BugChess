@@ -1,29 +1,3 @@
-var bugs = Array("white_ant", "white_grasshopper", "white_spider", "white_beetle", "white_bee", "black_ant", "black_grasshopper", "black_spider", "black_beetle", "black_bee");
-var img_obj_array = Array();
-var load_counter = 0;
-
-Logger("IMAGE PRELOADER STARTED");
-
-for (var i=0; i < bugs.length; i++) {
-	var imageObj = new Image();
-	imageObj.src = "pieces/" + bugs[i] + ".png";  
-	imageObj.onload = function() {
-		load_counter++;
-	};       	
-	img_obj_array[bugs[i]] = imageObj; 
-}
-
-	
-//var to = setInterval(function() {Logger("LOAD COUNTER = " + load_counter);}, 20);
-var to = setInterval(function() {
-	if (load_counter == 10)
-	{
-		Logger("IMAGES ALL LOADED.");
-		clearInterval(to);
-	}
-}, 50);
-
-
 var HT = HT || {}; // FIRST TIME HT IS REFERENCED, A NEW OBJECT IS CREATED. AFTERWARD, SAME OBJECT USED.
 /**
  * A Point is simply x and y coordinates
@@ -152,7 +126,7 @@ HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
 
    		var midPoint = this.MidPoint;
    		
-   		Logger("DRAW IMAGE:  " + top_piece.substring(0, top_piece.length-1) + " (" + this.PathCoOrdX + "," + this.PathCoOrdY + ")");// + " @ " + midPoint.X-50 + "," + midPoint.Y-40);
+   		//Logger("DRAW IMAGE:  " + top_piece.substring(0, top_piece.length-1) + " (" + this.PathCoOrdX + "," + this.PathCoOrdY + ")");// + " @ " + midPoint.X-50 + "," + midPoint.Y-40);
    		ctx.drawImage(img_obj_array[top_piece.substring(0, top_piece.length-1)], midPoint.X-50, midPoint.Y-40);
    		/*var imageObj = new Image();
    		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
@@ -174,7 +148,7 @@ HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
 HT.Hexagon.prototype.removePieceFromCanvas = function(ctx) {
 
 	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
-	Logger("HT: (147) Contents of hex array cell at " + this.PathCoOrdX + " " + this.PathCoOrdY + " = " + array_val);
+	//Logger("HT: (177) Contents of hex array cell at " + this.PathCoOrdX + " " + this.PathCoOrdY + " = " + array_val);
 	
 	if ( array_val.indexOf(",") != -1) { // fill hexagon in canvas if another piece exists there
 		

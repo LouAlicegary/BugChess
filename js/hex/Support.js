@@ -108,6 +108,7 @@ function clickOnCanvas(event) {
 
 function dropFunction( event, ui ) {  			
 	//Logger("DROP");
+	
 	clearInterval(piece_rotate_interval);
 	
 	var pos = $(ui.draggable).position();
@@ -118,7 +119,8 @@ function dropFunction( event, ui ) {
 	var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());
 	//Logger("DROP FUNCTION" + the_hex.GetXYLocation());		
 	$(ui.draggable).trigger('mouseleave');
-	$(ui.draggable).css({ background: "url('pieces/" + piece_id.substring(0, piece_id.length-1) + ".png')" });
+	//$(ui.draggable).css({ background: "url('pieces/" + piece_id.substring(0, piece_id.length-1) + ".png')" });
+	document.getElementById(top_piece).style.webkitTransform = "rotate(0deg)";
 				
 	if (the_hex) { // IF DROPPED ON AN ACTUAL HEX ON GRID
 		
@@ -138,7 +140,10 @@ function dropFunction( event, ui ) {
 			//VIEW
 			$(ui.draggable).hide();
 			$(ui.draggable).attr('origin', the_hex.GetXYLocation());  
-			VIEW_drawPieceOnCanvas(the_hex);			
+			VIEW_drawPieceOnCanvas(the_hex);	
+			
+			// CHECK IF BEE IS SURROUNDED = LOSS
+			setTimeout(MODEL_checkIfBeeSurrounded,200);		
 		}
 		
 	}

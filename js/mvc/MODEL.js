@@ -107,7 +107,7 @@ function MODEL_getUpdateFromDB()
 }
 
 function MODEL_addMoveToDB(piece_id, destination_string, origin) {
-	Logger("MODEL: (48) MOVE ADDED TO DB");
+	//Logger("MODEL: (110) MOVE ADDED TO DB");
 	var request = $.ajax({
 	 	url: "php/place_piece.php",
 		type: "POST",
@@ -135,4 +135,46 @@ function MODEL_eraseGameFromArray() {
 		}
 	}
 	NUM_MOVES = 0;
+}
+
+function MODEL_checkIfBeeSurrounded() {
+	//Logger("BEE CHECK STARTED"); 
+	
+	for (var i=1; i < GRID_ARRAY.length-1; i++) {
+		for (var j=1; j < GRID_ARRAY[i].length-1; j++) {
+			if (GRID_ARRAY[i][j]) { 
+				if (GRID_ARRAY[i][j].indexOf("white_bee1") != -1) {
+					var a = GRID_ARRAY[i-1][j-1];
+					var b = GRID_ARRAY[i-1][j];
+					var c = GRID_ARRAY[i][j-1];
+					var d = GRID_ARRAY[i][j+1];
+					var e = GRID_ARRAY[i+1][j+1];
+					var f = GRID_ARRAY[i+1][j];
+					if (a != 0 && b != 0 && c != 0 && d != 0 && e != 0 && f != 0) {
+						if ( a.indexOf("white_bee1") && b.indexOf("white_bee1") && c.indexOf("white_bee1") && d.indexOf("white_bee1") && e.indexOf("white_bee1") && f.indexOf("white_bee1") ) {
+							alert("GAME OVER. BLACK WINS.");
+							CONTROLLER_resetGame();
+							
+						}
+					}
+					//Logger("white a/b/c/d/e/f : " + a + b + c + d + e + f);
+				}
+				if (GRID_ARRAY[i][j].indexOf("black_bee1") != -1) {
+					var a = GRID_ARRAY[i-1][j-1];
+					var b = GRID_ARRAY[i-1][j];
+					var c = GRID_ARRAY[i][j-1];
+					var d = GRID_ARRAY[i][j+1];
+					var e = GRID_ARRAY[i+1][j+1];
+					var f = GRID_ARRAY[i+1][j];
+					if (a != 0 && b != 0 && c != 0 && d != 0 && e != 0 && f != 0) {
+						if ( a.indexOf("black_bee1") && b.indexOf("black_bee1") && c.indexOf("black_bee1") && d.indexOf("black_bee1") && e.indexOf("black_bee1") && f.indexOf("black_bee1") ) {
+							alert("GAME OVER. WHITE WINS.");
+							CONTROLLER_resetGame();
+						}
+					}
+					//Logger("white a/b/c/d/e/f : " + a + b + c + d + e + f);
+				}
+			}
+		}
+	}
 }

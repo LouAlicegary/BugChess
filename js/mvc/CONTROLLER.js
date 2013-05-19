@@ -1,5 +1,6 @@
 function CONTROLLER_MAIN() {
 	VIEW_setAllViewProperties();
+	VIEW_preloadImages();
 	VIEW_drawEmptyGrid();
 	VIEW_initGameWindow();
 
@@ -7,7 +8,7 @@ function CONTROLLER_MAIN() {
 	document.getElementById('hexCanvas').addEventListener('touchstart', clickOnCanvas, false);
 	document.getElementById('reset_button').addEventListener('click', CONTROLLER_resetGame, false);
 	
-	CONTROLLER_doInitialUpdateFromDB(20);
+	CONTROLLER_doInitialUpdateFromDB(30);
 				
 	CONTROLLER_pollingFunction(3000); // POLLS SERVER FOR UPDATES TO SERVER
 }
@@ -26,8 +27,7 @@ function CONTROLLER_pollingFunction(frequency_timer) {
 	var da_height = $("#hexCanvas").innerWidth();
 	var grid = new HT.Grid(da_width, da_height); 
 	
-	$(function(){window.setInterval( function(){
-
+	$(function(){window.setInterval( function(){ 
 		return_value = MODEL_getUpdateFromDB();
 		erase_flag = return_value[0];
 		moves_array = return_value[1];
@@ -43,26 +43,20 @@ function CONTROLLER_pollingFunction(frequency_timer) {
 			//for (var i=NUM_MOVES; i < moves_array.length; i++) {
 			if (NUM_MOVES < moves_array.length)	{
 				i = NUM_MOVES; // ADDED FOR QUICKFIX
-				Logger("CONTROLLER: (42) MOVES_ARRAY LEN / MA = " + moves_array.length + " " + moves_array);
 				piece_id = moves_array[i][2];
 				origin = moves_array[i][3]; 
 				destination = moves_array[i][4]; 
-				//Logger("CONROLLER: (46) piece_id / origin / dest = " + piece_id + " " + origin + " " + destination);
 					if (origin !== "") {
-						//Logger("CONTROLLER: (46) REMOVE PIECE FROM CANVAS");
 						VIEW_removePieceFromCanvas(grid.GetHexByXYIndex(origin));
-						//Logger("CONTROLLER: (46) REMOVE PIECE FROM ARRAY");
 						MODEL_removePieceFromArray(origin);
 					}
-					//Logger("CONTROLLER: (46) ADD PIECE TO ARRAY");
-					MODEL_addPieceToArray(destination, piece_id);	
-					//Logger("CONTROLLER: (46) ADD PIECE CANVAS");			
+					MODEL_addPieceToArray(destination, piece_id);				
 					VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(destination));
-					
-
-			}			
+			}	
+			MODEL_checkIfBeeSurrounded(); 		
 		}
 	}, frequency_timer )});	
+
 }
 
 
@@ -73,29 +67,44 @@ function CONTROLLER_doInitialUpdateFromDB(frequency_timer) {
 	var da_height = $("#hexCanvas").innerWidth();
 	var grid = new HT.Grid(da_width, da_height); 
 	
-	return_value = MODEL_getUpdateFromDB();
-	
-	$(function(){window.setInterval( function(){
+	var return_value = MODEL_getUpdateFromDB();
+	erase_flag = return_value[0];
+	moves_array = return_value[1];
 
-		erase_flag = return_value[0];
-		moves_array = return_value[1];
-		var origin;
-		var destination;
-		var piece_id;
-
-		if ((moves_array[0] != 0) && (moves_array.length != NUM_MOVES)) {
-			//for (var i=NUM_MOVES; i < moves_array.length; i++) {
-			i = NUM_MOVES; // ADDED FOR QUICKFIX
-			piece_id = moves_array[i][2];
-			origin = moves_array[i][3]; 
-			destination = moves_array[i][4]; 
-			if (origin !== "") {
-				VIEW_removePieceFromCanvas(grid.GetHexByXYIndex(origin));
-				MODEL_removePieceFromArray(origin);
-			}
-			MODEL_addPieceToArray(destination, piece_id);				
-			VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(destination));
+	var the_init_timer = window.setInterval( function() {
+		
+		if (load_counter == 10) {
+			var origin;
+			var destination;
+			var piece_id;
+			
 			Logger("CONTROLLER: (98) INITIAL UPDATE = " + NUM_MOVES + " -> " + moves_array.length);
-		}			
-	}, frequency_timer )});	
+	
+			if ((moves_array[0] != 0) && (moves_array.length != NUM_MOVES)) { // IF ACTUAL MOVE IN ARRAY
+				//for (var i=NUM_MOVES; i < moves_array.length; i++) {
+				i = NUM_MOVES; // ADDED FOR QUICKFIX
+				piece_id = moves_array[i][2];
+				origin = moves_array[i][3]; 
+				destination = moves_array[i][4]; 
+				if (origin !== "") {
+					VIEW_removePieceFromCanvas(grid.GetHexByXYIndex(origin));
+					MODEL_removePieceFromArray(origin);
+				}
+				MODEL_addPieceToArray(destination, piece_id);				
+				VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(destination));
+				
+				if (NUM_MOVES == moves_array.length) {
+					window.clearInterval(the_init_timer);
+				}
+			}
+			else {
+				window.clearInterval(the_init_timer);
+			}	
+				
+			MODEL_checkIfBeeSurrounded();			
+		}
+
+		 
+	}, frequency_timer );	
+	
 }	

@@ -35,6 +35,9 @@ var RESET_BUTTON_LEFT;
 var RESET_BUTTON_TOP;
 
 var piece_rotate_interval;
+var bugs = Array("white_ant", "white_grasshopper", "white_spider", "white_beetle", "white_bee", "black_ant", "black_grasshopper", "black_spider", "black_beetle", "black_bee");
+var load_counter = 0;
+var img_obj_array = Array();
 
 function VIEW_setAllViewProperties() {
 		
@@ -136,9 +139,35 @@ function VIEW_initGameWindow() {
 	VIEW_repositionUnplacedPieces();	
 }
 
+function VIEW_preloadImages() {	
+	Logger("IMAGE PRELOADER STARTED");
+	
+	for (var i=0; i < bugs.length; i++) {
+		var imageObj = new Image();
+		imageObj.src = "pieces/" + bugs[i] + ".png";  
+		imageObj.onload = function() {
+			load_counter++;
+		};       	
+		img_obj_array[bugs[i]] = imageObj; 
+	}
+	
+	var the_int = setInterval(function() {
+		if (load_counter == 10) {
+			Logger("IMAGES PRELOADER FINISHED WITHIN LAST 20 MILLISECONDS");
+			clearInterval(the_int);
+		}
+	}, 20);	
+}
+
 function VIEW_drawEmptyGrid() {
+	
+	VIEW_preloadImages();
 	VIEW_setCanvasHexSize();
 	VIEW_drawHexGrid();	
+	
+	function VIEW_preloadImages() {
+
+	}
 	
 	function VIEW_setCanvasHexSize()
 	{
@@ -191,7 +220,7 @@ function VIEW_drawPieceOnCanvas(the_hex) {
 	
 	VIEW_repositionUnplacedPieces();
 	
-	//Logger("VIEW: (192) ADD PIECE TO CANVAS AT [" + x_ind + "," + y_ind + "]");
+	Logger("VIEW: (192) ADD PIECE TO CANVAS AT [" + x_ind + "," + y_ind + "]");
 }
 
 function VIEW_removePieceFromCanvas(the_hex) {
@@ -201,7 +230,7 @@ function VIEW_removePieceFromCanvas(the_hex) {
 	var canvas = document.getElementById('hexCanvas');
 	var ctx = canvas.getContext('2d');
 	the_hex.removePieceFromCanvas(ctx);	
-	Logger("VIEW: (202) REMOVE PIECE FROM CANVAS AT [" + x_ind + "," + y_ind + "]");
+	//Logger("VIEW: (202) REMOVE PIECE FROM CANVAS AT [" + x_ind + "," + y_ind + "]");
 }
 
 function VIEW_showDraggablePiece(arr_value, new_point) {
@@ -226,9 +255,9 @@ function VIEW_showDraggablePiece(arr_value, new_point) {
 	
 	var angle = 0;
 	piece_rotate_interval = setInterval(function(){
-		angle = (angle + 4) % 360;
+		angle = (angle + 1) % 360;
 		document.getElementById(top_piece).style.webkitTransform = "rotate(" + angle + "deg)";
-	}, 50);
+	}, 100);
 		
 	$("#" + top_piece).show();
 	//$(".game_piece").show();
