@@ -10,74 +10,61 @@
 	<script src="js/jquery/jquery-ui-1.10.3.min.js"></script>
 	<script src="js/jquery/jquery.ui.touch-punch.min.js"></script>
 	
-	<!-- MVC Architecture -->
-	<script src="js/mvc/MODEL.js"></script>
-	<script src="js/mvc/VIEW.js"></script>
-	<script src="js/mvc/CONTROLLER.js"></script>
-	
-	<!-- Logging Wrapper -->
-	<script src="js/logger.js"></script>
-	
-	<!-- Hex -->	
-	<script src="js/hex/HexagonTools.js"></script>
-	<script src="js/hex/Grid.js"></script>
-	<script src="js/hex/Support.js"></script>
-	
-	<!-- Scroller -->
-	<script src="js/scroller/Animate.js"></script>
-	<script src="js/scroller/Scroller.js"></script>
-	<script src="js/scroller/EasyScroller.js"></script>
-	
 	<!-- CSS -->
-	<link href='http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-	<link href='index.css' rel='stylesheet' type='text/css'>
+	<link href='css/jquery-ui.css' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Pacifico|Droid+Sans:bold|Open+Sans:bold|Oswald:bold' rel='stylesheet' type='text/css'>
+	<link href='css/index.css' rel='stylesheet' type='text/css'>
 
 </head>
  
 <body>
 	
-	<div id="game_title">Bug Chess</div>
-	
-	<div id="reset_button" class="ui-corner-all">reset</div>
-	
-	<div id="white_mask_box" class="mask_box ui-corner-all"></div>
-	<div id="black_mask_box" class="mask_box ui-corner-all"></div>
-	
-	<!-- WHITE PIECES -->
-	<div id="white_ant3" class="game_piece white_ant"></div>
-	<div id="white_ant2" class="game_piece white_ant"></div>
-	<div id="white_ant1" class="game_piece white_ant"></div>
-	<div id="white_grasshopper3" class="game_piece white_grasshopper"></div>
-	<div id="white_grasshopper2" class="game_piece white_grasshopper"></div>
-	<div id="white_grasshopper1" class="game_piece white_grasshopper"></div>
-	<div id="white_spider2" class="game_piece white_spider"></div>
-	<div id="white_spider1" class="game_piece white_spider"></div>
-	<div id="white_beetle2" class="game_piece white_beetle"></div>
-	<div id="white_beetle1" class="game_piece white_beetle"></div>
-	<div id="white_bee1" class="game_piece white_bee"></div>
-	
-	<!-- BLACK PIECES -->	
-	<div id="black_ant3" class="game_piece black_ant"></div>
-	<div id="black_ant2" class="game_piece black_ant"></div>
-	<div id="black_ant1" class="game_piece black_ant"></div>
-	<div id="black_spider2" class="game_piece black_spider"></div>
-	<div id="black_spider1" class="game_piece black_spider"></div>
-	<div id="black_grasshopper3" class="game_piece black_grasshopper"></div>
-	<div id="black_grasshopper2" class="game_piece black_grasshopper"></div>
-	<div id="black_grasshopper1" class="game_piece black_grasshopper"></div>
-	<div id="black_beetle2" class="game_piece black_beetle"></div>
-	<div id="black_beetle1" class="game_piece black_beetle"></div>
-	<div id="black_bee1" class="game_piece black_bee"></div>	
-	
-	
-	<div id="container">
-		<div id="content" data-scrollable="true">
-			<canvas id="hexCanvas"></canvas>
+	<form action="games_lobby.php" method="post">
+		<div id="directions" style="position: absolute; font-family: 'Pacifico'; font-size: 48px; ">type your name:</div>
+		<div id="name_input_div" style="position: absolute;" >
+			<input id="name_input" type="text" name="name" style="border: 0px; font-family: 'Droid Sans'; font-size: 64px; color: #ffffff; background-color: #009966;" autofocus="autofocus">
+			<input id="submit_button" type="submit" style="position: absolute; font-family: 'Pacifico'; font-size: 36px; background: #ffffff; border: '0px solid black'; padding: 5px 10px 5px 10px; -webkit-border-radius: 15px;" value="enter game">
 		</div>
-	</div>
-	
-	<script type="text/javascript">$(document).ready(CONTROLLER_MAIN);</script>
+	</form>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		WINDOW_HEIGHT = $(window).height();   // RETURNS HEIGHT OF BROWSER VIEWPORT
+		WINDOW_WIDTH = $(window).width();   // RETURNS WIDTH OF BROWSER VIEWPORT 
+		
+		DIRECTIONS_HEIGHT = 100;
+		DIRECTIONS_WIDTH = 320;
+		
+		NAME_INPUT_HEIGHT = 100;
+		NAME_INPUT_WIDTH = 300;
+		NAME_INPUT_WIDTH_RIGHT_PADDING = 20;
+		
+		SUBMIT_BUTTON_HEIGHT = 80;
+		SUBMIT_BUTTON_WIDTH = 200;
+		
+		NAME_INPUT_DIV_HEIGHT = 100;
+		NAME_INPUT_DIV_WIDTH = NAME_INPUT_WIDTH + NAME_INPUT_WIDTH_RIGHT_PADDING + SUBMIT_BUTTON_WIDTH;
+		
+		DIRECTIONS_TOP = (WINDOW_HEIGHT/2) - (DIRECTIONS_HEIGHT/2); 
+		DIRECTIONS_LEFT = (WINDOW_WIDTH/2) - ((NAME_INPUT_DIV_WIDTH+DIRECTIONS_WIDTH)/2);
+		
+		NAME_INPUT_DIV_TOP = (WINDOW_HEIGHT/2) - (NAME_INPUT_DIV_HEIGHT/2); 
+		NAME_INPUT_DIV_LEFT = DIRECTIONS_LEFT + DIRECTIONS_WIDTH;
+		
+		NAME_INPUT_TOP = 0;
+		NAME_INPUT_LEFT = 0;
+		
+		SUBMIT_BUTTON_TOP = (DIRECTIONS_HEIGHT - SUBMIT_BUTTON_HEIGHT) / 2;
+		SUBMIT_BUTTON_LEFT = NAME_INPUT_WIDTH + NAME_INPUT_WIDTH_RIGHT_PADDING;
+
+		
+		$("#directions").css({'height': DIRECTIONS_HEIGHT, 'width': DIRECTIONS_WIDTH, 'top': DIRECTIONS_TOP, 'left': DIRECTIONS_LEFT});
+		$("#name_input_div").css({'height': NAME_INPUT_DIV_HEIGHT, 'width': NAME_INPUT_DIV_WIDTH, 'top': NAME_INPUT_DIV_TOP, 'left': NAME_INPUT_DIV_LEFT});
+		$("#name_input").css({'height': NAME_INPUT_HEIGHT, 'width': NAME_INPUT_WIDTH, 'top': NAME_INPUT_TOP, 'left': NAME_INPUT_LEFT});
+		$("#submit_button").css({'height': SUBMIT_BUTTON_HEIGHT, 'width': SUBMIT_BUTTON_WIDTH, 'top': SUBMIT_BUTTON_TOP, 'left': SUBMIT_BUTTON_LEFT});
+	});
+			
+	</script>
 
 </body>
 

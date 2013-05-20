@@ -1,0 +1,32 @@
+body { position: absolute; background-color: #009966; overflow: hidden; padding: 0px; margin: 0px; -webkit-padding-start: 0px; }
+
+
+#name_input:focus {
+outline: none;
+}
+
+
+
+
+#container { position: absolute; background-color: #FFF; overflow: hidden; }
+#content { position: absolute; padding: 0px;}
+
+#game_title { position: absolute; font-family: 'Pacifico'; font-size: 64px; padding: 0px; margin: 0px; }
+
+#reset_button { position: absolute; font-family: 'Pacifico'; font-size: 16px; line-height: 48px; }
+#return_button { position: absolute; font-family: 'Pacifico'; font-size: 16px; line-height: 24px; }
+
+.mask_box { position: absolute; z-index: 1; opacity: .1; background-color: #000; }
+.game_piece { position: absolute; z-index: 2; border: 0px; }
+
+.black_spider { background-image:url('../pieces/black_spider.png'); }
+.black_grasshopper { background-image:url('../pieces/black_grasshopper.png'); }
+.black_ant { background-image:url('../pieces/black_ant.png'); }
+.black_beetle { background-image:url('../pieces/black_beetle.png'); }
+.black_bee { background-image:url('../pieces/black_bee.png'); }
+
+.white_spider { background-image:url('../pieces/white_spider.png'); }
+.white_grasshopper { background-image:url('../pieces/white_grasshopper.png'); }
+.white_ant { background-image:url('../pieces/white_ant.png'); }
+.white_beetle { background-image:url('../pieces/white_beetle.png'); }
+.white_bee { background-image:url('../pieces/white_bee.png'); }

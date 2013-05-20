@@ -65,7 +65,7 @@ function MODEL_getUpdateFromDB()
 	var request = $.ajax({
 	 	url: "php/get_moves_from_db.php",
 		type: "POST",
-		data: {},
+		data: {game_id: GAME_ID},
 		dataType: "json",
 		async: false
 	});
@@ -111,7 +111,7 @@ function MODEL_addMoveToDB(piece_id, destination_string, origin) {
 	var request = $.ajax({
 	 	url: "php/place_piece.php",
 		type: "POST",
-		data: {piece : piece_id, destination : destination_string, origin : origin},
+		data: {game_id: GAME_ID, piece : piece_id, destination : destination_string, origin : origin},
 		dataType: "html"
 	});
 	//NUM_MOVES++;
@@ -122,7 +122,7 @@ function MODEL_eraseGameFromDB() {
 	var request = $.ajax({
 	 	url: "php/erase_game_from_db.php",
 		type: "POST",
-		data: {},
+		data: {gameid: GAME_ID},
 		dataType: "json",
 		async: false
 	});	

@@ -55,7 +55,7 @@ function VIEW_setAllViewProperties() {
 	
 	GAME_TITLE_HEIGHT = 60;
 	
-	RESET_BUTTON_HEIGHT = 40;
+	RESET_BUTTON_HEIGHT = 60;
 	RESET_BUTTON_TOP = 20;
 	
 	var width = PIECE_WIDTH; 
@@ -89,13 +89,16 @@ function VIEW_setAllViewProperties() {
 
 function VIEW_initGameWindow() {
 	
-	$("#container").droppable({ drop: dropFunction });
+	$("#container").droppable({ drop: CONTROLLER_onDrop });
 	$('#container').css({ 'height': CANVAS_HEIGHT, 'width': CANVAS_WIDTH, 'left': CANVAS_LEFT, 'top': CANVAS_TOP, 'border': CANVAS_BORDER_STRING });
 	
 	$('#game_title').css({ 'height': GAME_TITLE_HEIGHT, 'width': GAME_TITLE_WIDTH, 'left': GAME_TITLE_LEFT, 'top': GAME_TITLE_TOP });
 	
 	$("#reset_button").button();
 	$("#reset_button").css({ 'height': RESET_BUTTON_HEIGHT, 'width': RESET_BUTTON_WIDTH, 'left': RESET_BUTTON_LEFT, 'top': RESET_BUTTON_TOP });
+	
+	$("#return_button").button();
+	$("#return_button").css({ 'height': RESET_BUTTON_HEIGHT, 'width': RESET_BUTTON_WIDTH, 'left': BLACK_MASK_BOX_LEFT, 'top': RESET_BUTTON_TOP });
 	
 	$('#white_mask_box').css({ 'height': MASK_BOX_HEIGHT, 'width': MASK_BOX_WIDTH, 'left': WHITE_MASK_BOX_LEFT, 'top': MASK_BOX_TOP });
 	$('#black_mask_box').css({ 'height': MASK_BOX_HEIGHT, 'width': MASK_BOX_WIDTH, 'left': BLACK_MASK_BOX_LEFT, 'top': MASK_BOX_TOP });		
