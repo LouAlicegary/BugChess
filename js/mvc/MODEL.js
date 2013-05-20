@@ -119,13 +119,31 @@ function MODEL_addMoveToDB(piece_id, destination_string, origin) {
 
 function MODEL_eraseGameFromDB() {
 	Logger("MODEL: (138) ERASE GAME FROM DB FIRED");
+	//alert("GAME_ID");
+	var flag;
 	var request = $.ajax({
 	 	url: "php/erase_game_from_db.php",
 		type: "POST",
 		data: {gameid: GAME_ID},
-		dataType: "json",
+		dataType: "html",
 		async: false
 	});	
+	request.success(function(data) {
+		//alert( "DATA: " + data);
+		flag = 1;
+	});	
+
+	request.fail(function(jqXHR, textStatus) {
+		//alert( "ERASE GAME REQUEST FAIL: " + textStatus + " / " + jqXHR.responseText);
+		flag = 0;
+	});	
+
+   	request.done(function(data) {
+    	output = flag;
+    	//Logger("DONE");
+    });	
+    
+    return output;
 }
 
 function MODEL_eraseGameFromArray() {

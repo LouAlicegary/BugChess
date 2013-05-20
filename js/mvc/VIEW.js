@@ -94,8 +94,12 @@ function VIEW_initGameWindow() {
 	
 	$('#game_title').css({ 'height': GAME_TITLE_HEIGHT, 'width': GAME_TITLE_WIDTH, 'left': GAME_TITLE_LEFT, 'top': GAME_TITLE_TOP });
 	
-	$("#reset_button").button();
-	$("#reset_button").css({ 'height': RESET_BUTTON_HEIGHT, 'width': RESET_BUTTON_WIDTH, 'left': RESET_BUTTON_LEFT, 'top': RESET_BUTTON_TOP });
+	$("#undo_move_button").button();
+	$("#undo_move_button").css({ 'height': RESET_BUTTON_HEIGHT, 'width': RESET_BUTTON_WIDTH, 'left': RESET_BUTTON_LEFT, 'top': RESET_BUTTON_TOP, 'cursor': 'pointer' });
+	
+	$("#cancel_game_button").button();
+	$("#cancel_game_button").css({ 'height': RESET_BUTTON_HEIGHT, 'width': RESET_BUTTON_WIDTH, 'left': RESET_BUTTON_LEFT, 'top': RESET_BUTTON_TOP, 'cursor': 'pointer' });
+	
 	
 	$("#return_button").button();
 	$("#return_button").css({ 'height': RESET_BUTTON_HEIGHT, 'width': RESET_BUTTON_WIDTH, 'left': BLACK_MASK_BOX_LEFT, 'top': RESET_BUTTON_TOP });
@@ -167,10 +171,6 @@ function VIEW_drawEmptyGrid() {
 	VIEW_preloadImages();
 	VIEW_setCanvasHexSize();
 	VIEW_drawHexGrid();	
-	
-	function VIEW_preloadImages() {
-
-	}
 	
 	function VIEW_setCanvasHexSize()
 	{
@@ -270,21 +270,33 @@ function VIEW_repositionUnplacedPieces() {
 	var num_unplayed_white_pieces = $('[class*=" white"]:visible').length;
 	var num_unplayed_black_pieces = $('[class*=" black"]:visible').length;
 	
-	//Logger(num_unplayed_white_pieces + " " + num_unplayed_black_pieces);
+	//turns off spinny effect
 	$('.game_piece:hidden').unbind('mouseenter');
 	$('.game_piece:hidden').unbind('mouseleave');
 	
+	// SHOWS ALL WHITE PIECES
 	$('[class*=" white"]:visible').each(function(i, obj) {
 		var y_offset = (i * PIECE_OVERLAP) + MASK_BOX_TOP + MASK_BOX_PADDING + ((NUM_OF_PIECES-num_unplayed_white_pieces)*(PIECE_OVERLAP/2));
 		var x_offset = WHITE_MASK_BOX_LEFT + MASK_BOX_PADDING;
 		$('#' + obj.getAttribute('id')).css({ 'top': y_offset, 'left': x_offset, 'z-index': i+2 }); //num_of_pieces*2+2-i
 	});	
 	
+	// SHOWS ALL BLACK PIECES
 	$('[class*=" black"]:visible').each(function(i, obj) {
 		var y_offset = (i * PIECE_OVERLAP) + MASK_BOX_TOP + MASK_BOX_PADDING + ((NUM_OF_PIECES-num_unplayed_black_pieces)*(PIECE_OVERLAP/2));
 		var x_offset = BLACK_MASK_BOX_LEFT + MASK_BOX_PADDING;
 		$('#' + obj.getAttribute('id')).css({ 'top': y_offset, 'left': x_offset, 'z-index': i+2 }); //num_of_pieces*2+2-i
 	});
+	
+	// SHOWS EITHER RESET BUTTON OR CANCEL GAME BUTTON
+	if (NUM_MOVES == 0) {
+		$("#cancel_game_button").show();
+		$("#undo_move_button").hide();
+	}
+	else if (NUM_MOVES == 1) {
+		$("#undo_move_button").show();
+		$("#cancel_game_button").hide();
+	}
 	
 }
 

@@ -114,7 +114,7 @@ if(isset($_POST['name']) || isset($_GET['name']) ) {
 
 <div class='game_menu_div'>
 	<div class='header_text'>start a new game:</div>
-	<div id="solo_game" style="font-family: 'Droid Sans'; font-size: 32px; background: #000000; color: #ffffff; border: '5px solid black'; padding: 5px 10px 5px 10px; -webkit-border-radius: 15px; text-align: center;">solo game</div>
+	<div id="solo_game" style="font-family: 'Droid Sans'; font-size: 32px; background: #000000; color: #ffffff; border: '5px solid black'; padding: 5px 10px 5px 10px; -webkit-border-radius: 15px; text-align: center;">solo practice mode</div>
 	<div id="vs_game" style=" background: #000000; color: #ffffff; border: '5px solid black'; padding: 5px 10px 5px 10px; -webkit-border-radius: 15px; text-align: center;">vs. online opponent</div>
 </div>
 
@@ -195,7 +195,8 @@ if(isset($_POST['name']) || isset($_GET['name']) ) {
 			'left': BUTTON_LEFT, 
 			'font-family': 'Open Sans', 
 			'font-size': BUTTON_TEXT_PX + 'px', 
-			'line-height': BUTTON_HEIGHT-5 + 'px'
+			'line-height': BUTTON_HEIGHT-5 + 'px',
+			'cursor': 'pointer' 
 		});
 		
 		$("#vs_game").css({

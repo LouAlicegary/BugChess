@@ -13,7 +13,7 @@ outline: none;
 
 #game_title { position: absolute; font-family: 'Pacifico'; font-size: 64px; padding: 0px; margin: 0px; }
 
-#reset_button { position: absolute; font-family: 'Pacifico'; font-size: 16px; line-height: 48px; }
+#undo_move_button, #cancel_game_button { position: absolute; font-family: 'Pacifico'; font-size: 16px; line-height: 48px; cursor: pointer }
 #return_button { position: absolute; font-family: 'Pacifico'; font-size: 16px; line-height: 24px; }
 
 .mask_box { position: absolute; z-index: 1; opacity: .1; background-color: #000; }

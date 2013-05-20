@@ -1,13 +1,13 @@
 function CONTROLLER_MAIN() {
 	VIEW_setAllViewProperties();
-	VIEW_preloadImages();
 	VIEW_drawEmptyGrid();
 	VIEW_initGameWindow();
 	
 	document.getElementById('hexCanvas').addEventListener('click', CONTROLLER_clickOnPiece, false);
 	document.getElementById('hexCanvas').addEventListener('touchstart', CONTROLLER_clickOnPiece, false);
 	
-	document.getElementById('reset_button').addEventListener('click', CONTROLLER_resetGame, false);
+	document.getElementById('undo_move_button').addEventListener('click', CONTROLLER_undoMove, false);
+	document.getElementById('cancel_game_button').addEventListener('click', CONTROLLER_cancelGame, false);
 	
 	document.getElementById('return_button').addEventListener('click', CONTROLLER_returnToLobby, false);
 	document.getElementById('return_button').addEventListener('touchstart', CONTROLLER_returnToLobby, false);
@@ -194,4 +194,17 @@ function CONTROLLER_onDrop( event, ui ) {
 
 function CONTROLLER_returnToLobby() {
 	window.location = "games_lobby.php?name=" + NAME;
+}
+
+
+function CONTROLLER_cancelGame() {
+	//alert("FIRES");
+	var ret_val = MODEL_eraseGameFromDB();
+	if (ret_val) {
+		window.location = "games_lobby.php?name=" + NAME;
+	}
+}
+
+function CONTROLLER_undoMove() {
+	alert("UNDO MOVE! COMING SOON.");
 }

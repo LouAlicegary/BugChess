@@ -39,7 +39,8 @@
 	
 	<div id="game_title">Bug Chess</div>
 	
-	<div id="reset_button" class="ui-corner-all">reset</div>
+	<div id="undo_move_button" class="ui-corner-all">undo move</div>
+	<div id="cancel_game_button" class="ui-corner-all">cancel game</div>
 	<div id="return_button" class="ui-corner-all">return to lobby</div>
 	
 	<div id="white_mask_box" class="mask_box ui-corner-all"></div>
