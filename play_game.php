@@ -30,7 +30,7 @@
 	
 	<!-- CSS -->
 	<link href='css/jquery-ui.css' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Pacifico|Droid+Sans:bold|Open+Sans:bold|Oswald:bold' rel='stylesheet' type='text/css'>
 	<link href='css/index.css' rel='stylesheet' type='text/css'>
 
 </head>
@@ -42,6 +42,10 @@
 	<div id="undo_move_button" class="ui-corner-all">undo move</div>
 	<div id="cancel_game_button" class="ui-corner-all">cancel game</div>
 	<div id="return_button" class="ui-corner-all">return to lobby</div>
+	
+	<div id="game_over_popup"></div>
+	<div id="white_player_name"></div>
+	<div id="black_player_name"></div>
 	
 	<div id="white_mask_box" class="mask_box ui-corner-all"></div>
 	<div id="black_mask_box" class="mask_box ui-corner-all"></div>
@@ -80,9 +84,34 @@
 	</div>
 	
 	<script type="text/javascript">
-	var NAME = "<?php echo $_GET['name']; ?>";		
-	var GAME_ID = "<?php echo $_GET['gameid']; ?>" ;
-	$(document).ready(CONTROLLER_MAIN);
+
+	<?php
+	if(isset($_GET['name']) && !empty($_GET['name']) && isset($_GET['gameid']) && isset($_GET['white_player']) && isset($_GET['white_player']) ) {
+	 	echo "NAME = '" . $_GET['name'] . "';\n";
+	 	echo "GAME_ID = " . $_GET['gameid'] . ";\n";
+	 	if ( !empty($_GET['white_player']) ) {
+	 		echo "WHITE_PLAYER_NAME = '" . $_GET['white_player'] . "';\n";
+	 	}
+		else {
+			echo "WHITE_PLAYER_NAME = '(none)';\n";
+		} 
+	 	if ( !empty($_GET['black_player']) ) {
+	 		echo "BLACK_PLAYER_NAME = '" . $_GET['black_player'] . "';\n";
+	 	}
+		else {
+			echo "BLACK_PLAYER_NAME = '(none)';\n";
+		} 	 	
+	 	echo "var SOLO_GAME = 0;";
+		echo "if (!GAME_ID) {SOLO_GAME = 1;}";
+	 	echo "$(document).ready(CONTROLLER_MAIN);\n";
+	}
+	else {
+		echo "window.location = 'index.php';";
+	}		
+	?>			
+	
+
+
 	
 	</script>
 

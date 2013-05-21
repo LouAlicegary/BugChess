@@ -74,5 +74,11 @@ function SUPPORT_getHexByWindowCoords(thepageX, thepageY)
 	else {
 		return 0;
 	}
+}
 
+function SUPPORT_getHexSideFromWH(width, height) {
+	var a = -3.0;
+	var b = (-2.0 * width);
+	var c = (Math.pow(width, 2)) + (Math.pow(height, 2));
+	return (-b - Math.sqrt(Math.pow(b,2)-(4.0*a*c)))/(2.0*a);	
 }

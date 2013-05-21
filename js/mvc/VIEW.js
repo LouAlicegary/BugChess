@@ -44,26 +44,22 @@ function VIEW_setAllViewProperties() {
 	PIECE_HEIGHT = 80;
 	PIECE_WIDTH = 100;
 	PIECE_OVERLAP = 40;
+	PIECE_SIDE = SUPPORT_getHexSideFromWH(PIECE_WIDTH, PIECE_HEIGHT);
 	
 	SIDE_PANEL_PADDING = 10;
 	MASK_BOX_PADDING = 10;
-	MASK_BOX_TOP = 100;
+	MASK_BOX_TOP = 100; // CHANGE
 	
 	CANVAS_BORDER_WIDTH = 5;
-	CANVAS_HEIGHT = 490;
-	CANVAS_TOP = 100;
+	CANVAS_HEIGHT = 490; // CHANGE
+	CANVAS_TOP = 100; // CHANGE
 	
-	GAME_TITLE_HEIGHT = 60;
+	GAME_TITLE_HEIGHT = 60; // CHANGE ?
 	
-	RESET_BUTTON_HEIGHT = 60;
-	RESET_BUTTON_TOP = 20;
+	RESET_BUTTON_HEIGHT = 60; // CHANGE?
+	RESET_BUTTON_TOP = 20; // CHANGE?
 	
-	var width = PIECE_WIDTH; 
-	var height = PIECE_HEIGHT; 
-	var a = -3.0;
-	var b = (-2.0 * width);
-	var c = (Math.pow(width, 2)) + (Math.pow(height, 2));
-	PIECE_SIDE = (-b - Math.sqrt(Math.pow(b,2)-(4.0*a*c)))/(2.0*a);
+	GAME_OVER_PADDING = 20;
 	 
 	WINDOW_HEIGHT = $(window).height();   // RETURNS HEIGHT OF BROWSER VIEWPORT
 	WINDOW_WIDTH = $(window).width();   // RETURNS WIDTH OF BROWSER VIEWPORT 
@@ -81,9 +77,23 @@ function VIEW_setAllViewProperties() {
 	GAME_TITLE_WIDTH = VIEW_getTextBlockWidth("64px Pacifico", "Bug Chess");
 	GAME_TITLE_LEFT = (WINDOW_WIDTH - GAME_TITLE_WIDTH) / 2;
 	GAME_TITLE_TOP = 0-(GAME_TITLE_HEIGHT/4);
+	
+	PLAYER_NAME_HEIGHT = GAME_TITLE_HEIGHT;
+	PLAYER_NAME_TOP = GAME_TITLE_HEIGHT / 2;
+	WHITE_PLAYER_NAME_WIDTH = VIEW_getTextBlockWidth('56px Droid Sans', WHITE_PLAYER_NAME);
+	BLACK_PLAYER_NAME_WIDTH = VIEW_getTextBlockWidth('56px Droid Sans', BLACK_PLAYER_NAME);
+	WHITE_PLAYER_NAME_LEFT = CANVAS_LEFT + (CANVAS_WIDTH/5) - (WHITE_PLAYER_NAME_WIDTH/2);
+	BLACK_PLAYER_NAME_LEFT = CANVAS_LEFT + (CANVAS_WIDTH*4/5) - (BLACK_PLAYER_NAME_WIDTH/2);
 
 	RESET_BUTTON_WIDTH = MASK_BOX_WIDTH;
 	RESET_BUTTON_LEFT = WHITE_MASK_BOX_LEFT;
+	
+	GAME_OVER_WIDTH = WINDOW_WIDTH / 3;
+	GAME_OVER_HEIGHT = GAME_OVER_WIDTH / 5;
+	GAME_OVER_TOP = (WINDOW_HEIGHT/2) - (GAME_OVER_HEIGHT/2);
+	GAME_OVER_LEFT = (WINDOW_WIDTH/2) - (GAME_OVER_WIDTH/2);
+	GAME_OVER_FONT_PX = GAME_OVER_HEIGHT / 4;
+	GAME_OVER_LINE_HEIGHT = GAME_OVER_HEIGHT / 2;
 		
 }
 
@@ -100,9 +110,16 @@ function VIEW_initGameWindow() {
 	$("#cancel_game_button").button();
 	$("#cancel_game_button").css({ 'height': RESET_BUTTON_HEIGHT, 'width': RESET_BUTTON_WIDTH, 'left': RESET_BUTTON_LEFT, 'top': RESET_BUTTON_TOP, 'cursor': 'pointer' });
 	
-	
 	$("#return_button").button();
 	$("#return_button").css({ 'height': RESET_BUTTON_HEIGHT, 'width': RESET_BUTTON_WIDTH, 'left': BLACK_MASK_BOX_LEFT, 'top': RESET_BUTTON_TOP });
+	
+	$("#game_over_popup").hide();
+	$("#game_over_popup").css({ 'height': GAME_OVER_HEIGHT, 'width': GAME_OVER_WIDTH, 'left': GAME_OVER_LEFT, 'top': GAME_OVER_TOP, 'font-size': GAME_OVER_FONT_PX + 'px', 'padding': GAME_OVER_PADDING + 'px', 'line-height': GAME_OVER_LINE_HEIGHT + 'px', '-webkit-border-radius': GAME_OVER_HEIGHT + 'px'});	
+	
+	$('#white_player_name').css({ 'height': PLAYER_NAME_HEIGHT, 'width': WHITE_PLAYER_NAME_WIDTH, 'left':  WHITE_PLAYER_NAME_LEFT, 'top': PLAYER_NAME_TOP });
+	$('#black_player_name').css({ 'height': PLAYER_NAME_HEIGHT, 'width': BLACK_PLAYER_NAME_WIDTH, 'left': BLACK_PLAYER_NAME_LEFT, 'top': PLAYER_NAME_TOP });	
+	$('#white_player_name').text(WHITE_PLAYER_NAME);
+	$('#black_player_name').text(BLACK_PLAYER_NAME);
 	
 	$('#white_mask_box').css({ 'height': MASK_BOX_HEIGHT, 'width': MASK_BOX_WIDTH, 'left': WHITE_MASK_BOX_LEFT, 'top': MASK_BOX_TOP });
 	$('#black_mask_box').css({ 'height': MASK_BOX_HEIGHT, 'width': MASK_BOX_WIDTH, 'left': BLACK_MASK_BOX_LEFT, 'top': MASK_BOX_TOP });		
@@ -290,12 +307,33 @@ function VIEW_repositionUnplacedPieces() {
 	
 	// SHOWS EITHER RESET BUTTON OR CANCEL GAME BUTTON
 	if (NUM_MOVES == 0) {
-		$("#cancel_game_button").show();
-		$("#undo_move_button").hide();
+		if (SOLO_GAME) {
+			$("#cancel_game_button").hide();
+			$("#undo_move_button").hide();
+		}
+		else {
+			$("#cancel_game_button").show();
+			$("#undo_move_button").hide();
+		}
 	}
-	else if (NUM_MOVES == 1) {
+	else if (NUM_MOVES == 1 && BLACK_PLAYER_NAME != '(none)') {
 		$("#undo_move_button").show();
 		$("#cancel_game_button").hide();
+	}
+		
+	
+	// MASK GAME PIECE BARS
+	
+	if (NUM_MOVES % 2 == 1) {
+		// BLACK TURN
+		$('#white_mask_box').css({'opacity': .6, 'z-index': 50, 'background': 'rgb(0,0,0)'});
+		$('#black_mask_box').css({'opacity': .1, 'z-index': 1, 'background': 'rgb(0,0,0)'});
+		
+	}
+	else {
+		// WHITE TURN
+		$('#black_mask_box').css({'opacity': .6, 'z-index': 50, 'background': 'rgb(0,0,0)'});
+		$('#white_mask_box').css({'opacity': .1, 'z-index': 1, 'background': 'rgb(0,0,0)'});
 	}
 	
 }
@@ -304,7 +342,7 @@ function VIEW_getTextBlockWidth(in_font, in_text) {
 	//textWidth.width;
 	var canvas = document.getElementById("hexCanvas");
 	var ctx = canvas.getContext("2d");
-	ctx.font = in_font;
+	ctx.font = in_font; // '48px Pacifico'
 	var textWidth = ctx.measureText (in_text);
 	
 	return textWidth.width;

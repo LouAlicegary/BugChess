@@ -12,9 +12,12 @@ function CONTROLLER_MAIN() {
 	document.getElementById('return_button').addEventListener('click', CONTROLLER_returnToLobby, false);
 	document.getElementById('return_button').addEventListener('touchstart', CONTROLLER_returnToLobby, false);
 	
-	CONTROLLER_doInitialUpdateFromDB(30);
-				
-	CONTROLLER_pollingFunction(3000); // POLLS SERVER FOR UPDATES TO SERVER
+	if (!SOLO_GAME) {
+		//alert("NOT SOLO GAME");
+		CONTROLLER_doInitialUpdateFromDB(30);
+		CONTROLLER_pollingFunction(3000); // POLLS SERVER FOR UPDATES TO SERVER		
+	}
+
 }
 
 function CONTROLLER_resetGame() {
@@ -62,7 +65,6 @@ function CONTROLLER_pollingFunction(frequency_timer) {
 	}, frequency_timer )});	
 
 }
-
 
 function CONTROLLER_doInitialUpdateFromDB(frequency_timer) {
 		
@@ -112,7 +114,6 @@ function CONTROLLER_doInitialUpdateFromDB(frequency_timer) {
 	}, frequency_timer );	
 }	
 
-
 function CONTROLLER_clickOnPiece(event) {
 
 	var clicked_hex = SUPPORT_getHexByWindowCoords(event.pageX, event.pageY);
@@ -140,7 +141,6 @@ function CONTROLLER_clickOnPiece(event) {
 	}	
 }	
 
-
 function CONTROLLER_onDrop( event, ui ) {  			
 	//Logger("DROP");
 	
@@ -152,11 +152,9 @@ function CONTROLLER_onDrop( event, ui ) {
 	var hex_midpoint = new HT.Point(pos.left + (PIECE_WIDTH/2), pos.top + (PIECE_HEIGHT/2));
 	var the_hex = SUPPORT_getHexByWindowCoords(hex_midpoint.X, hex_midpoint.Y);
 	var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());
-	//Logger("DROP FUNCTION" + the_hex.GetXYLocation());		
+	
 	$(ui.draggable).trigger('mouseleave');
-	//$(ui.draggable).css({ background: "url('pieces/" + piece_id.substring(0, piece_id.length-1) + ".png')" });
-	//ui.draggable.style.webkitTransform = "rotate(0deg)";
-				
+
 	if (the_hex) { // IF DROPPED ON AN ACTUAL HEX ON GRID
 		
 		if (the_hex.GetXYLocation() == origin) { // IF PIECE HASN'T MOVED
@@ -171,7 +169,8 @@ function CONTROLLER_onDrop( event, ui ) {
 				MODEL_removePieceFromArray(origin);
 				//Logger("SUPPORT: (133) SHOULD BE ADDING PIECE TO ARRAY HERE");
 			MODEL_addPieceToArray(dest, piece_id);
-			MODEL_addMoveToDB(piece_id, dest, origin);
+			if (!SOLO_GAME) 
+				MODEL_addMoveToDB(piece_id, dest, origin);
 			//VIEW
 			$(ui.draggable).hide();
 			$(ui.draggable).attr('origin', the_hex.GetXYLocation());  
@@ -196,7 +195,6 @@ function CONTROLLER_returnToLobby() {
 	window.location = "games_lobby.php?name=" + NAME;
 }
 
-
 function CONTROLLER_cancelGame() {
 	//alert("FIRES");
 	var ret_val = MODEL_eraseGameFromDB();
@@ -206,5 +204,56 @@ function CONTROLLER_cancelGame() {
 }
 
 function CONTROLLER_undoMove() {
-	alert("UNDO MOVE! COMING SOON.");
+	
+	if (!SOLO_GAME) { // DONT WRITE TO DB IF SOLO
+
+
+	var old_num_of_records = NUM_MOVES;
+	var num_of_records = 0;
+	var moves_array = new Array();	
+	var erase_flag = 0;
+	var last_move = new Array();
+	
+	var da_width = $("#hexCanvas").innerWidth();
+	var da_height = $("#hexCanvas").innerWidth();
+	var grid = new HT.Grid(da_width, da_height);
+
+	var request = $.ajax({
+	 	url: "php/get_moves_from_db.php",
+		type: "POST",
+		data: {game_id: GAME_ID},
+		dataType: "json",
+		async: false
+	});
+	
+	request.success(function(data) {
+    	moves_array = data; 	
+ 	});
+ 	
+	request.fail(function(jqXHR, textStatus) {
+	});	
+
+   	request.done(function(data) {
+    	last_move = moves_array[moves_array.length-1]; 
+    	var move_id = last_move[0];
+    	var piece_id = last_move[2];
+    	var origin =  last_move[3];
+		var destination = last_move[4];
+
+		VIEW_removePieceFromCanvas(grid.GetHexByXYIndex(destination));
+		MODEL_removePieceFromArray(destination);		
+		if (origin !== "") {
+			MODEL_addPieceToArray(origin, piece_id);				
+			VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(origin));
+		}
+
+		MODEL_eraseMoveFromDB(move_id);
+		NUM_MOVES = NUM_MOVES - 2; // BECAUSE ADDPIECETOARRAY INCREMENTS BY 1. HOWEVER, WE ARE ERASING A MOVE. 		
+    });
+    
+	
+		
+	}
+	//alert("UNDO MOVE! COMING SOON.");
+	
 }

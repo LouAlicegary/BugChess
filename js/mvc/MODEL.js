@@ -85,6 +85,7 @@ function MODEL_getUpdateFromDB()
     	}
     	else if (num_of_records < old_num_of_records) { // NON-ZERO BUT FEWER RECORDS NOW THAN BEFORE
     		//erase_flag = 1;
+    		alert("THIS SHOULD BE AN UNDO EVENT NOW");
     		NUM_MOVES = num_of_records;
     		Logger("WEIRD DATABASE ERROR. OLD-> NEW RECORDS = " + old_num_of_records + " -> " + num_of_records);    		
     	}
@@ -109,7 +110,7 @@ function MODEL_getUpdateFromDB()
 function MODEL_addMoveToDB(piece_id, destination_string, origin) {
 	//Logger("MODEL: (110) MOVE ADDED TO DB");
 	var request = $.ajax({
-	 	url: "php/place_piece.php",
+	 	url: "php/add_move_to_db.php",
 		type: "POST",
 		data: {game_id: GAME_ID, piece : piece_id, destination : destination_string, origin : origin},
 		dataType: "html"
@@ -146,6 +147,37 @@ function MODEL_eraseGameFromDB() {
     return output;
 }
 
+
+function MODEL_eraseMoveFromDB(/*string*/ move_id) {
+	Logger("MODEL: (138) ERASE MOVE FROM DB FIRED");
+	//alert("GAME_ID");
+	var flag;
+	var request = $.ajax({
+	 	url: "php/erase_move_from_db.php",
+		type: "POST",
+		data: {moveid: move_id},
+		dataType: "html",
+		async: false
+	});	
+	request.success(function(data) {
+		//alert( "DATA: " + data);
+		flag = 1;
+	});	
+
+	request.fail(function(jqXHR, textStatus) {
+		//alert( "ERASE GAME REQUEST FAIL: " + textStatus + " / " + jqXHR.responseText);
+		flag = 0;
+	});	
+
+   	request.done(function(data) {
+    	output = flag;
+    	//Logger("DONE");
+    });	
+    
+    return output;
+}
+
+
 function MODEL_eraseGameFromArray() {
 	for (var i=0; i < GRID_ARRAY.length; i++) {
 		for (var j=0; j < GRID_ARRAY[i].length; j++) {
@@ -170,12 +202,27 @@ function MODEL_checkIfBeeSurrounded() {
 					var f = GRID_ARRAY[i+1][j];
 					if (a != 0 && b != 0 && c != 0 && d != 0 && e != 0 && f != 0) {
 						if ( a.indexOf("white_bee1") && b.indexOf("white_bee1") && c.indexOf("white_bee1") && d.indexOf("white_bee1") && e.indexOf("white_bee1") && f.indexOf("white_bee1") ) {
-							alert("GAME OVER. BLACK WINS.");
-							CONTROLLER_resetGame();
-							
+							$("#game_over_popup").html("Black has surrounded white's queen bee.<br />Black wins.");
+							$("#game_over_popup").show();	
+							// update db with win
+							var request = $.ajax({
+							 	url: "php/add_winner_to_db.php",
+								type: "POST",
+								data: {game_id: GAME_ID, winner: BLACK_PLAYER_NAME},
+								dataType: "html",
+								async: false
+							});	
+							request.success(function(data) {
+								//flag = 1;
+							});	
+							request.fail(function(jqXHR, textStatus) {
+								//flag = 0;
+							});	
+						   	request.done(function(data) {
+						    	//output = flag;
+						    });								
 						}
 					}
-					//Logger("white a/b/c/d/e/f : " + a + b + c + d + e + f);
 				}
 				if (GRID_ARRAY[i][j].indexOf("black_bee1") != -1) {
 					var a = GRID_ARRAY[i-1][j-1];
@@ -186,11 +233,26 @@ function MODEL_checkIfBeeSurrounded() {
 					var f = GRID_ARRAY[i+1][j];
 					if (a != 0 && b != 0 && c != 0 && d != 0 && e != 0 && f != 0) {
 						if ( a.indexOf("black_bee1") && b.indexOf("black_bee1") && c.indexOf("black_bee1") && d.indexOf("black_bee1") && e.indexOf("black_bee1") && f.indexOf("black_bee1") ) {
-							alert("GAME OVER. WHITE WINS.");
-							CONTROLLER_resetGame();
+							$("#game_over_popup").html("White has surrounded black's queen bee.<br />White wins.");
+							$("#game_over_popup").show();
+							var request = $.ajax({
+							 	url: "php/add_winner_to_db.php",
+								type: "POST",
+								data: {game_id: GAME_ID, winner: WHITE_PLAYER_NAME},
+								dataType: "html",
+								async: false
+							});	
+							request.success(function(data) {
+								//flag = 1;
+							});	
+							request.fail(function(jqXHR, textStatus) {
+								//flag = 0;
+							});	
+						   	request.done(function(data) {
+						    	//output = flag;
+						    });	
 						}
 					}
-					//Logger("white a/b/c/d/e/f : " + a + b + c + d + e + f);
 				}
 			}
 		}
