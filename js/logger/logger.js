@@ -22,46 +22,35 @@ var ctx;
 var textWidth;
 
 function getTextBlockWidth(in_font, in_text) {
-	//textWidth.width;
-	
-	//document.body.appendChild(canvas);
+
 	testcanvas.width  = $(window).width();
 	testcanvas.height = $(window).height();
 	ctx = testcanvas.getContext("2d");
 	ctx.font = in_font; // "56px Pacifico"
 	textWidth = ctx.measureText (in_text);
-	
-	Logger("in_font / in_text -> width: " + in_font + " " + in_text + " -> " + textWidth.width + "px" );
+	Logger("in_font / in_text -> textwidth: " + in_font + " " /*+ in_text*/ + "-> " + textWidth.width + "px, " + " TESTCANVAS: " + testcanvas.width + "px " + testcanvas.height + "px" );
 	return textWidth.width;
 }
 
-function getMaxFontSizeByWidth(in_width, in_font, in_text) {
+// DIV HEIGHT * .7 MAKES A GOOD STARTING UPPERBOUND
+function getMaxFontSizeByWidth(in_width, in_upperbound, in_fontface, in_text) {
+	Logger("IN_WIDTH: " + in_width + " IN_UPPERBOUND: " + in_upperbound +  " IN_FONTFACE: " + in_fontface + " IN_TEXT: " + in_text); 
 	var in_text_len = in_text.length;
-	var width_guess = 250;
+	var width_guess = 50;
 	var flag = 1;
 	var factor;
-	var width = getTextBlockWidth( width_guess + "px " + in_font, in_text);
-	var factor = width / in_width;
-	width_guess = width_guess / factor;
-	Logger("LOGGER: GOAL WIDTH = " + in_width + "px / WIDTH @ 250px = " + width + " SO MY GUESS FOR FONT SIZE = " + 250/factor + "px");
 	
-	width = getTextBlockWidth( width_guess + "px " + in_font, in_text);
-	Logger("WIDTH @ GUESS = " + width + "px");
-	/*while (flag) {
-
-		width = getTextBlockWidth( width_guess + "px " + in_font, in_text);
-		
-		
-		if (width > in_width) {
-			width_guess = width_guess / 1.1;
-		}
-		else if (width < (in_width*.95)) {
-			width_guess = width_guess * 1.03;
-		}
-		else {
-			flag = 0;
-		}
-	}*/
-	return Math.floor(width_guess);		
+	var width = getTextBlockWidth( width_guess + "px " + in_fontface, in_text);
+	var factor = width / in_width;
+	
+	width_guess = width_guess / factor;
+	width = getTextBlockWidth( width_guess + "px " + in_fontface, in_text);
+	
+	//Logger("GOAL WIDTH: " + in_width + " WIDTH GUESS: " + width +  " UPPER BOUND: " + in_upperbound + " WIDTH CALC: " + width_guess);
+	
+	if (width_guess < in_upperbound)
+	   return Math.floor(width_guess);	
+	else 
+	   return in_upperbound;
 }
 

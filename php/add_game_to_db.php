@@ -1,6 +1,7 @@
 <?php
-	
-	mysql_connect("localhost", "sweetlou_bc", "sweetlou_bc") or die(mysql_error());
+	require_once('../../../db_access.php');
+    
+	mysql_connect($bug_host, $bug_user, $bug_pass) or die(mysql_error());
     mysql_select_db("sweetlou_bugchess") or die(mysql_error());
 	
 	$name = mysql_real_escape_string($_POST['name']);

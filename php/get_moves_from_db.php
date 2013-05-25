@@ -1,10 +1,9 @@
 <?php 
-
-	
+    require_once('../../../db_access.php');
 
 	$a = array(array(0)); // array of columns
 	
-	mysql_connect("localhost", "sweetlou_bc", "sweetlou_bc") or die(mysql_error());
+	mysql_connect($bug_host, $bug_user, $bug_pass) or die(mysql_error());
     mysql_select_db("sweetlou_bugchess") or die(mysql_error());
     
 	$the_game_id = mysql_real_escape_string($_POST['game_id']);

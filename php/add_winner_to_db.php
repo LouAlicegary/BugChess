@@ -1,7 +1,9 @@
 <?php
+require_once('../../../db_access.php');
+
 if(isset($_POST['winner']) && !empty($_POST['winner'])) {
 
-	mysql_connect("localhost", "sweetlou_bc", "sweetlou_bc") or die(mysql_error());
+	mysql_connect($bug_host, $bug_user, $bug_pass) or die(mysql_error());
     mysql_select_db("sweetlou_bugchess") or die(mysql_error());
     	
 	$winner = mysql_real_escape_string($_POST['winner']);

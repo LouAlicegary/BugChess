@@ -1,3 +1,8 @@
+var WHITE_BEE_PLACED = 0;
+var BLACK_BEE_PLACED = 0;
+
+var CLICKED_ON = "";
+var mid_drop_flag = 0; // set to 1 on draggable start
 
 
 function CONTROLLER_MAIN() {
@@ -6,7 +11,7 @@ function CONTROLLER_MAIN() {
 	VIEW_initGameWindow();
 	
 	document.getElementById('hexCanvas').addEventListener('click', VIEW_EVENT_clickPieceOnBoard, false);
-	//document.getElementById('hexCanvas').addEventListener('touchstart', VIEW_EVENT_clickPieceOnBoard, false);
+	document.getElementById('hexCanvas').addEventListener('touchstart', VIEW_EVENT_clickPieceOnBoard, false);
 	
 	document.getElementById('undo_move_button').addEventListener('click', CONTROLLER_undoMove, false);
 	document.getElementById('cancel_game_button').addEventListener('click', CONTROLLER_cancelGame, false);
@@ -144,8 +149,7 @@ function CONTROLLER_doInitialUpdateFromDB(frequency_timer) {
 
 
 
-var CLICKED_ON = "";
-var mid_drop_flag = 0; // set to 1 on draggable start
+
 
 function VIEW_EVENT_clickPieceOnBoard(event) {
     
@@ -159,12 +163,6 @@ function VIEW_EVENT_clickPieceOnBoard(event) {
     
     if (break_flag)
         return;
-    
-    $(".game_piece").unbind("click");   
-    $(".game_piece").click(CONTROLLER_onDrop);  
-        
-    document.getElementById('hexCanvas').removeEventListener('click', VIEW_EVENT_clickPieceOnBoard);
-    document.getElementById('hexCanvas').addEventListener('click', CONTROLLER_onDrop, false); //VIEW_EVENT_clickOncePieceSelected, false);
     
     var clicked_hex = SUPPORT_getHexByWindowCoords(event.pageX, event.pageY);
     
@@ -186,6 +184,12 @@ function VIEW_EVENT_clickPieceOnBoard(event) {
             
             // IF BLACK'S TURN + BLACK PIECE CLICKED OR WHITE TURN -> WHITE PIECE
             if ( ((NUM_MOVES % 2 == 1) && (this_piece.indexOf("black") != -1)) || ( ((NUM_MOVES % 2) == 0) && (this_piece.indexOf("white") != -1)) ) { 
+                $(".game_piece").unbind("click");   
+                $(".game_piece").click(CONTROLLER_onDrop);  
+    
+                document.getElementById('hexCanvas').removeEventListener('click', VIEW_EVENT_clickPieceOnBoard);
+                document.getElementById('hexCanvas').addEventListener('click', CONTROLLER_onDrop, false); //VIEW_EVENT_clickOncePieceSelected, false);
+
                 $("#" + this_piece).attr('origin', clicked_hex.GetXYLocation());
                 VIEW_removePieceFromCanvas(clicked_hex);
                 VIEW_showDraggablePiece(this_piece, hex_midpoint);
@@ -195,51 +199,7 @@ function VIEW_EVENT_clickPieceOnBoard(event) {
     }   
 }   
 
-/*
-function VIEW_EVENT_clickOncePieceSelected (event) {
-    alert("THIS SHOULDNT GET CALLED ANYMORE");
-    var break_flag = 0;
-    
-    if(mid_drop_flag) {
-        break_flag = 1;
-    }
-    mid_drop_flag = 0;
-    
-    if (break_flag)
-        return;
 
-    document.getElementById('hexCanvas').removeEventListener('click', VIEW_EVENT_clickOncePieceSelected);
-    document.getElementById('hexCanvas').addEventListener('click', VIEW_EVENT_clickPieceOnBoard, false);
-    
-    var x_val = CLICKED_ON.substring(0, CLICKED_ON.indexOf(","));
-    var y_val = CLICKED_ON.substring(CLICKED_ON.indexOf(",") + 1);
-    
-    var clicked_hex = SUPPORT_getHexByWindowCoords(event.pageX, event.pageY);
-    
-    var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());
-    
-    // IF ACTUAL HEX IS CLICKED AND NOT BLANK SPACE
-    if (clicked_hex) {
-        if (CLICKED_ON == clicked_hex.GetXYLocation()) { // IF CLICKED ON SAME HEX AS ORIGINALLY CLICKED ON
-            // click on same hex
-            clearInterval(PIECE_ANIMATION_INTERVAL);
-            $("#" + getTopPieceInArray( x_val, y_val)).hide();
-            var the_hex = grid.GetHexByXYIndex(CLICKED_ON);
-            VIEW_drawPieceOnCanvas(the_hex);
-        }
-        else {
-            clearInterval(PIECE_ANIMATION_INTERVAL);
-            $("#" + getTopPieceInArray( x_val, y_val)).hide();
-            //var the_hex = grid.GetHexByXYIndex(CLICKED_ON);
-            //VIEW_drawPieceOnCanvas(the_hex);
-        }
-    }
-        
-} */
-
-
-var WHITE_BEE_PLACED = 0;
-var BLACK_BEE_PLACED = 0;
 
 function CONTROLLER_onDrop( event, ui ) {           
     //Logger("DROP");
@@ -315,28 +275,28 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
         // MAKE SURE HEX ISN'T OCCUPIED
         if (GRID_ARRAY[dest_x][dest_y] && NUM_MOVES != 0) {
             invalid_flag += 1;
-            error_string += "You can't place a piece onto the board for the first time in an occupied square.\n";
+            error_string += "You can't place a piece onto the board for the first time in an occupied square.\n\n";
         }
             
         // MAKE SURE PIECE NOT TOUCHING OPPONENT'S COLOR
         if (isHexTouchingOpponent(in_piece_id, in_dest) && NUM_MOVES > 1) {
             invalid_flag += 2;
-            error_string += "A piece coming onto the board for the first time can't be placed touching an opponent's piece.\n"; 
+            error_string += "A piece coming onto the board for the first time can't be placed touching an opponent's piece.\n\n"; 
         }
                 
         // MAKE SURE TARGET HEX IS CONNECTED TO BOARD
         if (!isHexConnectedToBoard(in_origin, in_dest) && NUM_MOVES != 0) {
             invalid_flag += 4;
-            error_string += "The destination hex isn't touching the hive.\n";
+            error_string += "The destination hex isn't touching the hive.\n\n";
         }
         // MAKE SURE BEE IS PLACED BY COMPLETION OF 4TH MOVE    
         if ( (current_color = "white") && (NUM_MOVES == 6) && (in_piece_id.indexOf( "white_bee1")==-1) && !(WHITE_BEE_PLACED) ) {
             invalid_flag += 8;
-            error_string += "This is your fourth move, so the bee must be placed by this point. Please put the bee on the board.\n";
+            error_string += "This is your fourth move, so the bee must be placed by this point. Please put the bee on the board.\n\n";
         }
         else if ( (current_color = "black") && (NUM_MOVES == 7) && (in_piece_id.indexOf( "black_bee1")==-1) && !(BLACK_BEE_PLACED) ) {
             invalid_flag += 8;
-            error_string += "This is your fourth move, so the bee must be placed by this point. Please put the bee on the board.\n";
+            error_string += "This is your fourth move, so the bee must be placed by this point. Please put the bee on the board.\n\n";
         }   
 
     }
@@ -347,25 +307,25 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
         // MAKE SURE DOESN'T VIOLATE 1 HIVE RULE
         if (!oneHiveDuringMove(in_origin)) {
             invalid_flag += 16;
-            error_string += "The move you are trying to make violates the one hive rule.\n";
+            error_string += "The move you are trying to make violates the one hive rule.\nWhen you pick up your piece to move it, the hive can't segment into two.\n\n";
             $("#" + in_piece_id).hide();
         }
         // SAME AS ABOVE, HENCE LOW FLAG    
         if (!isHexConnectedToBoard(in_origin, in_dest) && NUM_MOVES != 0) {
             invalid_flag += 4;
-            error_string += "The destination hex isn't touching the hive.\n";
+            error_string += "The destination hex isn't touching the hive.\n\n";
             $("#" + in_piece_id).hide();
         }
                         
         // CANT MOVE UNTIL QUEEN PLACED
         if ( (current_color == "white") && !(WHITE_BEE_PLACED) ) {
             invalid_flag+=32;
-            error_string += "You can't move a piece that's on the board until the queen has been placed.\n";
+            error_string += "You can't move a piece that's on the board until the queen has been placed.\n\n";
             $("#" + in_piece_id).hide();
         }
         else if ( (current_color == "black") && !(BLACK_BEE_PLACED) ) {
             invalid_flag+=32;
-            error_string += "You can't move a piece that's on the board until the queen has been placed.\n";
+            error_string += "You can't move a piece that's on the board until the queen has been placed.\n\n";
             $("#" + in_piece_id).hide();                    
         }
         
@@ -373,7 +333,7 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
         if (in_piece_id.indexOf("beetle") == -1) {
             if (GRID_ARRAY[dest_x][dest_y]) {
                 invalid_flag+= 64;
-                error_string += "Only beetles may climb on top of another piece.\n";
+                error_string += "Only beetles may climb on top of another piece.\n\n";
                 $("#" + in_piece_id).hide();
             }
         }
@@ -382,7 +342,7 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
         if (in_piece_id.indexOf("beetle") != -1) {
             if (getDistanceBetweenHexes(in_origin, in_dest) != 1) {
                 invalid_flag += 128;
-                error_string += "The beetle can only move one space, but may move on top of another piece.\n";  
+                error_string += "The beetle can only move one space, but may move on top of another piece.\n\n";  
             }
         }
         
@@ -390,7 +350,7 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
         if (in_piece_id.indexOf("bee1") != -1) {
             if (getDistanceBetweenHexes(in_origin, in_dest) != 1) {
                 invalid_flag += 128;
-                error_string += "The queen bee can only move one space.\n"; 
+                error_string += "The queen bee can only move one space.\n\n"; 
             }                   
         }
         
@@ -398,7 +358,10 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
         if (in_piece_id.indexOf("grasshopper") != -1) {
             var invalid_jump_flag = 0;
             
-            if (  (dest_y == origin_y) && (dest_x > origin_x) ) {
+            if (getDistanceBetweenHexes(in_origin, in_dest) == 1 ) {
+                invalid_jump_flag = 3;
+            }
+             else if (  (dest_y == origin_y) && (dest_x > origin_x) ) {
                 for (var i=origin_x + 1; i < dest_x; i++) {
                     if (GRID_ARRAY[i][origin_y] == 0) {
                         invalid_jump_flag = 1;
@@ -461,13 +424,17 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
                 invalid_jump_flag = 2;
             }
             
-            if (invalid_jump_flag == 2) {
+            if (invalid_jump_flag == 3) {
                 invalid_flag += 128;
-                error_string += "The grasshopper must move on a diagonal and cannot skip any empty spaces while moving.\n"; 
+                error_string += "The grasshopper must actually jump a piece. It can't just move one spot.\n\n";                
+            }
+            else if (invalid_jump_flag == 2) {
+                invalid_flag += 128;
+                error_string += "The grasshopper must move on a diagonal and cannot skip any empty spaces while moving.\n\n"; 
             }
             else if (invalid_jump_flag == 1) {
                 invalid_flag += 128;
-                error_string += "The grasshopper must move on a diagonal and cannot skip any empty spaces while moving.\nThere was an empty space at " + empty_space + ".\n";
+                error_string += "The grasshopper must move on a diagonal and cannot skip any empty spaces while moving.\nThere was an empty space at " + empty_space + ".\n\n";
             }
         }
         
@@ -476,7 +443,7 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
             var theHive = getOutsideOfHive(in_origin);
             if (!possibleSpiderPath(theHive, in_origin, in_dest)) {
                 invalid_flag += 128;
-                error_string += "The spider must move three spaces around the outside edge of the hive.\n"; 
+                error_string += "The spider must move three spaces around the outside edge of the hive.\n\n"; 
             }
         }
         
@@ -486,7 +453,7 @@ function CONTROLLER_processMove(in_origin, in_dest, in_piece_id) {
             Logger("FINAL HIVE: " + theHive);
             if (isHexInStack(new Array(dest_x, dest_y), theHive))  {
                 invalid_flag += 128;
-                error_string += "The ant can only move around the outside edge of the hive.\n";       
+                error_string += "The ant can only move around the outside edge of the hive.\n\n";       
             }
             
         }

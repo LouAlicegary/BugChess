@@ -2,6 +2,7 @@
 <html>
 
 <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
 	
 	<title>loualicegary.com / Bug Chess (alpha)</title>
 	
@@ -16,7 +17,7 @@
 	<!-- CSS -->
 	<link href='css/jquery-ui.css' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Pacifico|Droid+Sans:bold|Open+Sans:bold|Oswald:bold' rel='stylesheet' type='text/css'>
-	<link href='css/index.css' rel='stylesheet' type='text/css'>
+	<link href='css/games_lobby.css' rel='stylesheet' type='text/css'>
 
 </head>
  
@@ -184,7 +185,7 @@
 				var WARNING_WIDTH = WINDOW_WIDTH / 2;
 				var WARNING_TOP = (WINDOW_HEIGHT/2) - (WINDOW_HEIGHT/8);
 				var WARNING_LEFT = WINDOW_WIDTH / 4;
-				var WARNING_FONT_PX = getMaxFontSizeByWidth($("#portrait_warning").width(), "Pacifico", $("#portrait_warning").text().substring( $("#portrait_warning").text().indexOf(".") ));
+				var WARNING_FONT_PX = getMaxFontSizeByWidth($("#portrait_warning").width(), ($("#portrait_warning").height() * .8), "Pacifico", $("#portrait_warning").text().substring( $("#portrait_warning").text().indexOf(".") ));
 				var WARNING_LINE_HEIGHT = WARNING_FONT_PX * 1.4;
 				
 				$('.header_text').css({ 
@@ -250,22 +251,12 @@
 				});	
 				
 				$("#portrait_warning").css({'height': WARNING_HEIGHT, 'width': WARNING_WIDTH, 'top': WARNING_TOP, 'left': WARNING_LEFT, 'font': WARNING_FONT_PX + "px Pacifico", 'text-align': 'center', 'line-height': WARNING_LINE_HEIGHT + 'px'});
-		
-				/*
-				$('.open_game, .current_game').each( function(index) {
-					REGULAR_TEXT_PX = getMaxFontSizeByWidth(DIV_WIDTH, "Pacifico", $(this).text());
-					$(this).css({
-						'font-size': REGULAR_TEXT_PX + 'px'
-					});
-					
-				});		
-				*/
-				
+			
 				var temp=0;
 				var min=99999; 
 				
 				$(".column1, .column2, .column3").each( function (index) {
-					temp = getMaxFontSizeByWidth($(this).width(), "Droid Sans", $(this).text());
+					temp = getMaxFontSizeByWidth($(this).width(), ($(this).height() * .8), "Droid Sans", $(this).text());
 					if ( (temp < min) && (temp != 0) )
 						min = temp;
 				});	

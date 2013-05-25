@@ -32,7 +32,7 @@
 	<!-- CSS -->
 	<link href='css/jquery-ui.css' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Pacifico|Droid+Sans:bold|Open+Sans:bold|Oswald:bold' rel='stylesheet' type='text/css'>
-	<link href='css/index.css' rel='stylesheet' type='text/css'>
+	<link href='css/play_game.css' rel='stylesheet' type='text/css'>
 
 </head>
  
