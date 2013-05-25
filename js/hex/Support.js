@@ -19,7 +19,7 @@ function SUPPORT_pageToGridCoords(thepageX, thepageY)
 	node = document.getElementById("content");
 	var string_array = window.getComputedStyle(node).webkitTransform.split(",");
 	var x_scroll = string_array[4];
-	var y_scroll = string_array[5].slice(0, - 1);
+	var y_scroll = string_array[5].slice(0, - 1); // cuts everything but last element / char in string_array[5]
     canvasX = thepageX - totalOffsetX - x_scroll;
     canvasY = thepageY - totalOffsetY - y_scroll;   
 
@@ -43,7 +43,7 @@ function SUPPORT_gridToPageCoords(canvasX, canvasY) //receive midpoints of hex
 	var node = document.getElementById("content");
 	var string_array = window.getComputedStyle(node).webkitTransform.split(",");
 	var x_scroll = Number(string_array[4]);
-	var y_scroll = Number(string_array[5].slice(0, - 1));
+	var y_scroll = Number(string_array[5].slice(0, - 1)); // cuts everything but last element / char in string_array[5]
     
     var thepageX = totalOffsetX + x_scroll + canvasX;
     var thepageY = totalOffsetY + y_scroll + canvasY; 
@@ -81,4 +81,76 @@ function SUPPORT_getHexSideFromWH(width, height) {
 	var b = (-2.0 * width);
 	var c = (Math.pow(width, 2)) + (Math.pow(height, 2));
 	return (-b - Math.sqrt(Math.pow(b,2)-(4.0*a*c)))/(2.0*a);	
+}
+
+// TODO: THIS SHOULD BE BUILT OUT AND USED IN SEEDING BOARD AS WELL FOR CONSISTENCY
+var bugs = Array("white_ant", "white_grasshopper", "white_spider", "white_beetle", "white_bee", "black_ant", "black_grasshopper", "black_spider", "black_beetle", "black_bee");
+var load_counter = 0;
+var img_obj_array = Array(); // referenced as var in HT 130
+
+function VIEW_drawEmptyGrid() {
+	
+	VIEW_preloadImages();
+	VIEW_setCanvasHexSize();
+	VIEW_drawHexGrid();	
+	
+	function VIEW_preloadImages() {	
+		//Logger("IMAGE PRELOADER STARTED");
+		
+		for (var i=0; i < bugs.length; i++) {
+			var imageObj = new Image();
+			imageObj.src = "pieces/" + bugs[i] + ".png";  
+			imageObj.onload = function() {
+				load_counter++;
+			};       	
+			img_obj_array[bugs[i]] = imageObj; 
+		}
+		
+		var the_int = setInterval(function() {
+			if (load_counter == 10) {
+				//Logger("IMAGES PRELOADER FINISHED WITHIN LAST 20 MILLISECONDS");
+				clearInterval(the_int);
+			}
+		}, 20);	
+	}
+	
+	function VIEW_setCanvasHexSize()
+	{
+		var width = PIECE_WIDTH; 
+		var height = PIECE_HEIGHT; 
+
+		var a = -3.0;
+		var b = (-2.0 * width);
+		var c = (Math.pow(width, 2)) + (Math.pow(height, 2));
+		var z = (-b - Math.sqrt(Math.pow(b,2)-(4.0*a*c)))/(2.0*a);
+		
+		var x = (width - z)/2.0;
+		var y = height/2.0;
+		
+		HT.Hexagon.Static.WIDTH = width;
+		HT.Hexagon.Static.HEIGHT = height;
+		HT.Hexagon.Static.SIDE = z;
+	}
+	
+	function VIEW_drawHexGrid()
+	{
+		var grid_height = BOARD_ROWS * PIECE_HEIGHT; 
+		var grid_width = (Math.floor((BOARD_COLUMNS+1)/2) * PIECE_WIDTH) + (Math.floor((BOARD_COLUMNS+1)/2) * PIECE_SIDE) ; 
+	
+		var canvas = document.getElementById('hexCanvas');
+		canvas.width = grid_width;
+		canvas.height = grid_height;
+		
+		var ctx = canvas.getContext('2d');
+		ctx.clearRect(0, 0, grid_width, grid_height);
+	
+		var grid = new HT.Grid(grid_width, grid_height);
+		
+		for(var h in grid.Hexes)
+		{
+			grid.Hexes[h].draw(ctx);
+		}
+		
+	}	
+	
 }

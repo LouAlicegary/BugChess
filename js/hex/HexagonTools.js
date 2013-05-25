@@ -107,6 +107,7 @@ HT.Hexagon.prototype.draw = function(ctx) {
 HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
 
 	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
+	//Logger("PRE DRAW IMAGE: " + array_val + " " +  this.PathCoOrdX + "," + this.PathCoOrdY);
 	if ( array_val != 0) { // fill hexagon in canvas if a piece exists there
 		
 		var piece_stack = Array();
@@ -123,18 +124,9 @@ HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
 		}
 		
 		top_piece = piece_stack[piece_stack.length-1];
-
    		var midPoint = this.MidPoint;
-   		
    		//Logger("DRAW IMAGE:  " + top_piece.substring(0, top_piece.length-1) + " (" + this.PathCoOrdX + "," + this.PathCoOrdY + ")");// + " @ " + midPoint.X-50 + "," + midPoint.Y-40);
-   		ctx.drawImage(img_obj_array[top_piece.substring(0, top_piece.length-1)], midPoint.X-50, midPoint.Y-40);
-   		/*var imageObj = new Image();
-   		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
-		imageObj.onload = function() {
-        	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
-         	Logger("IMAGE FULLY LOADED");
-      	}; */  
-    
+   		ctx.drawImage(img_obj_array[top_piece.substring(0, top_piece.length-1)], midPoint.X-50, midPoint.Y-40); 
 	}
 	
 	//Logger("HT: (165) PIECE DRAWN TO CANVAS");

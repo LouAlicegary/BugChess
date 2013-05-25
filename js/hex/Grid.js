@@ -127,7 +127,7 @@ HT.Grid.prototype.GetHexById = function(id) {
  * @this {HT.Grid}
  * @return {HT.Hexagon}
  */
-HT.Grid.prototype.GetHexByXYIndex = function(xy_string) {
+HT.Grid.prototype.GetHexByXYIndex = function( /*string*/ xy_string) {
 	xy_array = xy_string.split(",");
 	for(var i in this.Hexes)
 	{

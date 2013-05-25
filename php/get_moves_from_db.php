@@ -1,12 +1,14 @@
 <?php 
 
-	$the_game_id = $_POST['game_id'];
+	
 
 	$a = array(array(0)); // array of columns
 	
 	mysql_connect("localhost", "sweetlou_bc", "sweetlou_bc") or die(mysql_error());
     mysql_select_db("sweetlou_bugchess") or die(mysql_error());
     
+	$the_game_id = mysql_real_escape_string($_POST['game_id']);
+	
 	$data = mysql_query("SELECT * FROM moves WHERE game_id = '" . $the_game_id . "' ORDER BY move_id ASC") or die(mysql_error()); 
 	$counter = 0;
 		
