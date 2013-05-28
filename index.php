@@ -3,7 +3,7 @@
 
 <head>
     <meta name="HandheldFriendly" content="True">
-	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
 	
 	<title>loualicegary.com / Bug Chess (alpha)</title>
 	
@@ -44,7 +44,7 @@
         
         window.addEventListener("orientationchange", function() {
             Logger("Orientation change (" + window.orientation + "). OuterW/H / InnerW/H = " + window.outerWidth + " " + window.outerHeight + " " + window.innerWidth + " " + window.innerHeight);
-            setPageAttributes();
+            setTimeout(function() {setPageAttributes(); }, 200);
         });
 	    
         document.ontouchmove = function(event) {

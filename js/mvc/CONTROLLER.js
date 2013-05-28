@@ -520,7 +520,7 @@ function CONTROLLER_resignGame() {
     else
         winner = WHITE_PLAYER_NAME;
         
-    $("#game_over_popup").html("Game resigned.<br />" + winner + " wins.");
+    $("#game_over_text").html("Game resigned.<br />" + winner + " wins.");
     MODEL_processWinner(winner, 2); 
 }
 
@@ -844,30 +844,24 @@ function getOutsideOfHive(origin) {
         var y_val = parseInt(stack[i][1]); 
         //Logger("x/y: " + x_val + " " + y_val);
         
-        if (isHexInternalToHive(x_val-1, y_val-1) && !(isHexInStack(new Array(x_val-1, y_val-1), theHive)) && !((origin_x == x_val-1) && (origin_y == y_val-1)) ) {
+        if (isHexInternalToHive(x_val-1, y_val-1) && !(isHexInStack(new Array(x_val-1, y_val-1), theHive)) && !((origin_x == x_val-1) && (origin_y == y_val-1)) )
             theHive.push(new Array (x_val-1, y_val-1));
-            //Logger( (x_val-1) + " " + (y_val-1) + " added to theHive.");
-        }
-        if (isHexInternalToHive(x_val-1, y_val) && !(isHexInStack(new Array(x_val-1, y_val), theHive)) && !((origin_x == x_val-1) && (origin_y == y_val)) ) {
+
+        if (isHexInternalToHive(x_val-1, y_val) && !(isHexInStack(new Array(x_val-1, y_val), theHive)) && !((origin_x == x_val-1) && (origin_y == y_val)) )
             theHive.push(new Array (x_val-1, y_val));
-             //Logger( (x_val-1) + " " + y_val + " added to theHive.");
-        }
-        if (isHexInternalToHive(x_val, y_val+1) && !(isHexInStack(new Array(x_val, y_val+1), theHive)) && !((origin_x == x_val) && (origin_y == y_val+1)) ) {
+
+        if (isHexInternalToHive(x_val, y_val+1) && !(isHexInStack(new Array(x_val, y_val+1), theHive)) && !((origin_x == x_val) && (origin_y == y_val+1)) )
             theHive.push(new Array (x_val, y_val+1));
-             //Logger( x_val + " " + (y_val+1) + " added to theHive.");
-        }
-        if (isHexInternalToHive(x_val+1, y_val+1) && !(isHexInStack(new Array(x_val+1, y_val+1), theHive)) && !((origin_x == x_val+1) && (origin_y == y_val+1)) ) {
+
+        if (isHexInternalToHive(x_val+1, y_val+1) && !(isHexInStack(new Array(x_val+1, y_val+1), theHive)) && !((origin_x == x_val+1) && (origin_y == y_val+1)) )
             theHive.push(new Array (x_val+1, y_val+1));
-             //Logger( (x_val+1) + " " + (y_val+1) + " added to theHive.");
-        }
-        if (isHexInternalToHive(x_val+1, y_val) && !(isHexInStack(new Array(x_val+1, y_val), theHive)) && !((origin_x == x_val+1) && (origin_y == y_val)) ) {
+
+        if (isHexInternalToHive(x_val+1, y_val) && !(isHexInStack(new Array(x_val+1, y_val), theHive)) && !((origin_x == x_val+1) && (origin_y == y_val)) )
             theHive.push(new Array (x_val+1, y_val));
-             //Logger( (x_val+1) + " " + y_val + " added to theHive.");
-        }
-        if (isHexInternalToHive(x_val, y_val-1) && !(isHexInStack(new Array(x_val, y_val-1), theHive)) && !((origin_x == x_valEARLT) && (origin_y == y_val-1)) ) {
+
+        if (isHexInternalToHive(x_val, y_val-1) && !(isHexInStack(new Array(x_val, y_val-1), theHive)) && !((origin_x == x_val) && (origin_y == y_val-1)) )
             theHive.push(new Array (x_val, y_val-1));
-             //Logger( x_val + " " + (y_val-1) + " added to theHive.");
-        }
+
     }
     
     return theHive;      

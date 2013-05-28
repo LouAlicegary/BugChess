@@ -78,7 +78,7 @@ function MODEL_getUpdateFromDB()
     	//Logger("MODEL: (79) MA_LEN + MA + NUM_REC = " + moves_array.length + " / " + moves_array + " / " + num_of_records);
     	
     	if (num_of_records < old_num_of_records) { // NON-ZERO BUT FEWER RECORDS NOW THAN BEFORE
-			$("#game_over_popup").html("Opponent has requested undo.");
+			$("#game_over_text").html("Opponent has requested undo.");
 			$("#game_over_popup").show();
 			setTimeout(function(){
 				window.location = "play_game.php?gameid=" + GAME_ID + "&name=" + NAME + "&white_player=" + WHITE_PLAYER_NAME + "&black_player=" + BLACK_PLAYER_NAME;
@@ -220,15 +220,15 @@ function MODEL_checkIfBeeSurrounded() {
 	}
 
 	if (black_bee_surrounded && white_bee_surrounded) {
-		$("#game_over_popup").html("Both players queen bees are surrounded.<br />Game is a draw.");
+		$("#game_over_text").html("Both players queen bees are surrounded.<br />Game is a draw.");
 		MODEL_processWinner("draw", 1);	
 	}
 	else if (white_bee_surrounded) {
-		$("#game_over_popup").html( BLACK_PLAYER_NAME + " has surrounded " + WHITE_PLAYER_NAME + "'s queen bee.<br />" + BLACK_PLAYER_NAME + " wins.");
+		$("#game_over_text").html( BLACK_PLAYER_NAME + " has surrounded " + WHITE_PLAYER_NAME + "'s queen bee.<br />" + BLACK_PLAYER_NAME + " wins.");
 		MODEL_processWinner(BLACK_PLAYER_NAME, 1);
 	}
 	else if (black_bee_surrounded) {
-		$("#game_over_popup").html( WHITE_PLAYER_NAME + " has surrounded " + BLACK_PLAYER_NAME + "'s queen bee.<br />" + WHITE_PLAYER_NAME + " wins.");
+		$("#game_over_text").html( WHITE_PLAYER_NAME + " has surrounded " + BLACK_PLAYER_NAME + "'s queen bee.<br />" + WHITE_PLAYER_NAME + " wins.");
 		MODEL_processWinner(WHITE_PLAYER_NAME, 1);
 	}
 		

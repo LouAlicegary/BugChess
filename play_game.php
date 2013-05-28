@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+    <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, user-scalable=0"/>
 	
 	<title>loualicegary.com / Bug Chess (alpha)</title>
 	
@@ -38,26 +38,43 @@
  
 <body>
 	<div id="wrapper">
-	
-		<div id="game_title">Bug Chess</div>
-		
-		<div id="bottom_bar">
-			<div id="undo_move_button" class="game_button ui-corner-all">undo move</div>
-			<div id="cancel_game_button" class="game_button ui-corner-all">cancel game</div>
-			<div id="return_button" class="game_button ui-corner-all">return to lobby</div>	
-			<div id="rematch_button" class="game_button ui-corner-all">play rematch</div>
-			<div id="clear_board_button" class="game_button ui-corner-all">clear board</div>
-			<div id="resign_button" class="game_button ui-corner-all">resign game</div>
-				
-		</div>
-		
-		<div id="game_over_popup"></div>
-		<div id="white_player_name"></div>
-		<div id="black_player_name"></div>
-		
-		<div id="white_mask_box" class="mask_box ui-corner-all"></div>
-		<div id="black_mask_box" class="mask_box ui-corner-all"></div>
-		
+        
+        <div id="white_mask_box" class="mask_box ui-corner-all"></div>
+        
+        <div id="middle_area">
+            
+            <div id="white_player_name"></div>
+            <div id="game_title">Bug Chess</div>
+            <div id="black_player_name"></div>
+            
+            <div id="container">
+                <div id="content" data-scrollable="true">
+                    <canvas id="hexCanvas"></canvas>
+                </div>
+            </div>   
+             
+            <div id="bottom_bar">
+                <div id="undo_move_button" class="game_button ui-corner-all">undo move</div>
+                <div id="cancel_game_button" class="game_button ui-corner-all">cancel game</div>
+                <div id="return_button" class="game_button ui-corner-all">visit lobby</div> 
+                <!--<div id="rematch_button" class="game_button ui-corner-all">play rematch</div>-->
+                <div id="clear_board_button" class="game_button ui-corner-all">clear board</div>
+                <div id="resign_button" class="game_button ui-corner-all">resign game</div>
+            </div>
+            
+        </div>
+        
+        <div id="black_mask_box" class="mask_box ui-corner-all"></div>		
+        		
+        <div id="game_over_popup">
+            <div id="game_over_text">
+            </div>
+            <div id="game_over_button_bar">
+                <div id="game_over_return_button" class="game_button ui-corner-all">visit lobby</div> 
+                <div id="game_over_rematch_button" class="game_button ui-corner-all">play rematch</div>
+            </div>
+        </div>
+        		
 		<!-- WHITE PIECES -->
 		<div id="white_ant3" class="game_piece white_ant"><img src="pieces/white_ant.png"></div>
 		<div id="white_ant2" class="game_piece white_ant"><img src="pieces/white_ant.png"></div>
@@ -83,14 +100,7 @@
         <div id="black_beetle2" class="game_piece black_beetle"><img src="pieces/black_beetle.png"></div>
         <div id="black_beetle1" class="game_piece black_beetle"><img src="pieces/black_beetle.png"></div>
         <div id="black_bee1" class="game_piece black_bee"><img src="pieces/black_bee.png"></div>	
-		
-		
-		<div id="container">
-			<div id="content" data-scrollable="true">
-				<canvas id="hexCanvas"></canvas>
-			</div>
-		</div>
-		
+			
 	</div>
 	
 	<script type="text/javascript">

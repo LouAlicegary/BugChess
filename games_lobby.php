@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+	<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, user-scalable=0"/>
 	
 	<title>loualicegary.com / Bug Chess (alpha)</title>
 	
@@ -43,10 +44,10 @@
 			  
 			 //////////////////////CURRENT GAMES///////////////////////////////////////
 			 
-			 	echo "<div class='game_menu_div'><div class='header_text'>games you're currently in: </div><br />";
+			 	echo "<div id='current_games_div' class='game_menu_div'><div class='header_text'>games you're currently in: </div><br />";
 				
 				$name = mysql_real_escape_string($name);
-				$data = mysql_query("SELECT * FROM games WHERE (white_player = '" . $name . "' OR black_player = '" . $name . "') AND finished = 0 ORDER BY game_id DESC LIMIT 5") or die(mysql_error()); 
+				$data = mysql_query("SELECT * FROM games WHERE (white_player = '" . $name . "' OR black_player = '" . $name . "') AND finished = 0 ORDER BY game_id DESC LIMIT 3") or die(mysql_error()); 
 				
 				while($info = mysql_fetch_array( $data )) 
 				{ 
@@ -95,9 +96,9 @@
 			    
 			    ///////////////////OPPONENTS LOOKING///////////////////////////////////////////
 			     
-				echo "<div class='game_menu_div'><div class='header_text'>opponents looking for players: </div><br />";
+				echo "<div id='opponents_looking_div' class='game_menu_div'><div class='header_text'>opponents looking for players: </div><br />";
 				
-				$data = mysql_query("SELECT * FROM games WHERE white_player LIKE '' OR black_player LIKE '' AND white_player NOT LIKE '" . $name . "' AND black_player NOT LIKE '" . $name . "' ORDER BY game_id DESC LIMIT 5") or die(mysql_error()); 
+				$data = mysql_query("SELECT * FROM games WHERE white_player LIKE '' OR black_player LIKE '' AND white_player NOT LIKE '" . $name . "' AND black_player NOT LIKE '" . $name . "' ORDER BY game_id DESC LIMIT 3") or die(mysql_error()); 
 				
 				while($info = mysql_fetch_array( $data )) 
 				{ 
@@ -114,169 +115,79 @@
 			 	}
 				
 				echo "</div>";
-			
+                echo "<div id='new_game_div' class='game_menu_div'>";
+                echo "<div class='header_text'>start a new game:</div>";
+                echo "<div id='solo_game'>solo practice mode</div>";
+                echo "<div id='vs_game'>vs. online opponent</div>";
+                echo "</div>";
+                echo "</div>";			
 			}
-		
 		?>	
 	
-		<div class='game_menu_div'>
-			<div class='header_text'>start a new game:</div>
-			<div id="solo_game" style="font-family: 'Droid Sans'; font-size: 32px; background: #000000; color: #ffffff; border: '5px solid black'; padding: 5px 10px 5px 10px; -webkit-border-radius: 15px; text-align: center;">solo practice mode</div>
-			<div id="vs_game" style=" background: #000000; color: #ffffff; border: '5px solid black'; padding: 5px 10px 5px 10px; -webkit-border-radius: 15px; text-align: center;">vs. online opponent</div>
-		</div>
+
+	<div id='portrait_warning' style='position: absolute; font-family: 'Pacifico'; text-align: center; '>
+	    This app is designed for use in landscape mode. Please flip your device.
 	</div>
+	
+	
 
-	<div id="portrait_warning" style="position: absolute; font-family: 'Pacifico'; text-align: center; ">This app is designed for use in landscape mode. Please flip your device.</div>
+	<script>
 	
-	<script type="text/javascript">
-	
-	
-		<?php // MAKES SURE A NAME WAS PASSED TO THE LOBBY SCRIPT. NO NAME = NO VIEW
-		
-			if( (isset($_GET['name']) && !empty($_GET['name'])) || (isset($_POST['name']) && !empty($_POST['name'])) ) {
-				if ($_POST['name']) {
-					$name = $_POST['name'];
-				}
-				else {
-					$name = $_GET['name'];
-				}
-				echo "var NAME = '" . $name . "';"; 
-				echo "showPage();";
-			}
-			else {
-				echo "window.location = 'index.php';";
-			}		
-		?>	
-
+        <?php // MAKES SURE A NAME WAS PASSED TO THE LOBBY SCRIPT. NO NAME = NO VIEW
+            if( (isset($_GET['name']) && !empty($_GET['name'])) || (isset($_POST['name']) && !empty($_POST['name'])) ) {
+                if ($_POST['name'])
+                    $name = $_POST['name'];
+                else
+                    $name = $_GET['name'];
+                echo "var NAME = '" . $name . "';"; 
+                echo "showPage();";
+            }
+            else {
+                echo "window.location = 'index.php';";
+            }       
+        ?>	
 	
 		function showPage() {
 			$(document).ready(function(){
-				
-				
-				//setInterval(function() {
-				//	window.location = 'games_lobby.php?name=' + NAME;
-				//}, 15000);
-					
-				var WINDOW_HEIGHT = $(window).height();
-				var WINDOW_WIDTH = $(window).width();
-				
-				var DIV_MARGINLR = WINDOW_WIDTH / 20;
-				var DIV_MARGINTB = 20;
-				var DIV_SIDE_BORDER = 5;
-				var DIV_HEIGHT = (WINDOW_HEIGHT / 3) - (DIV_SIDE_BORDER * 2) - (DIV_MARGINTB);
-				var DIV_WIDTH = WINDOW_WIDTH - (DIV_MARGINLR * 2);
-				
-				var REGULAR_BAR_HEIGHT = DIV_HEIGHT / 8;
-				var REGULAR_TEXT_PX = REGULAR_BAR_HEIGHT / 1.5;
-				var REGULAR_TEXT_LEFT_MARGIN = 5;
-				
-				var HEADER_BAR_HEIGHT = DIV_HEIGHT / 4; 
-				var HEADER_TEXT_PX = HEADER_BAR_HEIGHT / 2;
-				var HEADER_TEXT_LEFT_MARGIN = 10;
-				
-				var BUTTON_HEIGHT = 50;
-				var BUTTON_WIDTH = 300;
-				var BUTTON_TOP = ((DIV_HEIGHT - HEADER_BAR_HEIGHT) / 2) - (BUTTON_HEIGHT/2) + HEADER_BAR_HEIGHT;
-				var BUTTON_LEFT = 50;
-				var BUTTON_MARGIN = 50;
-				var BUTTON_TEXT_PX = 24;
-				
-				var WARNING_HEIGHT = WINDOW_HEIGHT / 4;
-				var WARNING_WIDTH = WINDOW_WIDTH / 2;
-				var WARNING_TOP = (WINDOW_HEIGHT/2) - (WINDOW_HEIGHT/8);
-				var WARNING_LEFT = WINDOW_WIDTH / 4;
-				var WARNING_FONT_PX = getMaxFontSizeByWidth($("#portrait_warning").width(), ($("#portrait_warning").height() * .8), "Pacifico", $("#portrait_warning").text().substring( $("#portrait_warning").text().indexOf(".") ));
-				var WARNING_LINE_HEIGHT = WARNING_FONT_PX * 1.4;
-				
-				$('.header_text').css({ 
-					'height' : HEADER_BAR_HEIGHT, 
-					'font-size': + HEADER_TEXT_PX + 'px', 
-					'font-family': 'Pacifico', 
-					'margin-left': HEADER_TEXT_LEFT_MARGIN 
-				});
-				
-				$('.regular_text').css({ 
-					'height' : REGULAR_BAR_HEIGHT, 
-					'font-size': + REGULAR_TEXT_PX + 'px', 
-					'font-family': 'Droid Sans',
-					'margin-left': REGULAR_TEXT_LEFT_MARGIN,
-					'cursor': 'pointer'  
-				});
-				
-				$(".game_menu_div").each(function( index ) {
-					$(this).css({
-						'position': 'absolute', 
-						'height': DIV_HEIGHT, 
-						'width': DIV_WIDTH, 
-						'top': index*(WINDOW_HEIGHT/3), 
-						'background': 'rgba(255, 255, 0, 0.2)', 
-						'border': DIV_SIDE_BORDER + 'px solid black', 
-						'-webkit-border-radius': '15px', 
-						'margin':  DIV_MARGINTB + 'px ' + DIV_MARGINLR + 'px'
-					});
-				});
-				
-				$("#solo_game, #vs_game").css({
-					'position': 'absolute', 
-					'height': BUTTON_HEIGHT, 
-					'width': BUTTON_WIDTH, 
-					'top': BUTTON_TOP, 
-					'left': BUTTON_LEFT, 
-					'font-family': 'Open Sans', 
-					'font-size': BUTTON_TEXT_PX + 'px', 
-					'line-height': BUTTON_HEIGHT-5 + 'px',
-					'cursor': 'pointer' 
-				});
-				
-				$("#vs_game").css({
-					'left': BUTTON_LEFT + BUTTON_WIDTH + BUTTON_MARGIN
-				});
-				
-				$(".column1").css({
-					'width': DIV_WIDTH/3-5,
-					'left': REGULAR_TEXT_LEFT_MARGIN = 5, 
-					'position': 'absolute',
-				});	
-					
-				$(".column2").css({
-					'width': DIV_WIDTH/3,
-					'left': DIV_WIDTH/3, 
-					'position': 'absolute',
-				});	
-				
-				$(".column3").css({
-					'width': DIV_WIDTH/3,
-					'left': DIV_WIDTH*2/3, 
-					'position': 'absolute',
-				});	
-				
-				$("#portrait_warning").css({'height': WARNING_HEIGHT, 'width': WARNING_WIDTH, 'top': WARNING_TOP, 'left': WARNING_LEFT, 'font': WARNING_FONT_PX + "px Pacifico", 'text-align': 'center', 'line-height': WARNING_LINE_HEIGHT + 'px'});
-			
-				var temp=0;
-				var min=99999; 
-				
-				$(".column1, .column2, .column3").each( function (index) {
-					temp = getMaxFontSizeByWidth($(this).width(), ($(this).height() * .8), "Droid Sans", $(this).text());
-					if ( (temp < min) && (temp != 0) )
-						min = temp;
-				});	
-				
-				if (min > REGULAR_BAR_HEIGHT * .9) {
-					min = REGULAR_BAR_HEIGHT * .9;
-				}
-					
-				$(".column1, .column2, .column3").each( function (index) {
-					$(this).css({'font-size': + min + 'px'});
-				});
-				
 
+				//setInterval(function() {window.location = 'games_lobby.php?name=' + NAME;}, 15000);
+					
+                setPageAttributes();
 				
+				window.onorientationchange = function(event) {
+                    window.location.href = window.location.href;
+                };
+                
+                document.ontouchmove = function(e) {
+                    e.preventDefault();
+                };
+
 				// CLICK ON CURRENT GAME FROM TOP LIST
-				
 				$('.current_game').bind('click', selectCurrentGame);
 				$('.current_game').bind('touchstart', selectCurrentGame);	
 	
-				
+				// CLICK ON OPEN GAME FROM SECOND LIST
+                $('.open_game').bind('click', selectOpenGame);
+                $('.open_game').bind('touchstart', selectOpenGame);
+                
+                // CLICK ON SOLO PRACTICE GAME
+                $('#solo_game').bind('click', selectStartSoloGame);
+                $('#solo_game').bind('touchstart', selectStartSoloGame);                
+                
+                // CLICK ON PLAY VS ONLINE OPPONENT
+                $('#vs_game').bind('click', selectStartOnlineGame);
+                $('#vs_game').bind('touchstart', selectStartOnlineGame);                
+                
+                // SHOW YELLOW RIBBON ON MOUSEOVER GAME
+                $('.open_game, .current_game').bind('mouseover', function() {
+                    $(this).css({'background': '#ffff00' });
+                });
+                
+                // AND GET RID OF YELLOW RIBBON ON MOUSEOUT OF GAME
+                $('.open_game, .current_game').bind('mouseout', function() {
+                    $(this).css({'background': 'none' });
+                });
+                
 				function selectCurrentGame(event) {
 					var game_id = this.id;
 					var white_player;
@@ -286,26 +197,22 @@
 						type: "POST",
 						data: {gameid: game_id},
 						dataType: "json",
-						async: false
-					});
+						async: false 
+					});	
 					request.success(function(data){
 						white_player = data[1];
 						black_player = data[2];
 					});
-					request.fail(function(error, status){Logger("games_lobby: (282) AJAX FAIL");});
+					request.fail(function(error, status){
+					    Logger("games_lobby: (282) AJAX FAIL");
+					});
 					request.done(function(done){
 						window.location = "play_game.php?gameid=" + game_id + "&name=" + NAME + "&white_player=" + white_player + "&black_player=" + black_player;
 					});
-					
 				}	
 				
 				
-				
-				// CLICK ON OPEN GAME FROM SECOND LIST
-				
-				$('.open_game').bind('click', selectOpenGame);
-				$('.open_game').bind('touchstart', selectOpenGame);
-				
+
 				function selectOpenGame(event) {
 					var flag = 0;
 					var game_id = this.id;
@@ -328,12 +235,10 @@
 						}
 						
 					});	
-				
 					request.fail(function(jqXHR, textStatus) {
 						//alert("FAIL");
 						flag = 0;
 					});	
-				
 				   	request.done(function(data) {
 				    	if (flag) {
 				    		writeSecondPlayerToDB(game_id);
@@ -342,8 +247,7 @@
 				    	else {
 				    		window.location = "games_lobby.php?name=" + NAME;
 				    	}
-				    });	
-				    		
+				    });			
 				}
 				
 				function writeSecondPlayerToDB(game_id) {
@@ -356,40 +260,26 @@
 					});
 				}	
 				
-				// CLICK ON PRACTICE GAME
-				
-				var GAME_ID = 0;
-				
-				$('#solo_game').bind('click', selectStartSoloGame);
-				$('#solo_game').bind('touchstart', selectStartSoloGame);	
-					
 				function selectStartSoloGame(event) {
 					GAME_ID = 0;
 					window.location = 'play_game.php?name=' + NAME + '&gameid=' + GAME_ID + '&white_player=' + NAME + '&black_player=' + NAME;
-				}; 
+				} 
 				
-				
-				
-				// CLICK ON PLAY VS ONLINE OPPONENT
-								
-				$('#vs_game').bind('click', selectStartOnlineGame);
-				$('#vs_game').bind('touchstart', selectStartOnlineGame);	
-					
+
 				function selectStartOnlineGame(event) {
-					var bequest = $.ajax({
+					var request = $.ajax({
 					 	url: "php/add_game_to_db.php",
 						type: "POST",
 						data: {name: NAME},
 						dataType: "html"
 					});	
-					bequest.success(function(data) {
+					request.success(function(data) {
 						GAME_ID = data;
 					});
-					bequest.fail(function(jqXHR, textStatus) {
+					request.fail(function(jqXHR, textStatus) {
 						//alert( "AJAX FAIL: " + textStatus + " / " + jqXHR.responseText);
 					});			
-					bequest.done(function(data) {
-						
+					request.done(function(data) {
 						var game_id = GAME_ID;
 						var white_player;
 						var black_player;
@@ -404,31 +294,38 @@
 							white_player = data[1];
 							black_player = data[2];
 						});
-						request.fail(function(error, status){});
+						request.fail(function(error, status){
+						    // NOTHING RIGHT NOW
+						});
 						request.done(function(done){
 							window.location = "play_game.php?gameid=" + game_id + "&name=" + NAME + "&white_player=" + white_player + "&black_player=" + black_player;
 						});	
 							
 					});	
-		
 				} 
-			
-				$('.open_game, .current_game').bind('mouseover', function() {
-					$(this).css({'background': '#ffff00' });
-				});
-				
-				$('.open_game, .current_game').bind('mouseout', function() {
-					$(this).css({'background': 'none' });
-				});
-		
-				window.onorientationchange = function(event) {
-					window.location.href = window.location.href;
-				};
-				
-				document.ontouchmove = function(e) {e.preventDefault()};
-				
 			});			
-		}	
+		}
+		
+		
+        function setPageAttributes() {
+        
+            var WINDOW_HEIGHT = $(window).height();  
+            var WINDOW_WIDTH = $(window).width();
+             Logger("WINDOW RESIZE = " + WINDOW_WIDTH + "x" + WINDOW_HEIGHT);
+             Logger("WINDOW (" + window.orientation + "). OuterW/H / InnerW/H = " + window.outerWidth + " " + window.outerHeight + " " + window.innerWidth + " " + window.innerHeight);
+     
+            $(".header_text").css({ 
+                'font-size': getMaxFontSizeByWidth($(".header_text").width() * .8, $(".header_text").height() * .6, 'Pacifico', "BBBBBBBBBBBBBBB") + 'px',
+                'line-height': ($(".header_text").height() * .8) + 'px'
+            });  
+        
+            $(".regular_text").css({ 
+                'font-size': getMaxFontSizeByWidth($(".regular_text").width() * .9, $(".regular_text").height() * .6, 'Pacifico', "BBBBBBBBBBBBBBB") + 'px',
+                'line-height': ($(".regular_text").height() * .6) + 'px'
+            });     
+            
+		}
+			
 	</script>
 
 </body>

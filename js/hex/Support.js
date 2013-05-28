@@ -135,7 +135,7 @@ function VIEW_drawEmptyGrid() {
 	function VIEW_drawHexGrid()
 	{
 		var grid_height = BOARD_ROWS * PIECE_HEIGHT; 
-		var grid_width = (Math.floor((BOARD_COLUMNS+1)/2) * PIECE_WIDTH) + (Math.floor((BOARD_COLUMNS+1)/2) * PIECE_SIDE) ; 
+		var grid_width = (Math.floor((BOARD_COLUMNS+1)/2) * PIECE_WIDTH) + (Math.floor((BOARD_COLUMNS+1)/2) * HT.Hexagon.Static.SIDE) ; 
 	
 		var canvas = document.getElementById('hexCanvas');
 		canvas.width = grid_width;
