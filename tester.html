@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, user-scalable=0"/>
+    
+    <title>loualicegary.com / Bug Chess (alpha)</title>
+    
+    <!-- jQuery + jQuery Touch Punch 
+    <script src="js/jquery/jquery-1.9.1.min.js"></script>
+    <script src="js/jquery/jquery-ui-1.10.3.min.js"></script>
+    <script src="js/jquery/jquery.ui.touch-punch.min.js"></script>-->
+
+    <!-- Logging Wrapper -->
+    <script src="js/logger.js"></script>
+        
+    <!-- MVC Architecture -->
+    <script src="js/mvc/MODEL.js"></script>
+    <script src="js/mvc/VIEW.js"></script>
+    <script src="js/mvc/CONTROLLER.js"></script>
+    
+    <!-- Hex -->    
+    <script src="js/hex/HexagonTools.js"></script>
+    <script src="js/hex/Grid.js"></script>
+    <script src="js/hex/Support.js"></script>
+    
+    <!-- Scroller -->
+    <script src="js/scroller/Animate.js"></script>
+    <script src="js/scroller/Scroller.js"></script>
+    <script src="js/scroller/EasyScroller.js"></script>
+    
+    <!-- CSS 
+    <link href='css/jquery-ui.css' rel='stylesheet' type='text/css'>-->
+    <link href='http://fonts.googleapis.com/css?family=Pacifico|Droid+Sans:bold|Open+Sans:bold|Oswald:bold' rel='stylesheet' type='text/css'>
+    <link href='tester.css' rel='stylesheet' type='text/css'>
+
+</head>
+
+    
+    <body>
+        <div id="white_mask_box" class="mask_box ui-corner-all"></div>
+        
+        <div id="middle_area">
+            <div id="white_player_name">White</div>
+            <div id="game_title">Bug Chess</div>
+            <div id="black_player_name">Black</div>
+            <div id="container">
+                <div id="content" data-scrollable="true">
+                    <canvas id="hexCanvas"></canvas>
+                </div>
+            </div>    
+            <div id="bottom_bar">
+                <div id="undo_move_button" class="game_button ui-corner-all">undo move</div>
+                <div id="cancel_game_button" class="game_button ui-corner-all">cancel game</div>
+                <div id="return_button" class="game_button ui-corner-all">visit lobby</div> 
+                <!--<div id="rematch_button" class="game_button ui-corner-all">play rematch</div>-->
+                <div id="clear_board_button" class="game_button ui-corner-all">clear board</div>
+                <div id="resign_button" class="game_button ui-corner-all">resign game</div>
+            </div>             
+        </div>
+        
+        <div id="black_mask_box" class="mask_box ui-corner-all"></div>
+        
+    </body>
+    
+</html>

@@ -34,12 +34,14 @@ function VIEW_initGameWindow() {
 	$("#game_over_return_button").button();
 	
 	$("#clear_board_button").hide();
-	//$("#rematch_button").hide();
 	$("#resign_button").hide();
 	$("#game_over_popup").hide();
 	
     $('#white_player_name').text(WHITE_PLAYER_NAME);
 	$('#black_player_name').text(BLACK_PLAYER_NAME);
+	
+	$('#white_mask_box').css({left: document.getElementById('white_piece_box').getBoundingClientRect().left + 'px'})
+	$('#black_mask_box').css({left: document.getElementById('black_piece_box').getBoundingClientRect().left + 'px'})
 	
 	$(".game_piece").attr('origin', '');
 	$(".game_piece").unbind("mouseenter");
@@ -54,11 +56,11 @@ function VIEW_initGameWindow() {
 		window.location.href = window.location.href;
 	};
 	
-	VIEW_initializeSidebarEvent();
+	VIEW_pieceMouseoverEventHandler();
 }
 	
 	
-function VIEW_initializeSidebarEvent() {
+function VIEW_pieceMouseoverEventHandler() {
     // THIS SECTION FLOATS HOVERED-OVER PIECE TO TOP OF Z STACK
     var zdex = 0;
     
@@ -66,16 +68,18 @@ function VIEW_initializeSidebarEvent() {
         $('[class*=" white"]').draggable({revert: "invalid", distance: PIECE_WIDTH/2, cursorAt: {'top': PIECE_HEIGHT/2, 'left': PIECE_WIDTH/2}, start: function() {mid_drop_flag = 1;}});
         
         $('[class*=" white"]:visible').mouseenter(function(){
-            $("#white_mask_box").css({'z-index': 30});
-            $("#white_mask_box").css({'opacity': .3});
+            //$("#white_mask_box").css({'z-index': 30});
+            //$("#white_mask_box").css({'opacity': .3});
+            $("#white_mask_box").show();
             zdex = $(this).css('zIndex');
             $(this).css({'z-index': 50});   
         });
         
         $('[class*=" white"]:visible').mouseleave(function(){
             $(this).css({'z-index': zdex});
-            $("#white_mask_box").css({'z-index': 1});
-            $("#white_mask_box").css({'opacity': .1});
+            $("#white_mask_box").hide();
+            //$("#white_mask_box").css({'z-index': 1});
+            //$("#white_mask_box").css({'opacity': .1});
         });  
     }
     
@@ -83,16 +87,18 @@ function VIEW_initializeSidebarEvent() {
         $('[class*=" black"]').draggable({revert: "invalid", distance: PIECE_WIDTH/2, cursorAt: {'top': PIECE_HEIGHT/2, 'left': PIECE_WIDTH/2 }, start: function() {mid_drop_flag = 1;}});
         
         $('[class*=" black"]:visible').mouseenter(function(){
-            $("#black_mask_box").css({'z-index': 30});
-            $("#black_mask_box").css({'opacity': .3});
+            $("#black_mask_box").show(); 
+            //$("#black_mask_box").css({'z-index': 30});
+            //$("#black_mask_box").css({'opacity': .7});
             zdex = $(this).css('zIndex');
             $(this).css({'z-index': 50});   
         });
         
         $('[class*=" black"]:visible').mouseleave(function(){
+            $("#black_mask_box").hide(); 
             $(this).css({'z-index': zdex});
-            $("#black_mask_box").css({'z-index': 1});
-            $("#black_mask_box").css({'opacity': .1});
+            //$("#black_mask_box").css({'z-index': 1});
+            //$("#black_mask_box").css({'opacity': .7});
         });         
         
     }
@@ -167,22 +173,24 @@ function VIEW_repositionUnplacedPieces() {
 	// SHOWS ALL WHITE PIECES
     $('[class*=" white"]:visible').each(function(i, obj) {
         var pieces_length = ((num_unplayed_white_pieces-1) * PIECE_OVERLAP) + PIECE_HEIGHT;
-        var effective_mbh = parseInt($('#white_mask_box').css('height').slice(0,-2)) - parseInt($('#white_mask_box').css('padding-top').slice(0,-2)) - parseInt($('#white_mask_box').css('padding-bottom').slice(0,-2));
-        var pieces_top_offset = parseInt($('#white_mask_box').css('top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
+        var effective_mbh = parseInt($('#white_piece_box').css('height').slice(0,-2)) - parseInt($('#white_piece_box').css('padding-top').slice(0,-2)) - parseInt($('#white_piece_box').css('padding-bottom').slice(0,-2));
+        var pieces_top_offset = parseInt($('#white_piece_box').css('margin-top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
 		var y_offset = (i * PIECE_OVERLAP) + pieces_top_offset;
-		var x_offset = parseInt($('#white_mask_box').css('left').slice(0,-2)) + parseInt($('#white_mask_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;
+		var x_offset = parseInt($('#white_piece_box').css('margin-left').slice(0,-2)) + parseInt($('#white_piece_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;
 		Logger("VIEW 172: p_l / e_mbh / p_t_o / y_off / x_off = " + pieces_length + " / " + effective_mbh + " / " + pieces_top_offset + " / " + y_offset + " / " + x_offset);
+		// LOGGING 480 / 609 / NaN / NaN / NaN
 		$('#' + obj.getAttribute('id')).css({ 'top': y_offset + 'px', 'left': x_offset + 'px', 'z-index': i+2 });
 	});	
 	
 	// SHOWS ALL BLACK PIECES
 	$('[class*=" black"]:visible').each(function(i, obj) {
         var pieces_length = ((num_unplayed_black_pieces-1) * PIECE_OVERLAP) + PIECE_HEIGHT;
-        var effective_mbh = parseInt($('#black_mask_box').css('height').slice(0,-2)) - parseInt($('#black_mask_box').css('padding-top').slice(0,-2)) - parseInt($('#black_mask_box').css('padding-bottom').slice(0,-2));
-        var pieces_top_offset = parseInt($('#black_mask_box').css('top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
+        var effective_mbh = parseInt($('#black_piece_box').css('height').slice(0,-2)) - parseInt($('#black_piece_box').css('padding-top').slice(0,-2)) - parseInt($('#black_piece_box').css('padding-bottom').slice(0,-2));
+        var pieces_top_offset = parseInt($('#black_piece_box').css('margin-top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
         var y_offset = (i * PIECE_OVERLAP) + pieces_top_offset;
-		var x_offset = parseInt($('#black_mask_box').css('left').slice(0,-2)) + parseInt($('#black_mask_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;
-		Logger("VIEW 183: " + $('#black_mask_box').css('left') + " / " + $('#black_mask_box').css('width'));
+		var x_offset =  document.getElementById('black_piece_box').getBoundingClientRect().left + parseInt($('#black_piece_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;  // $( parseInt($('#black_piece_box').css('left').slice(0,-2)) + parseInt($('#black_piece_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;
+		Logger("VIEW 183: " + document.getElementById('black_piece_box').getBoundingClientRect().left + " / " + $('#black_piece_box').css('width'));
+		// LOGGING AUTO / 120px
 		$('#' + obj.getAttribute('id')).css({ 'top': y_offset + 'px', 'left': x_offset + 'px', 'z-index': i+2 }); 
 	});
 	
@@ -205,8 +213,8 @@ function VIEW_repositionUnplacedPieces() {
 	// MASK GAME PIECE BARS + UNDO
 	if (NUM_MOVES % 2 == 1) {
 		// BLACK TURN
-		$('#white_mask_box').css({'opacity': .6, 'z-index': 50, 'background': 'rgb(0,0,0)'});
-		$('#black_mask_box').css({'opacity': .1, 'z-index': 1, 'background': 'rgb(0,0,0)'});
+		$('#white_mask_box').show(); //css({'opacity': .6, 'z-index': 50, 'background': 'rgb(0,0,0)'});
+		$('#black_mask_box').hide(); //css({'opacity': .1, 'z-index': 1, 'background': 'rgb(0,0,0)'});
 		
 		if (NAME == BLACK_PLAYER_NAME)
 			$("#undo_move_button").hide();
@@ -215,8 +223,8 @@ function VIEW_repositionUnplacedPieces() {
 	}
 	else {
 		// WHITE TURN
-		$('#black_mask_box').css({'opacity': .6, 'z-index': 50, 'background': 'rgb(0,0,0)'});
-		$('#white_mask_box').css({'opacity': .1, 'z-index': 1, 'background': 'rgb(0,0,0)'});
+		$('#black_mask_box').show(); //css({'opacity': .6, 'z-index': 50, 'background': 'rgb(0,0,0)'});
+		$('#white_mask_box').hide(); //css({'opacity': .1, 'z-index': 1, 'background': 'rgb(0,0,0)'});
 		
 		if (NAME == WHITE_PLAYER_NAME)
 			$("#undo_move_button").hide();

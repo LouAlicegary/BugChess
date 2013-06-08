@@ -32,15 +32,20 @@
 	<!-- CSS -->
 	<link href='css/jquery-ui.css' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Pacifico|Droid+Sans:bold|Open+Sans:bold|Oswald:bold' rel='stylesheet' type='text/css'>
-	<link href='css/play_game.css' rel='stylesheet' type='text/css'>
+	<link href='tester.css' rel='stylesheet' type='text/css'>
 
 </head>
  
 <body>
 	<div id="wrapper">
         
-        <div id="white_mask_box" class="mask_box ui-corner-all"></div>
+        <div id="white_piece_box" class="piece_box ui-corner-all"></div>
+        <div id="black_piece_box" class="piece_box ui-corner-all"></div>
         
+        <div id="white_mask_box" class="mask_box ui-corner-all"></div>
+        <div id="black_mask_box" class="mask_box ui-corner-all"></div>
+        
+             
         <div id="middle_area">
             
             <div id="white_player_name"></div>
@@ -63,32 +68,21 @@
             </div>
             
         </div>
-        
-        <div id="black_mask_box" class="mask_box ui-corner-all"></div>		
-        		
-        <div id="game_over_popup">
-            <div id="game_over_text">
-            </div>
-            <div id="game_over_button_bar">
-                <div id="game_over_return_button" class="game_button ui-corner-all">visit lobby</div> 
-                <div id="game_over_rematch_button" class="game_button ui-corner-all">play rematch</div>
-            </div>
-        </div>
-        		
-		<!-- WHITE PIECES -->
-		<div id="white_ant3" class="game_piece white_ant"><img src="pieces/white_ant.png"></div>
-		<div id="white_ant2" class="game_piece white_ant"><img src="pieces/white_ant.png"></div>
-		<div id="white_ant1" class="game_piece white_ant"><img src="pieces/white_ant.png"></div>
-		<div id="white_grasshopper3" class="game_piece white_grasshopper"><img src="pieces/white_grasshopper.png"></div>
-		<div id="white_grasshopper2" class="game_piece white_grasshopper"><img src="pieces/white_grasshopper.png"></div>
-		<div id="white_grasshopper1" class="game_piece white_grasshopper"><img src="pieces/white_grasshopper.png"></div>
-		<div id="white_spider2" class="game_piece white_spider"><img src="pieces/white_spider.png"></div>
-		<div id="white_spider1" class="game_piece white_spider"><img src="pieces/white_spider.png"></div>
-		<div id="white_beetle2" class="game_piece white_beetle"><img src="pieces/white_beetle.png"></div>
-		<div id="white_beetle1" class="game_piece white_beetle"><img src="pieces/white_beetle.png"></div>
-		<div id="white_bee1" class="game_piece white_bee"><img src="pieces/white_bee.png"></div>
-		
-		<!-- BLACK PIECES -->	
+
+        <!-- WHITE PIECES -->
+        <div id="white_ant3" class="game_piece white_ant"><img src="pieces/white_ant.png"></div>
+        <div id="white_ant2" class="game_piece white_ant"><img src="pieces/white_ant.png"></div>
+        <div id="white_ant1" class="game_piece white_ant"><img src="pieces/white_ant.png"></div>
+        <div id="white_grasshopper3" class="game_piece white_grasshopper"><img src="pieces/white_grasshopper.png"></div>
+        <div id="white_grasshopper2" class="game_piece white_grasshopper"><img src="pieces/white_grasshopper.png"></div>
+        <div id="white_grasshopper1" class="game_piece white_grasshopper"><img src="pieces/white_grasshopper.png"></div>
+        <div id="white_spider2" class="game_piece white_spider"><img src="pieces/white_spider.png"></div>
+        <div id="white_spider1" class="game_piece white_spider"><img src="pieces/white_spider.png"></div>
+        <div id="white_beetle2" class="game_piece white_beetle"><img src="pieces/white_beetle.png"></div>
+        <div id="white_beetle1" class="game_piece white_beetle"><img src="pieces/white_beetle.png"></div>
+        <div id="white_bee1" class="game_piece white_bee"><img src="pieces/white_bee.png"></div>          
+
+        <!-- BLACK PIECES -->   
         <div id="black_ant3" class="game_piece black_ant"><img src="pieces/black_ant.png"></div>
         <div id="black_ant2" class="game_piece black_ant"><img src="pieces/black_ant.png"></div>
         <div id="black_ant1" class="game_piece black_ant"><img src="pieces/black_ant.png"></div>
@@ -99,7 +93,18 @@
         <div id="black_spider1" class="game_piece black_spider"><img src="pieces/black_spider.png"></div>
         <div id="black_beetle2" class="game_piece black_beetle"><img src="pieces/black_beetle.png"></div>
         <div id="black_beetle1" class="game_piece black_beetle"><img src="pieces/black_beetle.png"></div>
-        <div id="black_bee1" class="game_piece black_bee"><img src="pieces/black_bee.png"></div>	
+        <div id="black_bee1" class="game_piece black_bee"><img src="pieces/black_bee.png"></div>   
+                     
+        </div>        	
+        		
+        <div id="game_over_popup">
+            <div id="game_over_text">
+            </div>
+            <div id="game_over_button_bar">
+                <div id="game_over_return_button" class="game_button ui-corner-all">visit lobby</div> 
+                <div id="game_over_rematch_button" class="game_button ui-corner-all">play rematch</div>
+            </div>
+        </div>	
 			
 	</div>
 	
