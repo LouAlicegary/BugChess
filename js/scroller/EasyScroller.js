@@ -1,4 +1,8 @@
+var the_scroller;
+
 var EasyScroller = function(content, options) {
+	
+	this.lou = 1;
 	
 	this.content = content;
 	this.container = content.parentNode;
@@ -199,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		var minZoom = zoomOptions.length > 1 && parseFloat(zoomOptions[0]);
 		var maxZoom = zoomOptions.length > 1 && parseFloat(zoomOptions[1]);
 
-		new EasyScroller(element, {
+		the_scroller = new EasyScroller(element, {
 			scrollingX: scrollable === 'true' || scrollable === 'x',
 			scrollingY: scrollable === 'true' || scrollable === 'y',
 			zooming: zoomable === 'true' || zoomOptions.length > 1,

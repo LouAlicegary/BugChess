@@ -8,7 +8,6 @@ HT.Point = function(x, y) {
 	this.Y = y;
 };
 
-
 /**
  * A Rectangle is x and y origin and width and height
  * @constructor
@@ -50,10 +49,10 @@ HT.Hexagon = function(id, x, y) {
 	
 	this.Id = id;
 	
-	this.x = x;
-	this.y = y;
-	this.x1 = x1;
-	this.y1 = y1;
+	this.x = x; // upper left
+	this.y = y; // upper left
+	this.x1 = x1; // midpoint
+	this.y1 = y1; // midpoint
 	
 	this.TopLeftPoint = new HT.Point(this.x, this.y);
 	this.BottomRightPoint = new HT.Point(this.x + HT.Hexagon.Static.WIDTH, this.y + HT.Hexagon.Static.HEIGHT);
@@ -104,7 +103,7 @@ HT.Hexagon.prototype.draw = function(ctx) {
  * draws this Hexagon to the canvas
  * @this {HT.Hexagon}
  */
-HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
+HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx, in_width, in_height) {
 
 	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
 	//Logger("PRE DRAW IMAGE: " + array_val + " " +  this.PathCoOrdX + "," + this.PathCoOrdY);
@@ -126,7 +125,7 @@ HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
 		top_piece = piece_stack[piece_stack.length-1];
    		var midPoint = this.MidPoint;
    		//Logger("DRAW IMAGE:  " + top_piece.substring(0, top_piece.length-1) + " (" + this.PathCoOrdX + "," + this.PathCoOrdY + ")");// + " @ " + midPoint.X-50 + "," + midPoint.Y-40);
-   		ctx.drawImage(img_obj_array[top_piece.substring(0, top_piece.length-1)], midPoint.X-50, midPoint.Y-40); 
+   		ctx.drawImage(IMG_OBJ_ARRAY[top_piece.substring(0, top_piece.length-1)], midPoint.X-(in_width/2), midPoint.Y-(in_height/2), in_width, in_height); 
 	}
 	
 	//Logger("HT: (165) PIECE DRAWN TO CANVAS");
@@ -137,7 +136,7 @@ HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx) {
  * draws this Hexagon to the canvas
  * @this {HT.Hexagon}
  */
-HT.Hexagon.prototype.removePieceFromCanvas = function(ctx) {
+HT.Hexagon.prototype.removePieceFromCanvas = function(ctx, in_width, in_height) {
 
 	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
 	//Logger("HT: (177) Contents of hex array cell at " + this.PathCoOrdX + " " + this.PathCoOrdY + " = " + array_val);
@@ -157,7 +156,7 @@ HT.Hexagon.prototype.removePieceFromCanvas = function(ctx) {
    		var imageObj = new Image();
    		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
 		imageObj.onload = function() {
-        	ctx.drawImage(imageObj, midPoint.X-50, midPoint.Y-40);
+        	ctx.drawImage(imageObj, midPoint.X-(in_width/2), midPoint.Y-(in_height/2));
       	};
       	
 	}
@@ -234,10 +233,16 @@ HT.Hexagon.prototype.Contains = function(/*Point*/ p) {
 	return isIn;
 };
 
+/**
+ * 
+ */
 HT.Hexagon.prototype.GetID = function() {
 	return this.Id;
 }
 
+/**
+ * 
+ */
 HT.Hexagon.prototype.GetXYLocation = function() {
 	var x_coord = this.PathCoOrdX;
 	var y_coord = this.PathCoOrdY;
@@ -245,11 +250,17 @@ HT.Hexagon.prototype.GetXYLocation = function() {
 	return the_string;
 }
 
+/**
+ * 
+ */
 HT.Hexagon.Orientation = {
 	Normal: 0,
 	Rotated: 1
 };
 
+/**
+ * 
+ */
 HT.Hexagon.Static = {
 	// THIS GETS SET DYNAMICALLY IN VIEW
 	HEIGHT:91.14378277661477, 

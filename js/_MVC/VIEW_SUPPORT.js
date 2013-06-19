@@ -1,5 +1,12 @@
-// USED ONLY IN SUPPORT_getHexByWindowCoords
-function SUPPORT_pageToGridCoords(thepageX, thepageY)
+var PIECE_IMG_FILE_LOAD_COUNTER = 0;
+var IMG_OBJ_ARRAY = Array(); // referenced as var in HT 130
+
+/**
+ * USED ONLY IN VIEW_SUPPORT_getHexByWindowCoords
+ * @param {Object} thepageX
+ * @param {Object} thepageY
+ */
+function VIEW_SUPPORT_pageToGridCoords(thepageX, thepageY)
 {
     var totalOffsetX = 0;
     var totalOffsetY = 0;
@@ -27,8 +34,14 @@ function SUPPORT_pageToGridCoords(thepageX, thepageY)
 	return new_point;
 }
 
-// USED ONLY IN CLICK HANDLER FUNCTION
-function SUPPORT_gridToPageCoords(canvasX, canvasY) //receive midpoints of hex
+/**
+ * USED ONLY IN CLICK HANDLER FUNCTION
+ * @param   {Object} canvasX
+ *          X-value of hex midpoint
+ * @param   {Object} canvasY
+ *          Y-value pf hex midpoint
+ */
+function VIEW_SUPPORT_gridToPageCoords(canvasX, canvasY)
 {
     var totalOffsetX = 0;
     var totalOffsetY = 0;
@@ -52,12 +65,16 @@ function SUPPORT_gridToPageCoords(canvasX, canvasY) //receive midpoints of hex
 	return new_point;	
 }
 
-// USED IN CLICK AND DROP EVENTS
-function SUPPORT_getHexByWindowCoords(thepageX, thepageY)
+/**
+ * USED IN CLICK AND DROP EVENTS
+ * @param {Object} thepageX
+ * @param {Object} thepageY
+ */
+function VIEW_SUPPORT_getHexByWindowCoords(thepageX, thepageY)
 {	
 	var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());   	
 	
-	var real_point = SUPPORT_pageToGridCoords(thepageX, thepageY);
+	var real_point = VIEW_SUPPORT_pageToGridCoords(thepageX, thepageY);
 	canvasX = real_point.X;
 	canvasY = real_point.Y; 	
 	
@@ -76,46 +93,53 @@ function SUPPORT_getHexByWindowCoords(thepageX, thepageY)
 	}
 }
 
-function SUPPORT_getHexSideFromWH(width, height) {
+/**
+ * 
+ * @param {Object} width
+ * @param {Object} height
+ */
+function VIEW_SUPPORT_getHexSideFromWH(width, height) {
 	var a = -3.0;
 	var b = (-2.0 * width);
 	var c = (Math.pow(width, 2)) + (Math.pow(height, 2));
 	return (-b - Math.sqrt(Math.pow(b,2)-(4.0*a*c)))/(2.0*a);	
 }
 
-// TODO: THIS SHOULD BE BUILT OUT AND USED IN SEEDING BOARD AS WELL FOR CONSISTENCY
-var bugs = Array("white_ant", "white_grasshopper", "white_spider", "white_beetle", "white_bee", "black_ant", "black_grasshopper", "black_spider", "black_beetle", "black_bee");
-var load_counter = 0;
-var img_obj_array = Array(); // referenced as var in HT 130
+/**
+ * TODO: THIS SHOULD BE BUILT OUT AND USED IN SEEDING BOARD AS WELL FOR CONSISTENCY
+ */
+function VIEW_SUPPORT_drawEmptyGrid() {
 
-function VIEW_drawEmptyGrid() {
+    var BOARD_COLUMNS = 30; 
+    var BOARD_ROWS = 20;
+    
 	
-	VIEW_preloadImages();
-	VIEW_setCanvasHexSize();
-	VIEW_drawHexGrid();	
+	VIEW_SUPPORT_preloadImages();
+	VIEW_SUPPORT_setCanvasHexSize();
+	VIEW_SUPPORT_drawHexGrid();	
 	
-	function VIEW_preloadImages() {	
+	function VIEW_SUPPORT_preloadImages() {	
 		//Logger("IMAGE PRELOADER STARTED");
-		
-		for (var i=0; i < bugs.length; i++) {
+		var bugs_array = Array("white_ant", "white_grasshopper", "white_spider", "white_beetle", "white_bee", "black_ant", "black_grasshopper", "black_spider", "black_beetle", "black_bee");
+        
+        for (var i=0; i < bugs_array.length; i++) {
 			var imageObj = new Image();
-			imageObj.src = "pieces/" + bugs[i] + ".png";  
+			imageObj.src = "pieces/" + bugs_array[i] + ".png";  
 			imageObj.onload = function() {
-				load_counter++;
+				PIECE_IMG_FILE_LOAD_COUNTER++;
 			};       	
-			img_obj_array[bugs[i]] = imageObj; 
-		}
+			IMG_OBJ_ARRAY[bugs_array[i]] = imageObj; 
+        }
 		
 		var the_int = setInterval(function() {
-			if (load_counter == 10) {
+			if (PIECE_IMG_FILE_LOAD_COUNTER == 10) {
 				//Logger("IMAGES PRELOADER FINISHED WITHIN LAST 20 MILLISECONDS");
 				clearInterval(the_int);
 			}
 		}, 20);	
-	}
+    }
 	
-	function VIEW_setCanvasHexSize()
-	{
+	function VIEW_SUPPORT_setCanvasHexSize() {
 		var width = PIECE_WIDTH; 
 		var height = PIECE_HEIGHT; 
 
@@ -132,11 +156,10 @@ function VIEW_drawEmptyGrid() {
 		HT.Hexagon.Static.SIDE = z;
 	}
 	
-	function VIEW_drawHexGrid()
-	{
+	function VIEW_SUPPORT_drawHexGrid() {
 		var grid_height = BOARD_ROWS * PIECE_HEIGHT; 
 		var grid_width = (Math.floor((BOARD_COLUMNS+1)/2) * PIECE_WIDTH) + (Math.floor((BOARD_COLUMNS+1)/2) * HT.Hexagon.Static.SIDE) ; 
-	
+	    //Logger(grid_height + "/" + grid_width);
 		var canvas = document.getElementById('hexCanvas');
 		canvas.width = grid_width;
 		canvas.height = grid_height;
@@ -154,3 +177,31 @@ function VIEW_drawEmptyGrid() {
 	}	
 	
 }
+
+/**
+ * 
+ */
+function VIEW_SUPPORT_redrawHexGrid() {
+    PIECE_HEIGHT = $(".game_piece").height();
+    PIECE_WIDTH = $(".game_piece").width();    
+    VIEW_SUPPORT_drawEmptyGrid();
+    var da_width = $("#hexCanvas").innerWidth();
+    var da_height = $("#hexCanvas").innerWidth();
+    var grid = new HT.Grid(da_width, da_height);
+    var the_piece;
+    var destination;
+    for (var i=0; i < GRID_ARRAY.length; i++) {
+        for (var j=0; j < GRID_ARRAY[0].length; j++) {
+            if (GRID_ARRAY[i][j] != 0) {
+                destination = i + "," + j; 
+                VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(destination));
+            }
+        }
+    }    
+    
+    // set view to view origin
+    var the_hex = grid.GetHexByXYIndex(HIVE_ORIGIN);
+    var box_y = the_hex.MidPoint.Y - $('#container').height()/2;
+    var box_x = the_hex.MidPoint.X - $('#container').width()/2;
+    the_scroller.scroller.scrollTo(box_x, box_y, false, 1); //the_scroller is declared in EasyScroller.js
+}  

@@ -1,0 +1,257 @@
+/******************************************************************
+ * MEDIA QUERIES 
+ *****************************************************************/
+
+/* Most computers */
+@media (min-width: 1025px) and (min-height: 600px) {
+    .mini_menu_div {
+        display: none;
+    }    
+    .header_text {
+        height: 42px;
+        font-size: 24px;
+        line-height: 42px;
+    }
+    .regular_text {
+        height: 28px;
+        font-size: 16px;
+        line-height: 28px;
+    }     
+    .fullsize_menu_div {
+        height: 140px;
+    }    
+    #game_title {
+        height: 90px;
+        font-size: 60px;
+        line-height: 75px;
+    }
+    #current_games_div { 
+        top: 16%; 
+    }   
+    #opponents_looking_div {
+        top: 44%;
+    }
+    #new_game_div {
+       top: 72%;
+    }    
+    #solo_game, #vs_game {
+        height: 42px;
+        width: 40%;
+        top: 56px;
+        line-height: 14px; 
+        font-size: 28px;        
+    }
+    #solo_game {
+        left: 5%;    
+    }
+    #vs_game {
+        right: 5%;
+    }     
+}
+
+/* iPad Landscape */
+@media (min-width: 1024px) and (max-width: 1024px) {
+    .mini_menu_div {
+        display: none;
+    }
+    .header_text {
+        height: 42px;
+        font-size: 24px;
+        line-height: 42px;
+    }
+    .regular_text {
+        height: 28px;
+        font-size: 16px;
+        line-height: 28px;
+    }     
+    .fullsize_menu_div {
+        height: 140px;
+    }                 
+    #game_title {
+        height: 90px;
+        font-size: 60px;
+        line-height: 75px;
+    }
+    #current_games_div { 
+        top: 16%; 
+    }
+    #opponents_looking_div {
+        top: 44%;
+    }
+    #new_game_div {
+       top: 72%;
+    }    
+    #solo_game, #vs_game {
+        height: 42px;
+        width: 40%;
+        top: 56px;
+        line-height: 14px; 
+        font-size: 28px;        
+    }
+    #solo_game {
+        left: 5%;    
+    }
+    #vs_game {
+        right: 5%;
+    }      
+}
+
+/* Samsung Galaxy 3 Landscape */
+@media (min-width: 1280px) and (max-width: 1280px) {
+    #current_games_div, #opponents_looking_div, #new_game_div {
+        display: none;
+    }
+    #play_alone_button, #play_someone_button, #learn_to_play_button {
+        display: block;
+    }      
+    #game_title {
+        height: 100px;
+        top: 0px;
+        font-size: 84px;
+        line-height: 100px;
+    } 
+    .mini_menu_div {
+        height: 90px;  
+        font-size: 48px;
+        line-height: 48px;
+    }
+    .row1_button {
+        display: none;
+        top: 24%;
+    }   
+    .row2_button {
+        display: none;
+        top: 42%;
+    }
+    .row3_button {
+        display: none;
+        top: 60%;
+    }    
+    .row4_button {
+        display: none;
+        top: 78%;
+    }      
+    .match_name {
+        position: absolute;
+        width: 50%;
+        left: 0%;
+    }
+    .match_move {
+        position: absolute;
+        width: 50%;
+        left: 50%;
+    }
+}
+
+
+/******************************************************************
+ * BEGIN MAIN CSS 
+ *****************************************************************/
+
+html, body, #wrapper { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    padding: 0px; 
+    margin: 0px;
+    background: rgba(0,153,102,1);
+    overflow: hidden; 
+    -webkit-padding-start: 0px;
+    -webkit-text-size-adjust: none;
+}
+#game_title {
+    position: absolute;
+    width: 100%;
+    top: 0px;  
+    left: 0px;
+    margin: 0px; 
+    padding: 0px; 
+    font-family: 'Pacifico';
+    text-align: center; 
+    text-shadow: white 0.025em 0.025em 0.05em;    
+}
+
+.header_text {
+    position: absolute;
+    width: 100%;
+    font-family: 'Pacifico'; 
+    padding: 0% 2%;
+    color: rgba(255,255,255,1);
+    text-shadow: rgba(0,0,0,1) 0.05em 0.05em 0.025em; 
+    -webkit-border-top-left-radius: 11px;
+    -webkit-border-top-right-radius: 11px;
+    -webkit-box-sizing: border-box;
+}
+.regular_text {
+    position: absolute;
+    width: 100%;
+    font-family: 'Open Sans';
+    padding: 0% 2%;
+    cursor: pointer;  
+    -webkit-box-sizing: border-box;
+}
+.column1, .column2, .column3 {
+    position: absolute;
+    height: 100%;
+    width: 30%;
+    margin: 0%;   
+}
+.column1 {
+    left: 0%;
+    margin-left: 3%;
+}
+.column2 {
+    left: 35%;
+}
+.column3 {
+    left: 67%;
+    margin-right: 3%;
+}
+.row1 {
+    top: 35%;
+}
+.row2 {
+    top: 55%;
+}
+.row3 {
+    height: 25%;
+    top: 75%;
+    -webkit-border-bottom-left-radius: 11px;
+    -webkit-border-bottom-right-radius: 11px;
+}
+.fullsize_menu_div {
+    position: absolute; 
+    width: 90%;
+    margin: 0% 5%; 
+    background: rgba(0,0,0,0.2); 
+    border: 4px solid black; 
+    -webkit-border-radius: 15px;
+    -webkit-box-sizing: border-box;        
+}
+#solo_game, #vs_game {
+    position: absolute; 
+    font-family: 'Open Sans';
+    text-align: center;
+    background: rgba(0,0,0,1); 
+    color: rgba(255,255,255,1);    
+    border: 5px solid rgba(0,0,0,1);; 
+    -webkit-border-radius: 15px;
+    cursor: pointer;        
+}
+
+.mini_menu_div {
+    position: absolute; 
+    width: 90%;
+    margin: 1% 5%; 
+    background: rgba(0,0,0,0.2);
+    color: rgba(255,255,255,1); 
+    border: 4px solid black;
+    font-family: Droid Sans;
+    text-align: center;
+    -webkit-border-radius: 15px;
+    -webkit-box-sizing: border-box;         
+}
+.row4_button {
+    background: rgba(255,255,255,.5);
+    color: rgba(0,0,0,1);
+}

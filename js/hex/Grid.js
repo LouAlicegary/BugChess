@@ -124,10 +124,13 @@ HT.Grid.prototype.GetHexById = function(id) {
 
 /**
  * Returns a distance between two hexes
- * @this {HT.Grid}
- * @return {HT.Hexagon}
+ * @this    {HT.Grid}
+ * @param   {string} xy_string
+ *          Contains grid location in "8,9" string format.
+ * @return  {HT.Hexagon}
+ *          Returns hexagon at a given location
  */
-HT.Grid.prototype.GetHexByXYIndex = function( /*string*/ xy_string) {
+HT.Grid.prototype.GetHexByXYIndex = function( xy_string) {
 	xy_array = xy_string.split(",");
 	for(var i in this.Hexes)
 	{
@@ -138,7 +141,6 @@ HT.Grid.prototype.GetHexByXYIndex = function( /*string*/ xy_string) {
 	}
 	return null;
 };
-
 
 /**
  * Returns a distance between two hexes

@@ -1,0 +1,199 @@
+/**
+ * MEDIA QUERIES 
+ */
+
+/* Android Dolphin browser with keyboard out in portrait (squashed viewport becomes landscape) */
+@media (max-aspect-ratio: 8/5) {
+    #game_title {
+        top: 5%;
+        font-size: 96px;
+        line-height: 96px;
+    }
+    #directions, #name_input, #submit_button {
+        left: 5%;
+        width: 90%;
+        height: 70px;
+    }
+    #directions {
+        top: 30%;
+        font-size: 36px;
+        line-height: 70px;      
+    }
+    #name_input {  
+        top: 50%;     
+        font-size: 48px;
+        line-height: 70px;
+    }
+    #submit_button {
+        top: 70%;
+        font-size: 36px;
+        line-height: 36px;
+    }  
+}
+
+/* Computer */
+@media (min-width: 1025px)  {
+    #game_title {
+        height: 128px;
+        top: 5%;
+        font-size: 96px;
+        line-height: 96px;
+    }
+    #directions {
+        height: 60px;
+        width: 250px;
+        top: 60%;
+        left: 200px;        
+        font-size: 36px;
+        line-height: 56px;
+    }
+    #name_input {
+        height: 60px;
+        top: 60%;
+        left: 450px;
+        right: 450px;        
+        font-size: 48px;
+        line-height: 56px;
+    }
+    #submit_button {
+        height: 60px;
+        width: 250px;
+        top: 60%;
+        right: 200px;
+        font-size: 28px;
+        line-height: 42px;
+    }         
+}
+
+/* iPad*/
+@media (min-width: 1024px) and (max-width: 1024px) {
+
+    #game_title {
+        top: 15%;
+        height: 128px;
+        font-size: 100px;
+        line-height: 100px;
+    }
+    #directions {
+        height: 60px;
+        width: 200px;
+        top: 60%;
+        left: 50px; 
+        font-size: 28px;
+        line-height: 45px;        
+    }
+    #name_input {
+        height: 60px;
+        top: 60%;
+        left: 250px;
+        right: 275px;        
+        font-size: 36px;
+        line-height: 45px;
+    }
+    #submit_button {
+        height: 60px;
+        width: 225px;
+        top: 60%;
+        right: 50px;
+        font-size: 24px;
+        line-height: 36px;
+    }     
+}
+
+/* Anrdoid Lanscape  */
+@media (min-width: 1280px) and (max-width: 1280px) {
+    #game_title {
+        height: 72px;
+        top: 5%;
+        font-size: 64px;
+        line-height: 64px;
+    }
+    #directions {
+        height: 60px;
+        width: 200px;
+        top: 60%;
+        left: 50px; 
+        font-size: 28px;
+        line-height: 45px;        
+    }
+    #name_input {
+        height: 60px;
+        top: 60%;
+        left: 250px;
+        right: 300px;        
+        font-size: 36px;
+        line-height: 45px;
+    }
+    #submit_button {
+        height: 60px;
+        width: 250px;
+        top: 60%;
+        right: 50px;
+        font-size: 22px;
+        line-height: 45px;
+    }        
+}
+
+
+/****************************************************************************************/
+/**
+ * BEGIN MAIN CSS 
+ */
+
+body { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    padding: 0px; 
+    margin: 0px; 
+    font-size: 16px; 
+    background: rgba(0,153,102,1);
+    overflow: hidden; 
+    -webkit-padding-start: 0px;
+    -webkit-text-size-adjust: none;
+}
+
+img { 
+    width: 100%; 
+    height: 100%; 
+}
+                   
+#game_title { 
+    position: absolute;
+    width: 100%;  
+    left: 0%;
+    font-family: 'Pacifico';
+    text-align: center; 
+    text-shadow: white 0.025em 0.025em 0.05em;
+}
+
+#directions {
+    position: absolute;
+    font-family: 'Pacifico'; 
+}
+
+#name_input {
+    position: absolute;
+    font-family: 'Droid Sans'; 
+    margin-left: 20px;
+    margin-right: 40px;
+    border: 1px solid rgba(255,255,255,.3);
+    color: rgba(255,255,255,1);
+    background: rgba(0,153,102,1);
+    -webkit-box-sizing: border-box;
+}
+
+
+#name_input:focus { 
+    outline-color: rgba(255,255,255,1);
+}
+
+#submit_button {
+    position: absolute; 
+    font-family: 'Open Sans';
+    text-align: center; 
+    background: rgba(255,240,240,1);
+    border: 2px solid rgba(0,0,0,1);
+    -webkit-border-radius: 15px;
+    cursor: pointer;
+}

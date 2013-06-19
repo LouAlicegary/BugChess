@@ -1,0 +1,209 @@
+/***********************************
+ * MEDIA QUERIES 
+ **********************************/
+
+/* Samsung Galaxy 3 and similar */
+@media (max-width: 767px) and (min-height: 1000px) {
+    #current_games_div, #opponents_looking_div, #new_game_div {
+        display: none;
+    }
+    #play_alone_button, #play_someone_button, #learn_to_play_button {
+        display: block;
+    }  
+    #game_title {
+        height: 200px;
+        top: 0%;
+        font-size: 144px;
+        line-height: 200px;
+    }
+    .mini_menu_div {
+        height: 150px;  
+        font-size: 48px;
+        line-height: 100px;
+    }
+    .open_game_button, .my_game_button {
+        height: 150px;  
+        font-size: 48px;
+        line-height: 55px;
+    } 
+    .row1_button {
+        display: none;
+        top: 24%;
+    }   
+    .row2_button {
+        display: none;
+        top: 42%;
+    }
+    .row3_button {
+        display: none;
+        top: 60%;
+    }    
+    .row4_button {
+        display: none;
+        top: 78%;
+    }                
+}
+
+/* iPad */
+@media (min-width: 768px) {
+    .mini_menu_div {
+        display: none;
+    }    
+    #game_title {
+        height: 75px;
+        top: 0px;
+        font-size: 64px;
+        line-height: 75px;        
+    }
+    .fullsize_menu_div {
+        height: 240px;
+    } 
+    .header_text {
+        height: 72px;
+        font-size: 28px;
+        line-height: 54px;
+    }
+    .regular_text {
+        height: 48px;
+        font-size: 18px;
+        line-height: 48px;
+    }     
+    #solo_game, #vs_game {
+        height: 78px;
+        width: 40%;
+        top: 100px;
+        line-height: 26px; 
+        font-size: 26px;       
+    }
+    #solo_game {
+        left: 5%;    
+    }
+    #vs_game {
+        right: 5%;
+    }     
+}
+
+
+
+/**********************************
+ * BEGIN MAIN CSS 
+ *********************************/
+
+html, body, #wrapper { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%;
+    margin: 0px;
+    padding: 0px; 
+    background: rgba(0,153,102,1);
+    overflow: hidden; 
+    -webkit-padding-start: 0px;
+    -webkit-text-size-adjust: none;
+}
+#game_title {
+    position: absolute;
+    width: 100%;
+    font-family: 'Pacifico';
+    text-align: center; 
+    text-shadow: white 0.025em 0.025em 0.05em;    
+}
+
+/* Big Lobby divs for computers / tablets */    
+.header_text {
+    position: absolute;
+    width: 100%;
+    font-family: 'Pacifico'; 
+    padding: 0% 2%;
+    color: rgba(255,255,255,1);
+    text-shadow: rgba(0,0,0,1) 0.05em 0.05em 0.025em; 
+    -webkit-border-top-left-radius: 11px;
+    -webkit-border-top-right-radius: 11px;
+    -webkit-box-sizing: border-box;
+}
+.regular_text {
+    position: absolute;
+    width: 100%;
+    font-family: 'Open Sans';
+    padding: 0% 2%;
+    cursor: pointer;  
+    -webkit-box-sizing: border-box;
+}
+.column1, .column2, .column3 {
+    position: absolute;
+    height: 100%;
+    /*width: 30%;*/
+    margin: 0% 1%;    
+}
+.column1 {
+    left: 0%;
+    margin-left: 3%;
+}
+.column2 {
+    left: 30%;
+}
+.column3 {
+    left: 65%;
+    margin-right: 1%;
+}
+.row1 {
+    top: 35%;
+}
+.row2 {
+    top: 55%;
+}
+.row3 {
+    height: 25%;
+    top: 75%;
+    -webkit-border-bottom-left-radius: 11px;
+    -webkit-border-bottom-right-radius: 11px;
+}
+
+.fullsize_menu_div {
+    position: absolute; 
+    width: 90%;
+    margin: 0% 5%; 
+    background: rgba(0,0,0,0.2); 
+    border: 4px solid black; 
+    -webkit-border-radius: 15px;
+    -webkit-box-sizing: border-box;        
+}
+#current_games_div {
+    top: 100px;    
+}
+#opponents_looking_div {
+    top: 40%;
+}
+#new_game_div {
+    top: 70%;
+    margin-bottom: 4%; 
+}
+#solo_game, #vs_game {
+    position: absolute;
+    margin: auto; 
+    font-family: 'Open Sans';
+    text-align: center;
+    cursor: pointer;  
+    background: #000000; 
+    color: #ffffff; 
+    border: 5px solid black; 
+    /*padding: 5px 10px 5px 10px;*/ 
+    -webkit-border-radius: 15px;       
+}
+
+/* Button Lobby divs for smartphones*/ 
+.mini_menu_div {
+    position: absolute;
+    width: 90%;
+    margin: 1% 5%; 
+    background: rgba(0,0,0,0.2);
+    color: rgba(255,255,255,1); 
+    border: 4px solid black;
+    font-family: Droid Sans;
+    text-align: center;
+    -webkit-border-radius: 15px;
+    -webkit-box-sizing: border-box;         
+}
+.row4_button {
+    background: rgba(255,255,255,.5);
+    color: rgba(0,0,0,1);
+} 

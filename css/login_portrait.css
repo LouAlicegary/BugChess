@@ -1,0 +1,147 @@
+/**
+ * MEDIA QUERIES 
+ */
+
+/*What's this short in portrait? Old smartphones?*/
+@media (max-height: 799px) {
+    #game_title {
+        top: 5%;
+        font-size: 96px;
+        line-height: 96px;
+        background: #ffff00;
+    }
+    #directions, #name_input, #submit_button {
+        left: 5%;
+        width: 90%;
+        height: 60px;
+    }
+    #directions {
+        top: 30%;
+        font-size: 28px;
+        line-height: 28px;      
+    }
+    #name_input {  
+        top: 45%;     
+        font-size: 36px;
+        line-height: 60px;
+    }
+    #submit_button {
+        top: 60%;
+        font-size: 32px;
+        line-height: 32px;
+    }     
+}
+
+/* iPad */
+@media (min-height: 800px)  {
+    #game_title {
+        top: 5%;
+        font-size: 96px;
+        line-height: 96px;
+    }
+    #directions, #name_input, #submit_button {
+        left: 5%;
+        width: 90%;
+        height: 70px;
+    }
+    #directions {
+        top: 20%;
+        font-size: 36px;
+        line-height: 70px;      
+    }
+    #name_input {  
+        top: 30%;     
+        font-size: 48px;
+        line-height: 70px;
+    }
+    #submit_button {
+        top: 40%;
+        font-size: 32px;
+        line-height: 32px;
+    }  
+}
+
+/* Samsung Galaxy 3 */
+@media (min-height: 1025px)  {
+    #game_title {
+        top: 5%;
+        font-size: 96px;
+        line-height: 96px;
+    }
+    #directions, #name_input, #submit_button {
+        left: 5%;
+        width: 90%;
+        height: 70px;
+    }
+    #directions {
+        top: 20%;
+        font-size: 36px;
+        line-height: 70px;      
+    }
+    #name_input {  
+        top: 30%;     
+        font-size: 48px;
+        line-height: 70px;
+    }
+    #submit_button {
+        top: 40%;
+        font-size: 36px;
+        line-height: 36px;
+    }  
+}
+
+/****************************************************************************************/
+/**
+ * BEGIN MAIN CSS 
+ */
+
+body { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    padding: 0px; 
+    margin: 0px; 
+    background: rgba(0,153,102,1);
+    overflow: hidden; 
+    -webkit-padding-start: 0px;
+    -webkit-text-size-adjust: none;
+}
+                   
+#game_title { 
+    position: absolute;
+    height: 25%;
+    width: 100%;  
+    left: 0%;
+    font-family: 'Pacifico';
+    text-align: center; 
+    text-shadow: white 0.025em 0.025em 0.05em;
+}
+
+#directions {
+    position: absolute;
+    font-family: 'Pacifico'; 
+}
+
+#name_input {
+    position: absolute;
+    font-family: 'Droid Sans'; 
+    border: 1px solid rgba(255,255,255,.3);
+    color: rgba(255,255,255,1);
+    background: rgba(0,153,102,1);
+    -webkit-box-sizing: border-box;
+}
+
+#name_input:focus { 
+    outline-color: rgba(255,255,255,1);
+}
+
+#submit_button {
+    position: absolute; 
+    padding: 0%;
+    font-family: 'Open Sans';
+    text-align: center; 
+    background: rgba(255,240,240,1);
+    border: 2px solid rgba(0,0,0,1);
+    -webkit-border-radius: 15px;
+    -webkit-box-sizing: border-box;
+}

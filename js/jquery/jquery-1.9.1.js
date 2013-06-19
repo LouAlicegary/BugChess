@@ -439,7 +439,7 @@ jQuery.extend({
 	},
 
 	// See test/unit/core.js for details concerning isFunction.
-	// Since version 1.3, DOM methods and functions like alert
+	// Since version 1.3, DOM methods and functions like a l e r t 
 	// aren't supported. They return false on IE (#2968).
 	isFunction: function( obj ) {
 		return jQuery.type(obj) === "function";
@@ -3277,7 +3277,7 @@ jQuery.event = {
 		beforeunload: {
 			postDispatch: function( event ) {
 
-				// Even when returnValue equals to undefined Firefox will still show alert
+				// Even when returnValue equals to undefined Firefox will still show  a l e r t
 				if ( event.result !== undefined ) {
 					event.originalEvent.returnValue = event.result;
 				}
