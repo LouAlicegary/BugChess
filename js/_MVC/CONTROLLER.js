@@ -1,15 +1,34 @@
+var NUM_BEES = 1;
+var NUM_SPIDERS = 2;
+var NUM_GRASSHOPPERS = 3;
+var NUM_BEETLES = 2;
+var NUM_ANTS = 3;
+var NUM_LADYBUGS = 0;
+var NUM_MOSQUITOES = 0;
+var NUM_PIECES = NUM_BEES + NUM_SPIDERS + NUM_GRASSHOPPERS + NUM_BEETLES + NUM_ANTS + NUM_LADYBUGS + NUM_MOSQUITOES;
+
 var NUM_MOVES = 0;
 var WHITE_BEE_PLACED = 0;
 var BLACK_BEE_PLACED = 0;
 var CLICKED_ON = "";
 var POPUP_TIMER;
+var VS_COMPUTER = 0;
 
 /**
  * Sets event listeners for clicking pieces and buttons and runs polling functions to get updates from DB.
  */
 function CONTROLLER_MAIN() {
 	VIEW_initGameWindow();	
-	if (!SOLO_GAME) {
+	MODEL_PIECEARRAY_initialize();
+	if (SOLO_GAME) {
+	    VS_COMPUTER = 1;
+	    $('#black_player_name').text("Computer");
+	    BLACK_PLAYER_NAME = "Computer";
+	    if (WHITE_PLAYER_NAME == "Computer") {
+	        //CONTROLLER_doComputerMove("white");
+	    }
+	}
+	else {
 		CONTROLLER_MAIN_doInitialUpdateFromDB(30);
 		CONTROLLER_MAIN_pollingFunction(3000); // POLLS SERVER FOR UPDATES TO DB		
 	}
@@ -47,9 +66,10 @@ function CONTROLLER_MAIN_doInitialUpdateFromDB(frequency_timer) {
                 
                 if (origin !== "") {
                     VIEW_removePieceFromCanvas(grid.GetHexByXYIndex(origin));
-                    MODEL_removePieceFromArray(origin);
+                    MODEL_GRIDARRAY_removePiece(origin);
                 }
-                MODEL_addPieceToArray(destination, piece_id);
+                MODEL_GRIDARRAY_addPiece(destination, piece_id);
+                MODEL_PIECEARRAY_addPiece(destination, piece_id);
                 MODEL_MOVELIST_addMove(piece_id, origin, destination);               
                 VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(destination));
                 
@@ -62,7 +82,7 @@ function CONTROLLER_MAIN_doInitialUpdateFromDB(frequency_timer) {
                 window.clearInterval(the_init_timer);
             }   
                 
-            var game_result = isBeeSurrounded();
+            var game_result = isBeeSurrounded(MODEL_GRIDARRAY_getGridArray());
             if (game_result) {
                 if (game_result == 3)
                      CONTROLLER_EVENT_winnerDeclared("draw", 1);
@@ -118,13 +138,15 @@ function CONTROLLER_MAIN_pollingFunction(frequency_timer) {
 				
 				if (origin !== "") {
 					VIEW_removePieceFromCanvas(grid.GetHexByXYIndex(origin));
-					MODEL_removePieceFromArray(origin);
+					MODEL_GRIDARRAY_removePiece(origin);
+					MODEL_PIECEARRAY_removePiece(piece_id);
 				}
-				MODEL_addPieceToArray(destination, piece_id);				
+				MODEL_GRIDARRAY_addPiece(destination, piece_id);
+				MODEL_PIECEARRAY_addPiece(destination, piece_id);				
 				VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(destination));
 			}
 	
-	        var game_result = isBeeSurrounded();
+	        var game_result = isBeeSurrounded(MODEL_GRIDARRAY_getGridArray());
 			if (game_result) {
 			    if (game_result == 3)
 			         CONTROLLER_EVENT_winnerDeclared("draw", 1);
@@ -153,11 +175,10 @@ function CONTROLLER_EVENT_attemptMove(in_origin, in_dest, in_piece_id) {
     var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());
 
     // check if move is valid according to game rules
-    var return_array = isMoveInvalid(in_origin, in_dest, in_piece_id);
-    var invalid_flag = return_array[0];
-    var error_string = return_array[1];
+    var valid_flag = isMoveValid(in_origin, in_dest, in_piece_id, MODEL_GRIDARRAY_getGridArray());
+    var error_string = getMoveErrorCode(valid_flag);
 
-    if (invalid_flag) { // IF MOVE VIOLATES A GAME RULE
+    if (valid_flag != 1) { // IF MOVE VIOLATES A GAME RULE
         $('#in_game_header').html("INVALID MOVE");
         $('#in_game_text').html(error_string);
         $('#in_game_popup').show();
@@ -176,34 +197,37 @@ function CONTROLLER_EVENT_attemptMove(in_origin, in_dest, in_piece_id) {
     }
     
     else { // IF LEGITIMATE MOVE
-        
-        if (in_origin)
-            MODEL_removePieceFromArray(in_origin);
+        if (in_origin) {
+            var origin_hex = grid.GetHexByXYIndex(in_origin);
+            //VIEW_removePieceFromCanvas(origin_hex);            
+            MODEL_GRIDARRAY_removePiece(in_origin);
+            MODEL_PIECEARRAY_removePiece(in_piece_id);
+        }
         else if (in_piece_id.indexOf("white_bee1") != -1)
             WHITE_BEE_PLACED++;
         else if (in_piece_id.indexOf("black_bee1") != -1)
             BLACK_BEE_PLACED++;
             
-        MODEL_addPieceToArray(in_dest, in_piece_id);
-        
-        if (!SOLO_GAME) 
-            MODEL_addMoveToDB(in_piece_id, in_dest, in_origin);
-        //var move_id = 0;
+        MODEL_GRIDARRAY_addPiece(in_dest, in_piece_id);
+        MODEL_PIECEARRAY_addPiece(in_dest, in_piece_id);
         MODEL_MOVELIST_addMove(in_piece_id, in_origin, in_dest);
-        
+        if (!SOLO_GAME) 
+            MODEL_DB_addMove(in_piece_id, in_origin, in_dest);
+ 
         var the_hex = grid.GetHexByXYIndex(in_dest);
-        VIEW_drawPieceOnCanvas(the_hex);    
+        //VIEW_drawPieceOnCanvas(the_hex);    
         
         $("#" + in_piece_id).hide();
-        $("#" + in_piece_id).attr('origin', the_hex.GetXYLocation());
-       
+        $("#" + in_piece_id).attr('origin', in_dest);//the_hex.GetXYLocation());
+        //Logger("Set origin for " + in_piece_id + " = " + $("#" + in_piece_id).attr('origin'));
+        VIEW_SUPPORT_redrawHexGrid(MODEL_GRIDARRAY_getGridArray());
         // IF FIRST MOVE, SET AS ORIGIN;
        if (NUM_MOVES == 1) {
            HIVE_ORIGIN = in_dest;
        }
         // CHECK IF BEE IS SURROUNDED = LOSS
         setTimeout(function() {
-            var game_result = isBeeSurrounded();
+            var game_result = isBeeSurrounded(MODEL_GRIDARRAY_getGridArray());
             if (game_result) {
                 if (game_result == 3)
                      CONTROLLER_EVENT_winnerDeclared("draw", 1);
@@ -212,8 +236,15 @@ function CONTROLLER_EVENT_attemptMove(in_origin, in_dest, in_piece_id) {
                 else
                      CONTROLLER_EVENT_winnerDeclared(BLACK_PLAYER_NAME, 1);                                  
             }
-        },200);                 
-    }       
+            else if ( (NUM_MOVES % 2) && (BLACK_PLAYER_NAME == "Computer")) {
+                CONTROLLER_doComputerMove("black"); 
+            }  
+            else if ( !(NUM_MOVES % 2) && (WHITE_PLAYER_NAME == "Computer")) {
+                CONTROLLER_doComputerMove("white");
+            }
+        },200);               
+    }
+            
 }
 
 /**
@@ -274,13 +305,13 @@ function CONTROLLER_EVENT_undoMove() {
           
     NUM_MOVES--; //NECESSARY BECAUSE WE'RE ACTUALLY REMOVING A PIECE FROM THE BOARD
     VIEW_removePieceFromCanvas(grid.GetHexByXYIndex(destination));
-    MODEL_removePieceFromArray(destination);
+    MODEL_GRIDARRAY_removePiece(destination);
     MODEL_MOVELIST_removeLastMove();
 
 
     if (origin !== "") { // If piece came from on board
         NUM_MOVES--; // Cancels out NUM_MOVES++ in addPieceToArray() that fires next
-        MODEL_addPieceToArray(origin, piece_id);                
+        MODEL_GRIDARRAY_addPiece(origin, piece_id);                
         VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(origin));
     }
     else { // If piece came from side of board

@@ -1,8 +1,14 @@
 ALLOW_CONSOLE_LOG = 1;
 
+$(document).ready(function(){
+    $("body").append("<div id='logger_window' style='position: absolute; overflow: auto; font-family: Arial; font-size: 16px; font-face: bold; top: 0; left: 0; height: 30%; width: 60%; margin: 0% 20%; background: rgba(0,0,0,.7); color: rgba(255,255,255,1);'>Logger window initialized.\n</div>")
+});
+
+
 function Logger(old_string) {
 	if (ALLOW_CONSOLE_LOG) {
-		console.log(timestamp() + old_string);
+	    $('#logger_window').html($('#logger_window').html() + "<br>" + timestamp() + old_string);
+		//console.log(timestamp() + old_string);
 	}	
 }
 
@@ -52,6 +58,38 @@ function getMaxFontSizeByWidth(in_width, in_upperbound, in_fontface, in_text) {
 	   return Math.floor(width_guess);	
 	else 
 	   return in_upperbound;
+}
+
+/**
+ * Makes a copy of an array (Arrays in JS copy by address, not value)
+ * @param   {Array} obj
+ *          Some array that you want to make a copy of.
+ * @return  {Array} 
+ *          An exact value-by-value copy of the array that was passed into the function.
+ */
+function arrayCloner(obj) {
+    if(obj == null || typeof(obj) != 'object')
+        return obj;
+
+    var temp = obj.constructor(); // changed
+
+    for(var key in obj)
+        temp[key] = arrayCloner(obj[key]);
+    
+    return temp;
+}
+
+/**
+ * Copies array values into a visually appealing string. 
+ * @param   {Array} in_array
+ *          An array that you want to print out.
+ */
+function printNiceArray(in_array) {
+    var out_string = "";
+    for (var i=0; i < in_array.length; i++) {
+        out_string += "[" + in_array[i] + "] ";
+    }
+    return out_string;
 }
 
 /**

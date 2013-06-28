@@ -130,7 +130,7 @@ HT.Grid.prototype.GetHexById = function(id) {
  * @return  {HT.Hexagon}
  *          Returns hexagon at a given location
  */
-HT.Grid.prototype.GetHexByXYIndex = function( xy_string) {
+HT.Grid.prototype.GetHexByXYIndex = function(xy_string) {
 	xy_array = xy_string.split(",");
 	for(var i in this.Hexes)
 	{

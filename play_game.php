@@ -24,12 +24,14 @@
         echo "    <!-- MVC Architecture -->\n"; 
         echo "    <script src=\"js/_MVC/MODEL.js\"></script>\n"; 
         echo "    <script src=\"js/_MVC/MODEL_DB.js\"></script>\n"; 
-        echo "    <script src=\"js/_MVC/MODEL_ARRAY.js\"></script>\n";
+        echo "    <script src=\"js/_MVC/MODEL_GRIDARRAY.js\"></script>\n";
+        echo "    <script src=\"js/_MVC/MODEL_PIECEARRAY.js\"></script>\n";
         echo "    <script src=\"js/_MVC/MODEL_MOVELIST.js\"></script>\n"; 
         echo "    <script src=\"js/_MVC/VIEW_GAME.js\"></script>\n"; 
         echo "    <script src=\"js/_MVC/VIEW_SUPPORT.js\"></script>\n"; 
         echo "    <script src=\"js/_MVC/VIEW_LOBBY.js\"></script>\n"; 
         echo "    <script src=\"js/_MVC/CONTROLLER.js\"></script>\n"; 
+        echo "    <script src=\"js/_MVC/CONTROLLER_AI.js\"></script>\n";         
         echo "    \n"; 
         echo "    <!-- Hex -->    \n"; 
         echo "    <script src=\"js/hex/HexagonTools.js\"></script>\n"; 
@@ -145,7 +147,7 @@
                 echo "BLACK_PLAYER_NAME = '(none)';\n";
             }       
             echo "var SOLO_GAME = 0;";
-            echo "if (!GAME_ID) {SOLO_GAME = 1; BLACK_PLAYER_NAME = 'Black'; WHITE_PLAYER_NAME = 'White';}";
+            echo "if (!GAME_ID) {SOLO_GAME = 1;}";
             echo "$(document).ready(CONTROLLER_MAIN);\n";
         }
         else {

@@ -104,8 +104,8 @@ HT.Hexagon.prototype.draw = function(ctx) {
  * @this {HT.Hexagon}
  */
 HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx, in_width, in_height) {
-
-	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
+    var grid_array = MODEL_GRIDARRAY_getGridArray();
+	var array_val = grid_array[this.PathCoOrdX][this.PathCoOrdY];
 	//Logger("PRE DRAW IMAGE: " + array_val + " " +  this.PathCoOrdX + "," + this.PathCoOrdY);
 	if ( array_val != 0) { // fill hexagon in canvas if a piece exists there
 		
@@ -138,8 +138,8 @@ HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx, in_width, in_height) {
  */
 HT.Hexagon.prototype.removePieceFromCanvas = function(ctx, in_width, in_height) {
 
-	var array_val = GRID_ARRAY[this.PathCoOrdX][this.PathCoOrdY];
-	//Logger("HT: (177) Contents of hex array cell at " + this.PathCoOrdX + " " + this.PathCoOrdY + " = " + array_val);
+    var grid_array = MODEL_GRIDARRAY_getGridArray();
+    var array_val = grid_array[this.PathCoOrdX][this.PathCoOrdY];
 	
 	if ( array_val.indexOf(",") != -1) { // fill hexagon in canvas if another piece exists there
 		
@@ -242,6 +242,8 @@ HT.Hexagon.prototype.GetID = function() {
 
 /**
  * 
+ * @return  {String}
+ *          Returns a string representing the location in "8,9" format
  */
 HT.Hexagon.prototype.GetXYLocation = function() {
 	var x_coord = this.PathCoOrdX;

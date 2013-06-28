@@ -7,12 +7,12 @@
  * @param   {String} origin               
  *          Origin hex of move in format "8,9" (blank if piece being moved for first time from off board)
  */
-function MODEL_addMoveToDB(piece_id, destination_string, origin) {
+function MODEL_DB_addMove(piece_id, origin, destination) {
     //Logger("MODEL: (110) MOVE ADDED TO DB");
     var request = $.ajax({
         url: "php/add_move_to_db.php",
         type: "POST",
-        data: {game_id: GAME_ID, piece : piece_id, destination : destination_string, origin : origin},
+        data: {game_id: GAME_ID, piece : piece_id, origin : origin, destination : destination},
         dataType: "html"
     });
 }

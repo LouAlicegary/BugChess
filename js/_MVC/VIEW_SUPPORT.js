@@ -181,7 +181,10 @@ function VIEW_SUPPORT_drawEmptyGrid() {
 /**
  * 
  */
-function VIEW_SUPPORT_redrawHexGrid() {
+function VIEW_SUPPORT_redrawHexGrid(in_grid_array) {
+    var unplayed_white = $('[class*=" white"]:visible').length;
+    var unplayed_black = $('[class*=" black"]:visible').length;
+    //Logger("REDRAW (unplayed white/black pieces = " + unplayed_white + " / " + unplayed_black + ")");
     PIECE_HEIGHT = $(".game_piece").height();
     PIECE_WIDTH = $(".game_piece").width();    
     VIEW_SUPPORT_drawEmptyGrid();
@@ -190,18 +193,24 @@ function VIEW_SUPPORT_redrawHexGrid() {
     var grid = new HT.Grid(da_width, da_height);
     var the_piece;
     var destination;
-    for (var i=0; i < GRID_ARRAY.length; i++) {
-        for (var j=0; j < GRID_ARRAY[0].length; j++) {
-            if (GRID_ARRAY[i][j] != 0) {
+    var grid_array = MODEL_GRIDARRAY_getGridArray();
+    
+    for (var i=0; i < in_grid_array.length; i++) {
+        for (var j=0; j < in_grid_array[0].length; j++) {
+            if (in_grid_array[i][j] != 0) {
                 destination = i + "," + j; 
                 VIEW_drawPieceOnCanvas(grid.GetHexByXYIndex(destination));
             }
         }
     }    
     
+}  
+
+function VIEW_SUPPORT_scrollToOrigin() {
     // set view to view origin
+    var grid = new HT.Grid(da_width, da_height);
     var the_hex = grid.GetHexByXYIndex(HIVE_ORIGIN);
     var box_y = the_hex.MidPoint.Y - $('#container').height()/2;
     var box_x = the_hex.MidPoint.X - $('#container').width()/2;
-    the_scroller.scroller.scrollTo(box_x, box_y, false, 1); //the_scroller is declared in EasyScroller.js
-}  
+    the_scroller.scroller.scrollTo(box_x, box_y, false, 1); //the_scroller is declared in EasyScroller.js    
+}

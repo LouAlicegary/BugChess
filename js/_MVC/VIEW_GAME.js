@@ -1,10 +1,15 @@
-var NUM_OF_PIECES = 11;
 var PIECE_HEIGHT;
 var PIECE_WIDTH;
 var HIVE_ORIGIN = "15,15";
 var PIECE_ANIMATION_INTERVAL;
 var MID_DRAG_FLAG = 0; // set to 1 on draggable event start
 var MID_MOVE_FLAG = 0;
+
+// timers used on droppable (only in this file -- broken up because droppable drop function is separate)
+var top_timer;
+var bottom_timer; 
+var left_timer;
+var right_timer;
 
 // Changes all touchstart events on iOS to clicks
 var ua = navigator.userAgent;
@@ -18,8 +23,58 @@ function VIEW_initGameWindow() {
     PIECE_HEIGHT = $(".game_piece").height();
     PIECE_WIDTH = $(".game_piece").width();    
     VIEW_SUPPORT_drawEmptyGrid();
-    	
-	$("#container").droppable({ drop: VIEW_EVENT_dropPiece });
+   	 	
+	$("#container").droppable({ 
+	    drop: VIEW_EVENT_dropPiece, 
+	    out: function( event, ui ) {
+	        // When a draggable piece leaves the container, this function scrolls the board
+	        var draggable_x = ui.position.left;
+	        var draggable_y = ui.position.top;
+	        var box_top = document.getElementById("container").getBoundingClientRect().top;
+	        var box_bottom = document.getElementById("container").getBoundingClientRect().bottom;
+	        var box_left = document.getElementById("container").getBoundingClientRect().left;
+	        var box_right = document.getElementById("container").getBoundingClientRect().right;
+	        
+	        //alert(draggable_x + " " + draggable_y + " " + box_top + " " + box_bottom + " " + box_left + " " + box_right);
+	        if (draggable_y < box_top) {
+	            //Logger("TOP");
+	            the_scroller.scroller.scrollBy(0, -50, false);
+	            top_timer = setInterval(function(){
+	                the_scroller.scroller.scrollBy(0, -10, false);
+	            }, 50);   
+	        }
+            if ( (draggable_y + PIECE_HEIGHT/2) > box_bottom) {
+                //Logger("BOTTOM");
+                bottom_timer = setInterval(function(){
+                    the_scroller.scroller.scrollBy(0, 10, false);
+                }, 50); 
+            }	        
+            if (draggable_x < box_left) {
+                //Logger("LEFT");
+                left_timer = setInterval(function(){
+                    the_scroller.scroller.scrollBy(-10, 0, false);
+                }, 50); 
+            }
+            if ( (draggable_x + PIECE_WIDTH/2) > box_right) {
+                //Logger("RIGHT");
+                right_timer = setInterval(function(){
+                    the_scroller.scroller.scrollBy(10, 0, false);
+                }, 50);                     
+            }	         
+	    },
+	    over: function( event, ui ) {
+	       clearInterval(top_timer);
+	       clearInterval(bottom_timer);
+	       clearInterval(left_timer);
+	       clearInterval(right_timer);
+	    },
+	    deactivate: function( event, ui ) {
+           clearInterval(top_timer);
+           clearInterval(bottom_timer);
+           clearInterval(left_timer);
+           clearInterval(right_timer);	        
+	    }
+	});
 	
     $("#undo_move_button").button();    	
 	$("#cancel_game_button").button();
@@ -51,14 +106,15 @@ function VIEW_initGameWindow() {
 	
 	// RELOAD PAGE FROM SCRATCH ON ORIENTATION CHANGE / WINDOW RESIZE
     window.onresize = function(event) {
-        VIEW_SUPPORT_redrawHexGrid(); 
+        var grid_array = MODEL_GRIDARRAY_getGridArray();
+        VIEW_SUPPORT_redrawHexGrid(grid_array);
+        VIEW_SUPPORT_scrollToOrigin(); 
         VIEW_positionUnplacedPieces();
     };
     
     // STOPS BOUNCE ON MOBILE DEVICES WHEN DRAGGING
     document.ontouchmove = function(e) {e.preventDefault()};
-    
-    	
+       	
 	$('#hexCanvas').bind(clicktouchevent, VIEW_EVENT_clickPieceOnBoard);
     $('#undo_move_button').bind(clicktouchevent, CONTROLLER_EVENT_undoMove);
     $('#cancel_game_button').bind(clicktouchevent, CONTROLLER_EVENT_cancelGame);
@@ -79,11 +135,12 @@ function VIEW_initGameWindow() {
      * Floats hovered-over unplayed piece to top of z-index stack
      */ 
     function VIEW_EVENT_mouseoverUnplayedPiece() {
+        
         var zdex = 0;
         
-        if ((WHITE_PLAYER_NAME == NAME) || SOLO_GAME) {
+        if (WHITE_PLAYER_NAME == NAME) {
             $('[class*=" white"]').draggable({revert: "invalid", distance: PIECE_WIDTH/2, cursorAt: {'top': PIECE_HEIGHT/2, 'left': PIECE_WIDTH/2}, start: function() {MID_DRAG_FLAG = 1;}});
-            
+                          
             $('[class*=" white"]:visible').mouseenter(function(){
                 $("#white_mask_box").show();
                 zdex = $(this).css('zIndex');
@@ -95,9 +152,8 @@ function VIEW_initGameWindow() {
                 $("#white_mask_box").hide();
             });  
         }
-        
-        if ((BLACK_PLAYER_NAME == NAME) || SOLO_GAME) {
-            $('[class*=" black"]').draggable({revert: "invalid", distance: PIECE_WIDTH/2, cursorAt: {'top': PIECE_HEIGHT/2, 'left': PIECE_WIDTH/2 }, start: function() {MID_DRAG_FLAG = 1;}});
+        if (BLACK_PLAYER_NAME == NAME) {
+            $('[class*=" black"]').draggable({revert: "invalid", distance: PIECE_WIDTH/2, cursorAt: {'top': PIECE_HEIGHT/2, 'left': PIECE_WIDTH/2 }, start: function() {MID_DRAG_FLAG = 1;}}); 
             
             $('[class*=" black"]:visible').mouseenter(function(){
                 $("#black_mask_box").show(); 
@@ -109,7 +165,7 @@ function VIEW_initGameWindow() {
                 $("#black_mask_box").hide(); 
                 $(this).css({'z-index': zdex});
             });            
-        }   
+        }
     }
 }
 
@@ -128,7 +184,7 @@ function VIEW_positionUnplacedPieces() {
     $('[class*=" white"]:visible').each(function(i, obj) {
         if ( $(window).height() < $(window).width() ) {
             var effective_mbh = parseInt($('#white_piece_box').css('height').slice(0,-2));
-            var PIECE_OVERLAP = (effective_mbh - $(".game_piece").height()) / (NUM_OF_PIECES - 1);
+            var PIECE_OVERLAP = (effective_mbh - $(".game_piece").height()) / (NUM_PIECES - 1);
             var pieces_length = ((num_unplayed_white_pieces-1) * PIECE_OVERLAP) + PIECE_HEIGHT;
             var pieces_top_offset = parseInt($('#white_piece_box').css('top').slice(0,-2)) + parseInt($('#white_piece_box').css('padding-top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
             var y_offset = (i * PIECE_OVERLAP) + pieces_top_offset;
@@ -136,7 +192,7 @@ function VIEW_positionUnplacedPieces() {
         }
         else {
             var pieces_length = $(window).width() - 170 - $(".game_piece").width();
-            var PIECE_OVERLAP = pieces_length / (NUM_OF_PIECES-1);
+            var PIECE_OVERLAP = pieces_length / (NUM_PIECES-1);
             x_offset = (i * PIECE_OVERLAP) + 150;
             y_offset = document.getElementById('game_title').getBoundingClientRect().bottom + 10;
         }
@@ -147,7 +203,7 @@ function VIEW_positionUnplacedPieces() {
     $('[class*=" black"]:visible').each(function(i, obj) {
         if ( $(window).height() < $(window).width() ) {
             var effective_mbh = parseInt($('#black_piece_box').css('height').slice(0,-2));
-            var PIECE_OVERLAP = (effective_mbh - $(".game_piece").height()) / (NUM_OF_PIECES - 1);
+            var PIECE_OVERLAP = (effective_mbh - $(".game_piece").height()) / (NUM_PIECES - 1);
             var pieces_length = ((num_unplayed_black_pieces-1) * PIECE_OVERLAP) + PIECE_HEIGHT;
             var pieces_top_offset = parseInt($('#black_piece_box').css('top').slice(0,-2)) + parseInt($('#black_piece_box').css('padding-top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
             var y_offset = (i * PIECE_OVERLAP) + pieces_top_offset;
@@ -155,16 +211,14 @@ function VIEW_positionUnplacedPieces() {
         }
         else {
             var pieces_length = $(window).width() - 170 - $(".game_piece").width(); // ((num_unplayed_white_pieces-1) * PIECE_OVERLAP) + PIECE_HEIGHT;
-            var PIECE_OVERLAP = pieces_length / (NUM_OF_PIECES-1);
+            var PIECE_OVERLAP = pieces_length / (NUM_PIECES-1);
             x_offset = (i * PIECE_OVERLAP) + 150;
             y_offset = document.getElementById('container').getBoundingClientRect().bottom + 10;
         }    
         //Logger("VIEW 183: " + document.getElementById('black_piece_box').getBoundingClientRect().left + " / " + $('#black_piece_box').css('width'));
         $('#' + obj.getAttribute('id')).css({ 'top': y_offset + 'px', 'left': x_offset + 'px', 'z-index': i+2 }); 
     });
-    
-
-                   
+                       
     // SHOWS EITHER RESET BUTTON OR CANCEL GAME BUTTON        
     if (NUM_MOVES == 0) {
         $("#resign_button").hide();
@@ -177,13 +231,14 @@ function VIEW_positionUnplacedPieces() {
     else {
         $('#resign_button').show();
         $('#cancel_game_button').hide();
-    }  
+    }
+      
     // BLACK TURN -> MASK GAME PIECE BARS FOR WHITE + HIDE BLACK UNDO
     if (NUM_MOVES % 2 == 1) {
         $('#white_mask_box').show();
         $('#black_mask_box').hide();
         
-        if ( (NAME == BLACK_PLAYER_NAME) || isBeeSurrounded() ) {
+        if ( (NAME == BLACK_PLAYER_NAME) || isBeeSurrounded(MODEL_GRIDARRAY_getGridArray()) ) {
             $("#undo_move_button").hide();
         }
         else {
@@ -196,15 +251,33 @@ function VIEW_positionUnplacedPieces() {
         $('#black_mask_box').show();
         $('#white_mask_box').hide();
         
-        if ( (NAME == WHITE_PLAYER_NAME) || isBeeSurrounded() || (NUM_MOVES == 0) )
+        if ( (NAME == WHITE_PLAYER_NAME) || isBeeSurrounded(MODEL_GRIDARRAY_getGridArray()) || (NUM_MOVES == 0) )
             $("#undo_move_button").hide();
         else
             $("#undo_move_button").show();
     }
-        // HIDES CANCEL GAME BUTTON IF SOLO GAME
+    
+    // DISALLOWS DRAGGING FOR OPPONENTS PIECES
+    if (WHITE_PLAYER_NAME != NAME) {
+        // Masks white pieces so black can't drag
+        $("#white_mask_box").show(); 
+        $("#white_mask_box").css({'z-index': 500, 'opacity': 0});
+        if ((NUM_MOVES % 2) == 1)
+            $("#white_mask_box").css({'opacity': .5});               
+    }   
+    if (BLACK_PLAYER_NAME != NAME) {
+        // Masks black pieces so white can't drag
+        $("#black_mask_box").show(); 
+        $("#black_mask_box").css({'z-index': 500, 'opacity': 0});
+        if ((NUM_MOVES % 2) == 0)
+            $("#black_mask_box").css({'opacity': .5});            
+    }
+    
+    // HIDES CANCEL GAME BUTTON IF SOLO GAME
     if (SOLO_GAME) {
         $("#cancel_game_button").hide();
         $("#resign_button").hide();
+        $("#undo_move_button").hide();
     }
            
 }
@@ -292,7 +365,8 @@ function VIEW_EVENT_clickPieceOnBoard(event) {
     if (clicked_hex) {
         CLICKED_ON = clicked_hex.GetXYLocation();
         //Logger("CLICKED HEX AT: " + CLICKED_ON);
-        var hex_contents = GRID_ARRAY[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
+        var grid_array = MODEL_GRIDARRAY_getGridArray();
+        var hex_contents = grid_array[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
         var hex_midpoint = VIEW_SUPPORT_gridToPageCoords(clicked_hex.MidPoint.X, clicked_hex.MidPoint.Y);        
         var this_piece;
         
@@ -340,7 +414,9 @@ function VIEW_EVENT_clickPieceOnBoard(event) {
     
         $("#" + top_piece).css({ 
             top: new_point.Y-(PIECE_HEIGHT/2),
-            left: new_point.X-(PIECE_WIDTH/2)
+            left: new_point.X-(PIECE_WIDTH/2),
+            height: PIECE_HEIGHT,
+            width: PIECE_WIDTH
         });
         
         //var counterrr = 0;
@@ -368,7 +444,7 @@ function VIEW_EVENT_dropPieceByClick(event) {
     MID_DRAG_FLAG = 0;    
     var x_val = parseInt(CLICKED_ON.substring(0, CLICKED_ON.indexOf(",")));
     var y_val = parseInt(CLICKED_ON.substring(CLICKED_ON.indexOf(",") + 1));
-    var the_piece = "#" + getTopPieceInArray(x_val,y_val); //"#" + this.id;
+    var the_piece = "#" + getTopPieceFromGridArrayCell(x_val,y_val); //"#" + this.id;
     var origin = $(the_piece).attr('origin');
     var hex_midpoint = new HT.Point(event.pageX, event.pageY);    
     var the_hex = VIEW_SUPPORT_getHexByWindowCoords(hex_midpoint.X, hex_midpoint.Y);
@@ -419,6 +495,12 @@ function VIEW_EVENT_dropPiece(event, ui) {
     var pos = $(the_piece).position();
     var hex_midpoint = new HT.Point(pos.left + (PIECE_WIDTH/2), pos.top + (PIECE_HEIGHT/2));
     
+    // these are the scroll timers from on drag
+    clearInterval(top_timer);
+    clearInterval(bottom_timer);
+    clearInterval(left_timer);
+    clearInterval(right_timer);
+   
     clearInterval(PIECE_ANIMATION_INTERVAL);
     document.getElementById('hexCanvas').removeEventListener(clicktouchevent, VIEW_EVENT_dropPieceByClick, false);
     document.getElementById('hexCanvas').addEventListener(clicktouchevent, VIEW_EVENT_clickPieceOnBoard, false);    
