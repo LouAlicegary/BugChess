@@ -1,4 +1,8 @@
-var MOVELIST = new Array();
+var MOVELIST;
+
+function MODEL_MOVELIST_initialize() {
+    MOVELIST = new Array();
+}
 
 function MODEL_MOVELIST_addMove(piece_id, origin_string, destination_string) {
     MOVELIST.push(new Array(piece_id, origin_string, destination_string));

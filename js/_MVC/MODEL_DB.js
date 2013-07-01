@@ -8,7 +8,6 @@
  *          Origin hex of move in format "8,9" (blank if piece being moved for first time from off board)
  */
 function MODEL_DB_addMove(piece_id, origin, destination) {
-    //Logger("MODEL: (110) MOVE ADDED TO DB");
     var request = $.ajax({
         url: "php/add_move_to_db.php",
         type: "POST",
@@ -65,18 +64,15 @@ function MODEL_eraseGameFromDB() {
         async: false
     }); 
     request.success(function(data) {
-        //Logger( "DATA: " + data);
         flag = 1;
     }); 
 
     request.fail(function(jqXHR, textStatus) {
-        //Logger( "ERASE GAME REQUEST FAIL: " + textStatus + " / " + jqXHR.responseText);
         flag = 0;
     }); 
 
     request.done(function(data) {
         output = flag;
-        //Logger("DONE");
     }); 
     
     return output;
@@ -169,7 +165,6 @@ function MODEL_getUpdateFromDB()
         num_of_records = moves_array.length;
         if (data[0] == 0)
             num_of_records = 0;
-        //Logger("MODEL: (79) MA_LEN + MA + NUM_REC = " + moves_array.length + " / " + moves_array + " / " + num_of_records);
         
         if (num_of_records < old_num_of_records) { // NON-ZERO BUT FEWER RECORDS NOW THAN BEFORE
             $("#game_over_text").html("Opponent has requested undo.");
@@ -178,11 +173,9 @@ function MODEL_getUpdateFromDB()
                 window.location = "play_game.php?gameid=" + GAME_ID + "&name=" + NAME + "&white_player=" + WHITE_PLAYER_NAME + "&black_player=" + BLACK_PLAYER_NAME;
             },1500);
         }
-        //Logger("MODEL: (107) UPDATE ARRAY FROM DB FINISHED (" + old_num_of_records + " -> " + NUM_MOVES + ")");       
     });
     
     request.fail(function(jqXHR, textStatus) {
-        //Logger( "MODEL: (98) REQUEST FAIL: " + textStatus + " / " + jqXHR.responseText);
     }); 
 
     request.done(function(data) {

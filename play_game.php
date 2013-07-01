@@ -31,7 +31,8 @@
         echo "    <script src=\"js/_MVC/VIEW_SUPPORT.js\"></script>\n"; 
         echo "    <script src=\"js/_MVC/VIEW_LOBBY.js\"></script>\n"; 
         echo "    <script src=\"js/_MVC/CONTROLLER.js\"></script>\n"; 
-        echo "    <script src=\"js/_MVC/CONTROLLER_AI.js\"></script>\n";         
+        echo "    <script src=\"js/_MVC/CONTROLLER_AI.js\"></script>\n";
+        echo "    <script src=\"js/_MVC/CONTROLLER_EVENTS.js\"></script>\n";                 
         echo "    \n"; 
         echo "    <!-- Hex -->    \n"; 
         echo "    <script src=\"js/hex/HexagonTools.js\"></script>\n"; 
@@ -131,6 +132,10 @@
     
     function showGameScript() {
         echo "<script type=\"text/javascript\">\n";
+        echo "var WHITE_PLAYER_NAME;";
+        echo "var BLACK_PLAYER_NAME;";
+        echo "var NAME;";
+        echo "var GAME_ID;";
         if(isset($_GET['name']) && !empty($_GET['name']) && isset($_GET['gameid']) && isset($_GET['white_player']) && isset($_GET['white_player']) ) {
             echo "NAME = '" . $_GET['name'] . "';\n";
             echo "GAME_ID = " . $_GET['gameid'] . ";\n";
@@ -147,7 +152,8 @@
                 echo "BLACK_PLAYER_NAME = '(none)';\n";
             }       
             echo "var SOLO_GAME = 0;";
-            echo "if (!GAME_ID) {SOLO_GAME = 1;}";
+            
+            //echo "if (!GAME_ID) {SOLO_GAME = 1; BLACK_PLAYER_NAME = 'Computer';}";
             echo "$(document).ready(CONTROLLER_MAIN);\n";
         }
         else {

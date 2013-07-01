@@ -1,14 +1,57 @@
-ALLOW_CONSOLE_LOG = 1;
+OUTPUT_CONSOLE_LOG = 0;
+OUTPUT_LOGGER_WINDOW = 1;
 
-$(document).ready(function(){
-    $("body").append("<div id='logger_window' style='position: absolute; overflow: auto; font-family: Arial; font-size: 16px; font-face: bold; top: 0; left: 0; height: 30%; width: 60%; margin: 0% 20%; background: rgba(0,0,0,.7); color: rgba(255,255,255,1);'>Logger window initialized.\n</div>")
-});
+SHOW_TIME = 0;
 
+var LOG_ARRAY = new Array(15);
 
-function Logger(old_string) {
-	if (ALLOW_CONSOLE_LOG) {
-	    $('#logger_window').html($('#logger_window').html() + "<br>" + timestamp() + old_string);
-		//console.log(timestamp() + old_string);
+if (OUTPUT_LOGGER_WINDOW) {
+    $(document).ready(function(){
+        $("body").append("<div id='logger_window' draggable='true' style='position: absolute; overflow: auto; font-family: Arial; font-size: 16px; font-face: bold; top: 0; left: 0; height: 30%; width: 60%; margin: 0% 20%; background: rgba(0,0,0,.7); color: rgba(255,255,255,1);'>Logger window initialized.\n</div>")
+        $("#logger_window").draggable();
+    });
+    
+    window.onerror=function(msg, url, linenumber){
+        url = url.substr(url.lastIndexOf("/")+1);
+        //$('#logger_window').html($('#logger_window').html() + '<div style="color:rgba(255,0,0,1)">' + msg + ' [' + url + ': ' + linenumber + "]</div>");
+        alert(msg + ' [' + url + ': ' + linenumber + "]");
+        return true;
+    }
+    
+    for (var i=0; i < 15; i++) 
+        LOG_ARRAY[i] = "";
+}
+
+if (OUTPUT_CONSOLE_LOG) {
+    window.onerror=function(msg, url, linenumber){
+        url = url.substr(url.lastIndexOf("/")+1);
+        //console.log(msg + ' [' + url + ': ' + linenumber + ']');
+        alert(msg + ' [' + url + ': ' + linenumber + "]");
+        return true;
+    }
+}
+
+function Logger(in_string) {
+	if (OUTPUT_CONSOLE_LOG) {
+	    if (SHOW_TIME)
+	       console.log(Logger.caller.name + " " + timestamp() + in_string); 
+	    else
+	       console.log(Logger.caller.name + " " + in_string);
+	}
+	if (OUTPUT_LOGGER_WINDOW) {
+	    for (var i=13; i >= 0; i--) {
+	        LOG_ARRAY[i+1] = LOG_ARRAY[i];
+	    }
+	    if (SHOW_TIME)
+           LOG_ARRAY[0] = "<div style='color: green; display: inline;'> " + Logger.caller.name + " " + timestamp() + "</div>" + in_string; 
+        else
+           LOG_ARRAY[0] = "<div style='color: green; display: inline;'> " + Logger.caller.name + " </div>" + in_string;
+	    
+	    var arraystring = "";
+        for (var i=0; i < 15; i++) {
+            arraystring += LOG_ARRAY[i] + "<br>";
+        }	    
+	    $('#logger_window').html(arraystring);
 	}	
 }
 
@@ -34,13 +77,12 @@ function getTextBlockWidth(in_font, in_text) {
 	ctx = testcanvas.getContext("2d");
 	ctx.font = in_font; // "56px Pacifico"
 	textWidth = ctx.measureText (in_text);
-	//Logger("in_font / in_text -> textwidth: " + in_font + " " /*+ in_text*/ + "-> " + textWidth.width + "px, " + " TESTCANVAS: " + testcanvas.width + "px " + testcanvas.height + "px" );
 	return textWidth.width;
 }
 
-// DIV HEIGHT * .7 MAKES A GOOD STARTING UPPERBOUND
+
 function getMaxFontSizeByWidth(in_width, in_upperbound, in_fontface, in_text) {
-	//Logger("IN_WIDTH: " + in_width + " IN_UPPERBOUND: " + in_upperbound +  " IN_FONTFACE: " + in_fontface + " IN_TEXT: " + in_text); 
+	// DIV HEIGHT * .7 MAKES A GOOD STARTING UPPERBOUND
 	var in_text_len = in_text.length;
 	var width_guess = 50;
 	var flag = 1;
@@ -51,9 +93,7 @@ function getMaxFontSizeByWidth(in_width, in_upperbound, in_fontface, in_text) {
 	
 	width_guess = width_guess / factor;
 	width = getTextBlockWidth( width_guess + "px " + in_fontface, in_text);
-	
-	//Logger("GOAL WIDTH: " + in_width + " WIDTH GUESS: " + width +  " UPPER BOUND: " + in_upperbound + " WIDTH CALC: " + width_guess);
-	
+		
 	if (width_guess < in_upperbound)
 	   return Math.floor(width_guess);	
 	else 
@@ -90,6 +130,26 @@ function printNiceArray(in_array) {
         out_string += "[" + in_array[i] + "] ";
     }
     return out_string;
+}
+
+/**
+ * Based on Fisher-Yates randomization algorithm
+ */
+function randomizeArray(in_array) {
+  var myArray = arrayCloner(in_array);
+  var i = myArray.length;
+  var j;
+  var temp;
+  
+  if ( i === 0 ) 
+    myArray = [];
+  while ( --i ) {
+     j = Math.floor( Math.random() * ( i + 1 ) );
+     temp = myArray[i];
+     myArray[i] = myArray[j]; 
+     myArray[j] = temp;
+   }
+   return myArray;    
 }
 
 /**

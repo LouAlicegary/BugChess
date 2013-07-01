@@ -1,12 +1,20 @@
-var GRID_ARRAY = Array();
+//TODO: Fold all of the functions into generic calls except for getGridArray()
 
-for (var x = 0; x < 50; x++) {
-    GRID_ARRAY[x] = Array();    
-    for(var y = 0; y < 50; y++) { 
-        GRID_ARRAY[x][y] = 0;    
+var GRID_ARRAY;
+
+function MODEL_GRIDARRAY_initialize() {
+    GRID_ARRAY = new Array();    
+    for (var x = 0; x < 50; x++) {
+        GRID_ARRAY[x] = new Array();    
+        for(var y = 0; y < 50; y++) { 
+            GRID_ARRAY[x][y] = "";    
+        }    
     }    
-}   
-
+}
+   
+/**
+ * Returns cloned version of the GRID_ARRAY (so real GRID_ARRAY can't be edited)
+ */
 function MODEL_GRIDARRAY_getGridArray() {
     return arrayCloner(GRID_ARRAY);
 }
@@ -27,9 +35,7 @@ function MODEL_GRIDARRAY_addPiece(destination_string, piece_id)
         GRID_ARRAY[x_ind][y_ind] = piece_id;
     
     NUM_MOVES++;
-    
-    //Logger("MODEL: (21) ADD " + piece_id + " TO ARRAY AT [" + x_ind + "," + y_ind + "] (cell value = " + GRID_ARRAY[x_ind][y_ind] + ")");
-}
+    }
     
 /**
  * Removes top piece from cell in GRID_ARRAY.
@@ -40,7 +46,6 @@ function MODEL_GRIDARRAY_removePiece(source_point)
 {
     var x_ind = source_point.substring(0, source_point.indexOf(","));
     var y_ind = source_point.substring(source_point.indexOf(",")+1);
-    //Logger("MODEL: (42) val = " + x_ind + " " + y_ind);//GRID_ARRAY[x_ind][y_ind]);
     var old_value = GRID_ARRAY[x_ind][y_ind]; 
     var piece_stack = old_value.split(",");
     var stack_string = "";
@@ -53,10 +58,8 @@ function MODEL_GRIDARRAY_removePiece(source_point)
         GRID_ARRAY[x_ind][y_ind] = stack_string;
     }
     else {
-        GRID_ARRAY[x_ind][y_ind] = 0;
+        GRID_ARRAY[x_ind][y_ind] = "";
     }
-        
-    //Logger("MODEL: (60) REMOVE " + piece_stack[piece_stack.length-1] + " FROM ARRAY AT [" + x_ind + "," + y_ind + "] (cell value = " + GRID_ARRAY[x_ind][y_ind] + ")");
 }
 
 /**
@@ -65,7 +68,7 @@ function MODEL_GRIDARRAY_removePiece(source_point)
 function MODEL_eraseGameFromGridArray() {
     for (var i=0; i < GRID_ARRAY.length; i++) {
         for (var j=0; j < GRID_ARRAY[i].length; j++) {
-            GRID_ARRAY[i][j] = 0;
+            GRID_ARRAY[i][j] = "";
         }
     }
     NUM_MOVES = 0;
@@ -104,7 +107,7 @@ function getTopPieceFromGridArrayCell(x_val, y_val) {
 }
 
 function addPieceToGenericGridArray(destination_string, piece_id, grid_array) {
-    destination_array = destination_string.split(",");
+    var destination_array = destination_string.split(",");
     x_ind = destination_array[0];
     y_ind = destination_array[1];
     
@@ -125,22 +128,24 @@ function addPieceToGenericGridArray(destination_string, piece_id, grid_array) {
  * @param   {int} origin_y 
  *          Y value of grid location
  */
-function removePieceFromGenericGridArray(in_grid, origin_x, origin_y) {
-    origin_x = parseInt(origin_x);
-    origin_y = parseInt(origin_y);
-    var temp_string = in_grid[origin_x][origin_y];
+function removePieceFromGenericGridArray(in_grid, origin) {
+    var origin_array = origin.split(",");
+    var x_val = parseInt(origin_array[0]);
+    var y_val = parseInt(origin_array[1]);
+    var temp_string = in_grid[x_val][y_val];
+    //Logger("in_grid / origin = " + in_grid.length + " " + origin + " x/y = " + x_val + " " + y_val + " temp_string = " + temp_string);
 
     if (temp_string.indexOf(",") != -1) {
-        in_grid[origin_x][origin_y] = temp_string.substring(0,temp_string.lastIndexOf(","));
+        in_grid[x_val][y_val] = temp_string.substring(0,temp_string.lastIndexOf(","));
     }
     else {
-        in_grid[origin_x][origin_y] = 0;
+        in_grid[x_val][y_val] = "";
     }
 
 }
 
-function getTopPieceAtLocation(in_loc_string, in_grid) {
-    var loc_array = hexStringToArray(in_loc_string);
+function MODEL_GRIDARRAY_getTopPieceAtLocation(in_loc_string, in_grid) {
+    var loc_array = in_loc_string.split(",");
     var x_val = loc_array[0];
     var y_val = loc_array[1];
     var cell = in_grid[x_val][y_val];

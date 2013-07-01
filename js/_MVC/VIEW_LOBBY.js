@@ -77,7 +77,6 @@ function LOBBY_EVENT_selectCurrentGame(event) {
         black_player = data[2];
     });
     request.fail(function(error, status){
-        //Logger("games_lobby: (207) AJAX FAIL. Error/Status = " + error + " / " + status);
     });
     request.done(function(done){
         window.location = "play_game.php?gameid=" + game_id + "&name=" + NAME + "&white_player=" + white_player + "&black_player=" + black_player;
@@ -110,7 +109,6 @@ function LOBBY_EVENT_selectOpenGame(event) {
         
     }); 
     request.fail(function(jqXHR, textStatus) {
-        //Logger("FAIL");
         flag = 0;
     }); 
     request.done(function(data) {
@@ -147,7 +145,6 @@ function LOBBY_EVENT_selectStartOnlineGame(event) {
         GAME_ID = data;
     });
     request.fail(function(jqXHR, textStatus) {
-        //Logger( "AJAX FAIL: " + textStatus + " / " + jqXHR.responseText);
     });         
     request.done(function(data) {
         var game_id = GAME_ID;

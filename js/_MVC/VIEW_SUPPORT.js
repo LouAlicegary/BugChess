@@ -1,5 +1,4 @@
-var PIECE_IMG_FILE_LOAD_COUNTER = 0;
-var IMG_OBJ_ARRAY = Array(); // referenced as var in HT 130
+
 
 /**
  * USED ONLY IN VIEW_SUPPORT_getHexByWindowCoords
@@ -119,8 +118,11 @@ function VIEW_SUPPORT_drawEmptyGrid() {
 	VIEW_SUPPORT_drawHexGrid();	
 	
 	function VIEW_SUPPORT_preloadImages() {	
-		//Logger("IMAGE PRELOADER STARTED");
+		//TODO: We should build the below using global variables programmatically
 		var bugs_array = Array("white_ant", "white_grasshopper", "white_spider", "white_beetle", "white_bee", "black_ant", "black_grasshopper", "black_spider", "black_beetle", "black_bee");
+        
+        PIECE_IMG_FILE_LOAD_COUNTER = 0;
+        IMG_OBJ_ARRAY = new Array();
         
         for (var i=0; i < bugs_array.length; i++) {
 			var imageObj = new Image();
@@ -133,7 +135,6 @@ function VIEW_SUPPORT_drawEmptyGrid() {
 		
 		var the_int = setInterval(function() {
 			if (PIECE_IMG_FILE_LOAD_COUNTER == 10) {
-				//Logger("IMAGES PRELOADER FINISHED WITHIN LAST 20 MILLISECONDS");
 				clearInterval(the_int);
 			}
 		}, 20);	
@@ -159,7 +160,6 @@ function VIEW_SUPPORT_drawEmptyGrid() {
 	function VIEW_SUPPORT_drawHexGrid() {
 		var grid_height = BOARD_ROWS * PIECE_HEIGHT; 
 		var grid_width = (Math.floor((BOARD_COLUMNS+1)/2) * PIECE_WIDTH) + (Math.floor((BOARD_COLUMNS+1)/2) * HT.Hexagon.Static.SIDE) ; 
-	    //Logger(grid_height + "/" + grid_width);
 		var canvas = document.getElementById('hexCanvas');
 		canvas.width = grid_width;
 		canvas.height = grid_height;
@@ -184,7 +184,6 @@ function VIEW_SUPPORT_drawEmptyGrid() {
 function VIEW_SUPPORT_redrawHexGrid(in_grid_array) {
     var unplayed_white = $('[class*=" white"]:visible').length;
     var unplayed_black = $('[class*=" black"]:visible').length;
-    //Logger("REDRAW (unplayed white/black pieces = " + unplayed_white + " / " + unplayed_black + ")");
     PIECE_HEIGHT = $(".game_piece").height();
     PIECE_WIDTH = $(".game_piece").width();    
     VIEW_SUPPORT_drawEmptyGrid();

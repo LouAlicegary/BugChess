@@ -1,7 +1,8 @@
-var PIECE_ARRAY = Array();
+var PIECE_ARRAY; 
 
 function MODEL_PIECEARRAY_initialize() {
-   
+    PIECE_ARRAY = new Array();
+    
     for (var i=0; i < NUM_BEES; i++) {
         PIECE_ARRAY["white_bee" + (i+1)] = "";
         PIECE_ARRAY["black_bee" + (i+1)] = "";
@@ -31,7 +32,6 @@ function MODEL_PIECEARRAY_initialize() {
         PIECE_ARRAY["black_ant" + (i+1)] = "";
     }
     for (var key in PIECE_ARRAY) {
-        //Logger(key + ": " + PIECE_ARRAY[key]);
     }              
 }
   
@@ -68,7 +68,10 @@ function MODEL_PIECEARRAY_getPieceLocation(in_piece) {
  * 
  */
 function MODEL_PIECE_ARRAY_print() {
+    var returnval = "";
     for (var key in PIECE_ARRAY)
         if (PIECE_ARRAY[key] != "")
-            Logger(key + ": " + PIECE_ARRAY[key]);
+            returnval += key + ": " + PIECE_ARRAY[key] + "    ";
+    
+    return returnval;
 }

@@ -1,22 +1,8 @@
-var PIECE_HEIGHT;
-var PIECE_WIDTH;
-var HIVE_ORIGIN = "15,15";
-var PIECE_ANIMATION_INTERVAL;
-var MID_DRAG_FLAG = 0; // set to 1 on draggable event start
-var MID_MOVE_FLAG = 0;
 
-// timers used on droppable (only in this file -- broken up because droppable drop function is separate)
-var top_timer;
-var bottom_timer; 
-var left_timer;
-var right_timer;
-
-// Changes all touchstart events on iOS to clicks
-var ua = navigator.userAgent;
-var clicktouchevent = (ua.match(/(iPhone|iPod|iPad)/)) ? "touchstart" : "click";
     
 /**
- * Initializes window buttons, click events, etc. Calls VIEW_repositionUnplayedPieces() when finished.
+ * Initializes window buttons, click events, etc.
+ * Calls VIEW_SUPPORT_drawEmptyGrid, VIEW_repositionUnplayedPieces() when finished.
  */
 function VIEW_initGameWindow() {
     
@@ -35,28 +21,23 @@ function VIEW_initGameWindow() {
 	        var box_left = document.getElementById("container").getBoundingClientRect().left;
 	        var box_right = document.getElementById("container").getBoundingClientRect().right;
 	        
-	        //alert(draggable_x + " " + draggable_y + " " + box_top + " " + box_bottom + " " + box_left + " " + box_right);
 	        if (draggable_y < box_top) {
-	            //Logger("TOP");
 	            the_scroller.scroller.scrollBy(0, -50, false);
 	            top_timer = setInterval(function(){
 	                the_scroller.scroller.scrollBy(0, -10, false);
 	            }, 50);   
 	        }
             if ( (draggable_y + PIECE_HEIGHT/2) > box_bottom) {
-                //Logger("BOTTOM");
                 bottom_timer = setInterval(function(){
                     the_scroller.scroller.scrollBy(0, 10, false);
                 }, 50); 
             }	        
             if (draggable_x < box_left) {
-                //Logger("LEFT");
                 left_timer = setInterval(function(){
                     the_scroller.scroller.scrollBy(-10, 0, false);
                 }, 50); 
             }
             if ( (draggable_x + PIECE_WIDTH/2) > box_right) {
-                //Logger("RIGHT");
                 right_timer = setInterval(function(){
                     the_scroller.scroller.scrollBy(10, 0, false);
                 }, 50);                     
@@ -85,24 +66,22 @@ function VIEW_initGameWindow() {
 	
 	$("#clear_board_button").hide();
 	$("#resign_button").hide();
+    if (!SOLO_GAME) {
+        $("#resign_button").show();
+    }
+
 	$("#in_game_popup").hide();
 	$("#game_over_popup").hide();
 	
     $('#white_player_name').text(WHITE_PLAYER_NAME);
 	$('#black_player_name').text(BLACK_PLAYER_NAME);
-	
-	// These two lines can probably be deleted.
-	//$('#white_mask_box').css({left: document.getElementById('white_piece_box').getBoundingClientRect().left + 'px'})
-	//$('#black_mask_box').css({left: document.getElementById('black_piece_box').getBoundingClientRect().left + 'px'})
-	
+
+
 	$(".game_piece").attr('origin', '');
 	$(".game_piece").unbind("mouseenter");
 	$(".game_piece").unbind("mouseleave");
 	$(".game_piece").show();	
 	
-	if (!SOLO_GAME) {
-		$("#resign_button").show();
-	}
 	
 	// RELOAD PAGE FROM SCRATCH ON ORIENTATION CHANGE / WINDOW RESIZE
     window.onresize = function(event) {
@@ -176,12 +155,13 @@ function VIEW_positionUnplacedPieces() {
     var num_unplayed_white_pieces = $('[class*=" white"]:visible').length;
     var num_unplayed_black_pieces = $('[class*=" black"]:visible').length;
     
-    //turns off spinny effect
+    //turns off hover effects on hidden game pieces (Is this necessary?)
     $('.game_piece:hidden').unbind('mouseenter');
     $('.game_piece:hidden').unbind('mouseleave');
     
     // SHOWS ALL WHITE PIECES
     $('[class*=" white"]:visible').each(function(i, obj) {
+        // Arrange pieces for landscape mode
         if ( $(window).height() < $(window).width() ) {
             var effective_mbh = parseInt($('#white_piece_box').css('height').slice(0,-2));
             var PIECE_OVERLAP = (effective_mbh - $(".game_piece").height()) / (NUM_PIECES - 1);
@@ -190,6 +170,7 @@ function VIEW_positionUnplacedPieces() {
             var y_offset = (i * PIECE_OVERLAP) + pieces_top_offset;
             var x_offset = document.getElementById('white_piece_box').getBoundingClientRect().left + parseInt($('#white_piece_box').css('padding-left').slice(0,-2)) + parseInt($('#white_piece_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;                
         }
+        // Arrange pieces for portrait mode TODO: WHY THE HARD CODED NUMBERS BELOW? THIS IS WHY IT OVERLAPS NAME. 
         else {
             var pieces_length = $(window).width() - 170 - $(".game_piece").width();
             var PIECE_OVERLAP = pieces_length / (NUM_PIECES-1);
@@ -215,46 +196,18 @@ function VIEW_positionUnplacedPieces() {
             x_offset = (i * PIECE_OVERLAP) + 150;
             y_offset = document.getElementById('container').getBoundingClientRect().bottom + 10;
         }    
-        //Logger("VIEW 183: " + document.getElementById('black_piece_box').getBoundingClientRect().left + " / " + $('#black_piece_box').css('width'));
         $('#' + obj.getAttribute('id')).css({ 'top': y_offset + 'px', 'left': x_offset + 'px', 'z-index': i+2 }); 
     });
-                       
-    // SHOWS EITHER RESET BUTTON OR CANCEL GAME BUTTON        
-    if (NUM_MOVES == 0) {
-        $("#resign_button").hide();
-        $("#cancel_game_button").show();
-    }
-    else if (NUM_MOVES == 1) {
-        $("#resign_button").hide();
-        $("#cancel_game_button").show();
-    }
-    else {
-        $('#resign_button').show();
-        $('#cancel_game_button').hide();
-    }
-      
+                             
     // BLACK TURN -> MASK GAME PIECE BARS FOR WHITE + HIDE BLACK UNDO
     if (NUM_MOVES % 2 == 1) {
         $('#white_mask_box').show();
         $('#black_mask_box').hide();
-        
-        if ( (NAME == BLACK_PLAYER_NAME) || isBeeSurrounded(MODEL_GRIDARRAY_getGridArray()) ) {
-            $("#undo_move_button").hide();
-        }
-        else {
-            $("#undo_move_button").show();
-            $("#cancel_game_button").hide();
-        }
     }
      // WHITE TURN -> MASK GAME PIECE BARS FOR BLACK + HIDE WHITE UNDO
     else {
         $('#black_mask_box').show();
-        $('#white_mask_box').hide();
-        
-        if ( (NAME == WHITE_PLAYER_NAME) || isBeeSurrounded(MODEL_GRIDARRAY_getGridArray()) || (NUM_MOVES == 0) )
-            $("#undo_move_button").hide();
-        else
-            $("#undo_move_button").show();
+        $('#white_mask_box').hide();   
     }
     
     // DISALLOWS DRAGGING FOR OPPONENTS PIECES
@@ -273,11 +226,28 @@ function VIEW_positionUnplacedPieces() {
             $("#black_mask_box").css({'opacity': .5});            
     }
     
-    // HIDES CANCEL GAME BUTTON IF SOLO GAME
+    // HIDES LOTS OF BUTTONS IF SOLO GAME
     if (SOLO_GAME) {
         $("#cancel_game_button").hide();
         $("#resign_button").hide();
         $("#undo_move_button").hide();
+    }
+    else {
+        // SHOWS CANCEL GAME BUTTON ON EITHER PLAYER'S FIRST TURN      
+        if (NUM_MOVES < 2) {
+            $("#resign_button").hide();
+            $("#cancel_game_button").show();
+        }
+        // SHOWS RESIGN BUTTON IF SECOND TURN OR LATER
+        else {
+            $('#resign_button').show();
+            $('#cancel_game_button').hide();
+        }
+        // HIDES UNDO BUTTON IF MY TURN, IF BEE SURROUNDED, OR IF FIRST MOVE OF GAME
+        if ( ((NUM_MOVES % 2 == 0) && (NAME == WHITE_PLAYER_NAME)) || ((NUM_MOVES % 2 == 1) && (NAME == BLACK_PLAYER_NAME)) || isBeeSurrounded(MODEL_GRIDARRAY_getGridArray()) || (NUM_MOVES == 0) )
+            $("#undo_move_button").hide();
+        else
+            $("#undo_move_button").show();            
     }
            
 }
@@ -298,7 +268,6 @@ function VIEW_drawPieceOnCanvas(the_hex) {
 	the_hex.drawPieceOnCanvas(ctx, the_width, the_height);	
 	
 	VIEW_positionUnplacedPieces();
-
 }
 
 /**
@@ -317,6 +286,24 @@ function VIEW_removePieceFromCanvas(the_hex) {
 	the_hex.removePieceFromCanvas(ctx, the_width, the_height);	
 
 	VIEW_positionUnplacedPieces();
+}
+
+/**
+ * Adds piece to canvas and calls VIEW_positionUnplacedPieces() upon finishing.
+ * @param   {String} in_loc_string
+ */
+function VIEW_updateHex(in_loc_string) {    
+    if (in_loc_string != "") {
+        var canvas = document.getElementById('hexCanvas');
+        var ctx = canvas.getContext('2d');    
+        var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());
+        var the_hex = grid.GetHexByXYIndex(in_loc_string);    
+        var the_width = $(".game_piece").width();
+        var the_height = $(".game_piece").height();
+        the_hex.drawPieceOnCanvas(ctx, the_width, the_height);          
+    }
+    VIEW_positionUnplacedPieces();
+
 }
 
 /**
@@ -364,7 +351,6 @@ function VIEW_EVENT_clickPieceOnBoard(event) {
     // IF ACTUAL HEX IS CLICKED AND NOT BLANK SPACE
     if (clicked_hex) {
         CLICKED_ON = clicked_hex.GetXYLocation();
-        //Logger("CLICKED HEX AT: " + CLICKED_ON);
         var grid_array = MODEL_GRIDARRAY_getGridArray();
         var hex_contents = grid_array[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
         var hex_midpoint = VIEW_SUPPORT_gridToPageCoords(clicked_hex.MidPoint.X, clicked_hex.MidPoint.Y);        
@@ -457,21 +443,25 @@ function VIEW_EVENT_dropPieceByClick(event) {
         
     $(the_piece).trigger('mouseleave');
     
-    if (the_hex) { // IF DROPPED ON AN ACTUAL HEX ON GRID 
-        if (the_hex.GetXYLocation() == origin) { // IF PIECE UNMOVED FROM ORIGINAL SPOT, REDRAW PIECE
+    // IF DROPPED ON AN ACTUAL HEX ON GRID 
+    if (the_hex) { 
+        // IF PIECE UNMOVED FROM ORIGINAL SPOT, REDRAW PIECE
+        if (the_hex.GetXYLocation() == origin) { 
             //$(the_piece).hide();        
             var the_hex = grid.GetHexByXYIndex(origin);
             VIEW_drawPieceOnCanvas(the_hex);
         }
-        else { // IF PIECE ACTUALLY MOVED / INTRODUCED
-            //$(the_piece).hide(); 
+        // IF PIECE ACTUALLY MOVED / INTRODUCED
+        else { 
+            //$(the_piece).hide();  TODO: Is this hidden for a reason?
             var dest = the_hex.GetXYLocation();
             var piece_id = $(the_piece).attr("id");
             CONTROLLER_EVENT_attemptMove(origin, dest, piece_id);
         }               
 
     }
-    else if (origin) { // IF DROPPED FROM BOARD TO BLANK SPACE ON EDGE OF CANVAS, REDRAW IN ORIGINAL PLACE
+    // IF DROPPED FROM BOARD TO BLANK SPACE ON EDGE OF CANVAS, REDRAW IN ORIGINAL PLACE
+    else if (origin) { 
         $(the_piece).hide();        
         var the_hex = grid.GetHexByXYIndex(origin);
         VIEW_drawPieceOnCanvas(the_hex);    
@@ -507,9 +497,9 @@ function VIEW_EVENT_dropPiece(event, ui) {
     $(the_piece).trigger('mouseleave');
     
     var the_hex = VIEW_SUPPORT_getHexByWindowCoords(hex_midpoint.X, hex_midpoint.Y);
-    var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());
     
-    if (the_hex) { // IF DROPPED ON AN ACTUAL HEX ON GRID 
+    // IF DROPPED ON AN ACTUAL HEX ON GRID
+    if (the_hex) {  
         if (the_hex.GetXYLocation() == origin) { // IF PIECE NOT MOVED
             $(the_piece).hide();        
             var the_hex = grid.GetHexByXYIndex(origin);
@@ -520,10 +510,24 @@ function VIEW_EVENT_dropPiece(event, ui) {
             CONTROLLER_EVENT_attemptMove(origin, dest, piece_id);
         }               
     }
-    else if (origin) { // IF DROPPED FROM BOARD TO BLANK SPACE ON EDGE OF CANVAS
+    // IF DROPPED FROM BOARD TO BLANK SPACE ON EDGE OF CANVAS
+    else if (origin) { 
         $(the_piece).hide();        
         var the_hex = grid.GetHexByXYIndex(origin);
         VIEW_drawPieceOnCanvas(the_hex);    
     }   
 }
 
+function VIEW_showInGamePopup(in_title, in_text, in_duration) {
+    $('#in_game_header').html(in_title);
+    $('#in_game_text').html(in_text);
+    $('#in_game_popup').show();
+    
+    POPUP_TIMER = setTimeout(function(){
+        $('#in_game_popup').hide();
+    }, in_duration);    
+}
+
+function VIEW_showGameOverPopup(in_message) {
+    $("#game_over_text").html(in_message);
+}

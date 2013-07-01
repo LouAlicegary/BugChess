@@ -60,17 +60,17 @@ function getAllHexesOutsideHive(in_grid) {
  * @param   {String} origin
  *          The origin location of the move in "8,9" string format. Piece must be added back to array if space still occupied after move (i.e. beetle moved)
  * @return  {Array}
- *          An array containing string representations of outside coordinates in "8,9" format.
+ *          An array containing string representations of locations in "8,9" format.
  */
 function getHexesOutsideHiveWithoutPiece(origin, in_grid) {
-    var popped_grid = new Array();
+    var popped_grid = arrayCloner(in_grid);
     var origin_x = parseInt(origin.substring(0, origin.indexOf(","))); 
     var origin_y = parseInt(origin.substring(origin.indexOf(",")+1));
-    var piece_id = getTopPieceAtLocation(origin, in_grid);
+    var piece_id = MODEL_GRIDARRAY_getTopPieceAtLocation(origin, in_grid);
     
     // remove piece from grid_array 
-    popped_grid = arrayCloner(in_grid);
-    removePieceFromGenericGridArray(popped_grid, origin_x, origin_y);
+    //Logger("popped_grid / origin = " + popped_grid.length + " " + origin);
+    removePieceFromGenericGridArray(popped_grid, origin);
 
     // if the hex i'm moving piece from is still occupied, add it back
     if (in_grid[origin_x][origin_y].indexOf(",") != -1) { 
@@ -88,33 +88,12 @@ function getHexesOutsideHiveWithoutPiece(origin, in_grid) {
         // If hex is not the origin location and is slidable, add piece
         if ( !((x_val == origin_x) && (y_val == origin_y)) ) {
             if ( !(isHexInternalToHive(x_val, y_val, in_grid)) ) {
-                return_stack.push(Array(outside_stack[i][0], outside_stack[i][1]));
+                return_stack.push(outside_stack[i][0] + "," + outside_stack[i][1]);
             }
         }
     }
     
-    return return_stack;         
-        /*
-        // If neighboring space to hive can be slid into, not already in new stack, and not equal to original piece's location -> push 
-        if ( !(isHexInternalToHive(x_val-1, y_val-1, in_grid)) && !(isHexInStack(new Array(x_val-1, y_val-1), theHive)) && !((origin_x == x_val-1) && (origin_y == y_val-1)) )
-            theHive.push(new Array (x_val-1, y_val-1));
-
-        if ( !(isHexInternalToHive(x_val-1, y_val, in_grid)) && !(isHexInStack(new Array(x_val-1, y_val), theHive)) && !((origin_x == x_val-1) && (origin_y == y_val)) )
-            theHive.push(new Array (x_val-1, y_val));
-
-        if ( !(isHexInternalToHive(x_val, y_val+1, in_grid)) && !(isHexInStack(new Array(x_val, y_val+1), theHive)) && !((origin_x == x_val) && (origin_y == y_val+1)) )
-            theHive.push(new Array (x_val, y_val+1));
-
-        if ( !(isHexInternalToHive(x_val+1, y_val+1, in_grid)) && !(isHexInStack(new Array(x_val+1, y_val+1), theHive)) && !((origin_x == x_val+1) && (origin_y == y_val+1)) )
-            theHive.push(new Array (x_val+1, y_val+1));
-
-        if ( !(isHexInternalToHive(x_val+1, y_val, in_grid)) && !(isHexInStack(new Array(x_val+1, y_val), theHive)) && !((origin_x == x_val+1) && (origin_y == y_val)) )
-            theHive.push(new Array (x_val+1, y_val));
-
-        if ( !(isHexInternalToHive(x_val, y_val-1, in_grid)) && !(isHexInStack(new Array(x_val, y_val-1), theHive)) && !((origin_x == x_val) && (origin_y == y_val-1)) )
-            theHive.push(new Array (x_val, y_val-1));
-        */
-     
+    return return_stack;              
 }
 
 /**
@@ -176,12 +155,7 @@ function getDistanceBetweenHexes(h1, h2) {
  *          Either "white" or "black" is returned.
  */
 function getCurrentColorByMove(move) {
-    var color;
-    
-    if (move % 2 == 0)
-        color = "white";
-    else 
-        color = "black";
+    var color = (move % 2 == 0) ? ("white") : ("black");
         
     return color;
 }
@@ -222,10 +196,11 @@ function isHexConnectedToBoard(origin, dest, grid_array) {
     var temp_array = Array();
     temp_array = arrayCloner(grid_array);
         
-    if (origin) {
+    if (origin != "") {
         var origin_x = parseInt(origin.substring(0, origin.indexOf(","))); 
         var origin_y = parseInt(origin.substring(origin.indexOf(",")+1));   
-        removePieceFromGenericGridArray(temp_array, origin_x, origin_y);
+        //Logger("temp_array / origin = " + temp_array.length + " " + origin);
+        removePieceFromGenericGridArray(temp_array, origin);
     }
     
     var flag_a = temp_array[dest_x-1][dest_y-1];
@@ -338,28 +313,37 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
     var dest_y = in_dest.substring(in_dest.indexOf(",")+1);
     var invalid_flag = 0;
     var error_string = "";
+    
+    // doublechecks that piece isn't wrong color
+    if (in_piece_id.indexOf(current_color) == -1) {
+        return 0;
+    }
         
     if (in_origin == "") { // IF PIECE BEING PLACED FOR FIRST TIME, CHECK IF MOVE FOLLOWS RULES
-               
-        // RULE CHECK: MAKE SURE BEE IS PLACED BY COMPLETION OF 4TH MOVE (1)   
-        if ( (invalid_flag == 0) && (current_color = "white") && (NUM_MOVES == 6) && (in_piece_id.indexOf("white_bee1")==-1) && !(WHITE_BEE_PLACED) ) {
+        
+        // doublechecks that piece isn't already on board
+        if (PIECE_ARRAY[in_piece_id] != "") {
+            return 0;
+        }       
+        // RULE CHECK: MAKE SURE BEE IS PLACED BY COMPLETION OF 4TH MOVE   
+        if ( (invalid_flag == 0) && (current_color = "white") && (NUM_MOVES == 6) && (in_piece_id.indexOf("white_bee1")==-1) && (PIECE_ARRAY["white_bee1"] == "") ) {
             invalid_flag -= 8192;
         }
-        else if ( (invalid_flag == 0) && (current_color = "black") && (NUM_MOVES == 7) && (in_piece_id.indexOf("black_bee1")==-1) && !(BLACK_BEE_PLACED) ) {
+        else if ( (invalid_flag == 0) && (current_color = "black") && (NUM_MOVES == 7) && (in_piece_id.indexOf("black_bee1")==-1) && (PIECE_ARRAY["black_bee1"] == "") ) {
             invalid_flag -= 8192;
         }
         
-        // RULE CHECK: MAKE SURE HEX ISN'T ALREADY OCCUPIED WHEN FIRST PLACING PIECE (2)
+        // RULE CHECK: MAKE SURE HEX ISN'T ALREADY OCCUPIED WHEN FIRST PLACING PIECE
         if ((invalid_flag == 0) && in_grid_array[dest_x][dest_y] && NUM_MOVES != 0) { 
             invalid_flag -= 4096;
         }
 
-        // RULE CHECK: MAKE SURE DESTINATION HEX IS CONNECTED TO BOARD (4)
+        // RULE CHECK: MAKE SURE DESTINATION HEX IS CONNECTED TO BOARD
         if ((invalid_flag == 0) && !isHexConnectedToBoard(in_origin, in_dest, in_grid_array) && NUM_MOVES != 0) {
             invalid_flag -= 2048;
         } 
                     
-        // RULE CHECK: MAKE SURE PIECE NOT TOUCHING OPPONENT'S COLOR WHEN PLACED (8)
+        // RULE CHECK: MAKE SURE PIECE NOT TOUCHING OPPONENT'S COLOR WHEN PLACED
         if ((invalid_flag == 0) && isHexTouchingOpponent(in_piece_id, in_dest) && NUM_MOVES > 1) {
             invalid_flag -= 1024;
         }
@@ -369,49 +353,39 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
     else { // IF PIECE ALREADY ON BOARD
         var origin_x = parseInt(in_origin.substring(0, in_origin.indexOf(","))); 
         var origin_y = parseInt(in_origin.substring(in_origin.indexOf(",")+1));
-    
-        // RULE CHECK: MAKE SURE PIECE DOESN'T MOVE WHILE LOSING CONTACT WITH HIVE
-        if ( invalid_flag == 0 ) {
-            if ( (in_piece_id.indexOf("beetle") != -1) || (in_piece_id.indexOf("bee") != -1) ) {
-                var shared_array = getTouchingHexesBetweenTwoPieces(in_origin, in_dest);
-                var added_grid_array = new Array();
-                added_grid_array = arrayCloner(in_grid_array);
-                addPieceToGenericGridArray(in_dest, in_piece_id, added_grid_array);
-                for (var i in shared_array) {
-                    if (getNumberOfPiecesSurroundingHex(shared_array[i], added_grid_array) == 6) {
-                        Logger("SPECIAL SLIDING RULE: " + in_piece_id + " : " + in_origin + " -> " + in_dest);
-                        invalid_flag -= 32768;
-                        $("#" + in_piece_id).hide();                   
-                    }
-                }                
-            }
-        }        
-            
+              
         // RULE CHECK: MAKE SURE PIECE ISN'T TRAPPED AND CAN'T SLIDE OUT
-        if ( (invalid_flag == 0) && (isPieceTrapped(in_origin, in_piece_id, in_grid_array)) && (in_piece_id.indexOf("beetle") == -1) && (in_piece_id.indexOf("grasshopper") == -1) ) {
+        if ( (invalid_flag == 0) && (isPieceTrapped(in_origin, in_piece_id, in_grid_array) == 1) ) {
             invalid_flag -= 16384;
             $("#" + in_piece_id).hide();
         }
-        
-        // RULE CHECK: MAKE SURE PIECE ISN'T BEING PUT SOMEWHERE UNCONNECTED TO HIVE  (4)
+        // RULE CHECK: MAKE SURE PIECE ISN'T BEING PUT SOMEWHERE UNCONNECTED TO HIVE
         if ( (invalid_flag == 0) && !(isHexConnectedToBoard(in_origin, in_dest, in_grid_array)) && (NUM_MOVES != 0) ) {
             invalid_flag -= 512;
             $("#" + in_piece_id).hide();
         }
         
-        // RULE CHECK: MAKE SURE MOVE DOESN'T VIOLATE ONE-HIVE RULE UPON PICKING UP PIECE (16)
+        // RULE CHECK: MAKE SURE MOVE DOESN'T VIOLATE ONE-HIVE RULE UPON PICKING UP PIECE
         if ((invalid_flag == 0) && !isOneHiveMaintained(in_origin, in_grid_array)) {
             invalid_flag -= 256;
             $("#" + in_piece_id).hide();
         }
+        
+        // RULE CHECK: TRICKY ONE HIVE SITUATION
+        if ( (invalid_flag == 0) && ((in_piece_id.indexOf("beetle") != -1) || (in_piece_id.indexOf("bee1") != -1))  ) {
+            if (isMoveTrickyViolation(in_origin, in_dest, in_grid_array)) {
+                invalid_flag -= 256;
+                $("#" + in_piece_id).hide();                
+            }
+        }         
                         
-        // RULE CHECK: CANT MOVE PIECE ON BOARD UNTIL QUEEN PLACED (32)
-        if ( ( (invalid_flag == 0) && (current_color == "white") && !WHITE_BEE_PLACED ) || ( (invalid_flag == 0) && (current_color == "black") && !BLACK_BEE_PLACED ) ) {
+        // RULE CHECK: CANT MOVE PIECE ON BOARD UNTIL QUEEN PLACED
+        if ( ( (invalid_flag == 0) && (current_color == "white") && (PIECE_ARRAY["black_bee1"] == "") ) || ( (invalid_flag == 0) && (current_color == "black") && (PIECE_ARRAY["black_bee1"] == "") ) ) {
             invalid_flag -= 128;
             $("#" + in_piece_id).hide();                    
         }
         
-        // RULE CHECK: CANNOT CLIMB ATOP OTHER PIECE (ONLY BEETLE) (64)
+        // RULE CHECK: CANNOT CLIMB ATOP OTHER PIECE (ONLY BEETLE)
         if ((invalid_flag == 0) && (in_piece_id.indexOf("beetle") == -1) ) {
             if (in_grid_array[dest_x][dest_y]) {
                 invalid_flag -= 64;
@@ -422,21 +396,21 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
         // RULE CHECK: INDIVIDUAL PIECE RULES
         if ((invalid_flag == 0)) {
             
-            // RULE CHECK; MAKE SURE BEETLE IS ONLY MOVING ONE SPACE (128)
+            // RULE CHECK; MAKE SURE BEETLE IS ONLY MOVING ONE SPACE 
             if (in_piece_id.indexOf("beetle") != -1) {
                 if (getDistanceBetweenHexes(in_origin, in_dest) != 1) {
                     invalid_flag -= 32;
                 }
             }
             
-            // RULE CHECK: MAKE SURE QUEEN IS ONLY MOVING ONE SPACE (128)
+            // RULE CHECK: MAKE SURE QUEEN IS ONLY MOVING ONE SPACE
             if (in_piece_id.indexOf("bee1") != -1) {
                 if (getDistanceBetweenHexes(in_origin, in_dest) != 1) {
                     invalid_flag -= 16;
                 }                   
             }
             
-            // RULE CHECK: MAKE SURE GRASSHOPPER IS ONLY MOVING DIAGONALLY AND INTO FIRST EMPTY SPACE (128)
+            // RULE CHECK: MAKE SURE GRASSHOPPER IS ONLY MOVING DIAGONALLY AND INTO FIRST EMPTY SPACE
             if (in_piece_id.indexOf("grasshopper") != -1) {
      
                 var invalid_jump_flag;
@@ -453,26 +427,25 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
                 }
             }
             
-            // RULE CHECK: MAKE SURE SPIDER IS MOVING THREE MOVES AROUND OUTSIDE OF BOARD (128)
+            // RULE CHECK: MAKE SURE SPIDER IS MOVING THREE MOVES AROUND OUTSIDE OF BOARD 
             if (in_piece_id.indexOf("spider") != -1) {
                 if (isSpiderPathValid(in_origin, in_dest, in_grid_array) == 0) {
                     invalid_flag -= 2;
                 }
             }
             
-            // RULE CHECK: MAKE SURE ANT IS ONLY MOVING ALONG OUTSIDE OF BOARD (128)
+            // RULE CHECK: MAKE SURE ANT IS ONLY MOVING ALONG OUTSIDE OF BOARD
             if (in_piece_id.indexOf("ant") != -1) {
-                var outerHive = getHexesOutsideHiveWithoutPiece(in_origin, in_grid_array);
-                //Logger("PRINT ANT SPACES = " + printNiceArray(outerHive));
+                var outerStringHive = getHexesOutsideHiveWithoutPiece(in_origin, in_grid_array);
+                var outerHive = convertHexStringArrayTo2DArray(outerStringHive);
                 if (isHexInStack(new Array(dest_x, dest_y), outerHive) == 0)  {
                     invalid_flag -= 1;
-                }
-                
+                }     
             }
             
-        }
+        } // end of individual piece rules if
                 
-    }
+    } // end of big else statement (piece on board already)
     
     if (invalid_flag == 0) {
         return 1;
@@ -486,6 +459,10 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
 function getMoveErrorCode(return_value) {
     var error_string = "";
     if (return_value != 1) {
+        if (return_value <= -32768) {
+            error_string += "SPECIAL SLIDING FLAG.<br/>";
+            return_value += 32768;
+        }
         if (return_value <= -16384) {
             error_string += "The piece you are trying to move is trapped. It can't leave its space right now.<br/>";
             return_value += 16384;
@@ -635,11 +612,13 @@ function isOneHiveMaintained(origin, in_grid) {
  * Determines whether or not a certain color's queen bee is surrounded.
  * @return  {int}
  *          Returns 1 if xxx; Returns 0 if xxx.
- * TODO: This is the function that calls CONTROLLER_EVENT_winnerDeclared(). That's 3 view calls (show/hide popups + buttons) and a DB update. Restructure?
+ * 
  */
 function isBeeSurrounded(in_grid) { 
     var white_bee_surrounded = 0;
     var black_bee_surrounded = 0;
+    var msg = "";
+    var returncode;
     
     if ( (PIECE_ARRAY["white_bee1"] != "") && (getEmptyHexesSurroundingPiece("white_bee1", in_grid) == 0) ) {
         white_bee_surrounded++;
@@ -650,21 +629,26 @@ function isBeeSurrounded(in_grid) {
     }    
     
     if (black_bee_surrounded && white_bee_surrounded) {
-        $("#game_over_text").html("Both players queen bees are surrounded.<br />Game is a draw.");
-        return 3;
+        msg = "Both players queen bees are surrounded.<br />Game is a draw.";
+        Logger(msg);
+        returncode = 3;
     }
-    else if (black_bee_surrounded) {  
-        $("#game_over_text").html( WHITE_PLAYER_NAME + " has surrounded " + BLACK_PLAYER_NAME + "'s queen bee.<br />" + WHITE_PLAYER_NAME + " wins.");
-        return 2;
+    else if (black_bee_surrounded) {         
+        msg = WHITE_PLAYER_NAME + " has surrounded " + BLACK_PLAYER_NAME + "'s queen bee.<br />" + WHITE_PLAYER_NAME + " wins.";
+        Logger(msg);
+        returncode = 2;
     }
     else if (white_bee_surrounded) {
-        $("#game_over_text").html( BLACK_PLAYER_NAME + " has surrounded " + WHITE_PLAYER_NAME + "'s queen bee.<br />" + BLACK_PLAYER_NAME + " wins.");
-        return 1;
+        msg = BLACK_PLAYER_NAME + " has surrounded " + WHITE_PLAYER_NAME + "'s queen bee.<br />" + BLACK_PLAYER_NAME + " wins."
+        Logger(msg);
+        returncode = 1;
     }
     else {
-        return 0;
+        returncode = 0;
     }
-        
+    
+    $("#game_over_text").html(msg);
+    return returncode;    
 }
 
 /**
@@ -693,23 +677,23 @@ function isSpiderPathValid(in_origin, in_dest, in_grid) {
     var h3 = "";
     var h4 = "";
         
-    for (var i=0; i < outside_hive.length; i++) {
+    for (var i in outside_hive) {
         h1 = origin_x + "," + origin_y;
-        h2 = outside_hive[i][0] + "," + outside_hive[i][1];
+        h2 = outside_hive[i];
         
         if ( (getDistanceBetweenHexes(h1, h2) == 1) ) {
             skip_index = i;
             
-            for (var j=0; j < outside_hive.length; j++) {
-                h3 = outside_hive[j][0] + "," + outside_hive[j][1];
+            for (var j in outside_hive) {
+                h3 = outside_hive[j];
                 
                 if (j != skip_index) {
                    
                     if (getDistanceBetweenHexes(h2, h3) == 1) {
                         skip_index_2 = j;
                      
-                        for (var k=0; k < outside_hive.length; k++) {
-                            h4 = outside_hive[k][0] + "," + outside_hive[k][1];
+                        for (var k in outside_hive) {
+                            h4 = outside_hive[k];
                         
                             if ( (k != skip_index) && (k != skip_index_2) ) {
                         
@@ -815,7 +799,7 @@ function isPieceTrapped(in_origin, in_piece_id, in_grid) {
     var origin_x = parseInt(in_origin.substring(0, in_origin.indexOf(","))); 
     var origin_y = parseInt(in_origin.substring(in_origin.indexOf(",")+1));
     
-    if (NUM_MOVES < 3) {
+    if (in_origin == "") {
         return 0;
     }
     
@@ -866,4 +850,291 @@ function getTouchingHexesBetweenTwoPieces(in_one, in_two) {
     }
 
     return touch_array;
+}
+
+/**
+ * Gets black or white's pieces that are on the board.
+ * @param   {String} in_color
+ * @return  {Array}
+ *          Contains DOM IDs of pieces on board for a specific color 
+ */
+function getPiecesOnBoardByColor(in_color) {
+    var myArray = new Array();
+    if (in_color == "white") {
+        for (var key in PIECE_ARRAY) {
+            if ( (key.indexOf("white") != -1) && (PIECE_ARRAY[key] != "") ) {
+                myArray.push(key);
+            }
+        }
+    }
+    else {
+        for (var key in PIECE_ARRAY) {
+            if ( (key.indexOf("black") != -1) && (PIECE_ARRAY[key] != "") ) {
+                myArray.push(key);
+            }
+        }       
+    }
+    
+    return myArray;
+}
+
+/**
+ * Gets black or white's pieces that are on the side.
+ * @param   {String} in_color
+ * @return  {Array} 
+ *          Contains DOM IDs of unplayed pieces on side for a specific color
+ */
+function getPiecesOnSideByColor(in_color) {
+    var myArray = new Array();
+    if (in_color == "white") {
+        for (var key in PIECE_ARRAY) { 
+            if ( (key.indexOf("white") != -1) && (PIECE_ARRAY[key] == "") ) {
+                myArray.push(key);
+            }
+        }
+    }
+    else {
+        for (var key in PIECE_ARRAY) {
+            if ( (key.indexOf("black") != -1) && (PIECE_ARRAY[key] == "") ) {
+                myArray.push(key);
+            }
+        }
+    }                
+    return myArray;
+}
+
+/**
+ * 
+ */
+function isPiecePinned(in_piece_id, in_grid) {
+    var the_hex = PIECE_ARRAY[in_piece_id];
+    var surroundingArray = getSurroundingHexes(the_hex);
+    var x_val = 0; 
+    var y_val = 0;
+    
+    for (var i in surroundingArray) {
+        x_val = surroundingArray[i].substr(0, surroundingArray[i].indexOf(","));
+        y_val = surroundingArray[i].substr(surroundingArray[i].indexOf(",")+1);
+        if ((in_grid[x_val][y_val] != "") && (getNumberOfPiecesSurroundingHex(surroundingArray[i], in_grid) == 1))
+            return 1;
+    }
+    return 0;    
+}
+
+/**
+ * 
+ * @param {String} in_hex
+ */
+function getSurroundingHexes(in_hex) {
+    
+    if (in_hex == "") {
+        return Array();
+    }
+    var returnArray = new Array();
+    var x_val = parseInt(in_hex.substr(0, in_hex.indexOf(",")));
+    var y_val = parseInt(in_hex.substr(in_hex.indexOf(",")+1));
+    returnArray.push((x_val-1) + "," + (y_val-1));
+    returnArray.push((x_val-1) + "," + y_val);
+    returnArray.push(x_val + "," + (y_val-1));
+    returnArray.push(x_val + "," + (y_val+1));
+    returnArray.push((x_val+1) + "," + y_val);
+    returnArray.push((x_val+1) + "," + (y_val+1));
+    
+    return returnArray;
+}
+
+/**
+ * 
+ */
+function getPinHexes(in_piece_id, in_grid) {
+    var tempArray = new Array();
+    var pinArray = new Array();
+    var the_hex = PIECE_ARRAY[in_piece_id];
+    var surroundingArray = getSurroundingHexes(the_hex);
+    var x_val = 0; 
+    var y_val = 0;
+    for (var i in surroundingArray) {
+        var x_val = surroundingArray[i].substr(0, surroundingArray[i].indexOf(","));
+        var y_val = surroundingArray[i].substr(surroundingArray[i].indexOf(",")+1);
+        if (!in_grid[x_val][y_val]) {
+            tempArray.push(surroundingArray[i]);
+        }
+    }
+    for (var i in tempArray) {
+        if (getNumberOfPiecesSurroundingHex(tempArray[i], in_grid) == 1) {
+            pinArray.push(tempArray[i]);
+        }
+    }
+    return pinArray;
+}
+
+/**
+ * 
+ * @param   {String} in_piece_id
+ * @param   {Array} in_grid
+ * @return  {Array}
+ *          Return an array of string representations of locations in "8,9" format
+ */
+function getEmptyHexesSurroundingPiece(in_piece_id, in_grid) {
+    var in_hex = PIECE_ARRAY[in_piece_id];
+    var x_val = parseInt(in_hex.substr(0, in_hex.indexOf(",")));
+    var y_val = parseInt(in_hex.substr(in_hex.indexOf(",")+1));
+    var empty_array = new Array();
+    if (!in_grid[x_val-1][y_val-1])
+        empty_array.push((x_val-1).toString() + "," + (y_val-1).toString());
+    if (!in_grid[x_val-1][y_val])
+        empty_array.push((x_val-1).toString() + "," + (y_val).toString());
+    if (!in_grid[x_val][y_val-1])
+        empty_array.push((x_val).toString() + "," + (y_val-1).toString());
+    if (!in_grid[x_val][y_val+1])
+        empty_array.push((x_val).toString() + "," + (y_val+1).toString());
+    if (!in_grid[x_val+1][y_val])
+        empty_array.push((x_val+1).toString() + "," + (y_val).toString());
+    if (!in_grid[x_val+1][y_val+1])
+        empty_array.push((x_val+1).toString() + "," + (y_val+1).toString());
+   
+    return empty_array;
+}
+
+/**
+ * 
+ * @param   {String} in_hex
+ * 
+ * @param   {Array} in_grid
+ * 
+ * @return  {int}
+ *          Returns -1 if in_hex empty, otherwise 0 through 6.
+ */
+function getNumberOfPiecesSurroundingHex(in_hex, in_grid) {   
+    if (in_hex == "") {
+        return -1;
+    }
+    
+    var x_val = parseInt(in_hex.substr(0, in_hex.indexOf(",")));
+    var y_val = parseInt(in_hex.substr(in_hex.indexOf(",")+1));
+    var counter = 0;
+    
+    if (in_grid[x_val-1][y_val-1] != "") {
+        counter++;
+    }       
+    if (in_grid[x_val-1][y_val] != "") {
+        counter++;
+    }  
+    if (in_grid[x_val][y_val-1] != "") {
+        counter++;
+    }  
+    if (in_grid[x_val][y_val+1] != "") {
+        counter++;
+    }  
+    if (in_grid[x_val+1][y_val] != "") {
+        counter++;
+    }  
+    if (in_grid[x_val+1][y_val+1] != "") {
+        counter++;
+    }  
+   
+    return counter;
+}
+
+function getAllSurroundingPieces(in_hex, in_grid) {
+    var x_val = parseInt(in_hex.substr(0, in_hex.indexOf(",")));
+    var y_val = parseInt(in_hex.substr(in_hex.indexOf(",")+1));
+    var counter = 0;
+    var the_array = new Array();
+    
+    if (in_grid[x_val-1][y_val-1] != "") {
+            the_array.push((x_val-1).toString() + "," + (y_val-1).toString());
+    }
+    if (in_grid[x_val-1][y_val] != "") {
+            the_array.push((x_val-1).toString() + "," + (y_val).toString());
+    } 
+    if (in_grid[x_val][y_val-1] != "") {
+            the_array.push((x_val).toString() + "," + (y_val-1).toString()); 
+    }
+    if (in_grid[x_val][y_val+1] != "") {
+            the_array.push((x_val).toString() + "," + (y_val+1).toString());
+    } 
+    if (in_grid[x_val+1][y_val] != "") {
+            the_array.push((x_val+1).toString() + "," + (y_val).toString());
+    }    
+    if (in_grid[x_val+1][y_val+1] != "") {
+            the_array.push((x_val+1).toString() + "," + (y_val+1).toString());
+    }
+          
+    return the_array;   
+}
+
+/**
+ * 
+ * @param
+ * @param
+ * @return  {Array}
+ *          Contains locations where pieces exist in "8,9" format
+ */
+function getSurroundingPiecesByColor(in_color, in_piece_id, in_grid) {
+    var in_hex = PIECE_ARRAY[in_piece_id]
+    var x_val = parseInt(in_hex.substr(0, in_hex.indexOf(",")));
+    var y_val = parseInt(in_hex.substr(in_hex.indexOf(",")+1));
+    var counter = 0;
+    var the_array = new Array();
+    
+    if (in_grid[x_val-1][y_val-1] != "") {
+        if (getTopPieceFromGridArrayCell(x_val-1, y_val-1).indexOf(in_color) != -1)
+            the_array.push((x_val-1).toString() + "," + (y_val-1).toString());
+    }
+    if (in_grid[x_val-1][y_val] != "") {
+        if (getTopPieceFromGridArrayCell(x_val-1, y_val).indexOf(in_color) != -1)
+            the_array.push((x_val-1).toString() + "," + (y_val).toString());
+    } 
+    if (in_grid[x_val][y_val-1] != "") {
+        if (getTopPieceFromGridArrayCell(x_val, y_val-1).indexOf(in_color) != -1)
+            the_array.push((x_val).toString() + "," + (y_val-1).toString()); 
+    }
+    if (in_grid[x_val][y_val+1] != "") {
+        if (getTopPieceFromGridArrayCell(x_val, y_val+1).indexOf(in_color) != -1)
+            the_array.push((x_val).toString() + "," + (y_val+1).toString());
+    } 
+    if (in_grid[x_val+1][y_val] != "") {
+        if (getTopPieceFromGridArrayCell(x_val+1, y_val).indexOf(in_color) != -1)
+            the_array.push((x_val+1).toString() + "," + (y_val).toString());
+    }    
+    if (in_grid[x_val+1][y_val+1] != "") {
+        if (getTopPieceFromGridArrayCell(x_val+1, y_val+1).indexOf(in_color) != -1)
+            the_array.push((x_val+1).toString() + "," + (y_val+1).toString());
+    }
+          
+    return the_array;
+}
+
+/**
+ * There's a violation of the one hive rule that's difficult to detect. This takes care of it.
+ */
+function isMoveTrickyViolation(in_origin, in_dest, in_grid_array) {
+    var fake_grid = arrayCloner(in_grid_array);
+    removePieceFromGenericGridArray(fake_grid, in_origin);
+    var surround_a = getAllSurroundingPieces(in_origin, fake_grid);
+    var surround_b = getAllSurroundingPieces(in_dest, fake_grid);
+    if ( (getNumberOfPiecesSurroundingHex(in_origin, fake_grid) == 1) && (getNumberOfPiecesSurroundingHex(in_dest, fake_grid) == 1) ) {
+        if (surround_a[0] != surround_b[0]) {
+            return 1;
+        }    
+    }
+    return 0;    
+}
+
+
+
+
+
+
+/**
+ * ONLT USED ONCE - WE SHOULD BE ABLE TO DO AWAY WITH THIS
+ * @param {Object} stringArray
+ */
+function convertHexStringArrayTo2DArray(stringArray) {
+    var returnArray = new Array();
+    for (var i in stringArray) {
+        returnArray.push(stringArray[i].split(","));
+    }
+    return returnArray;
 }
