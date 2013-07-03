@@ -101,7 +101,7 @@ function LOBBY_EVENT_selectOpenGame(event) {
         opponent = data[1];
         if (data[1] !== "" && data[2] !== "") { // check if second player has already joined
             flag = 0;
-            alert("Sorry, but somebody alredy took the open spot. Please try another game."); // TODO: Change this to a real popup and not an a lert.
+            alert("Sorry, but somebody alredy took the open spot. Please try another game."); // TODO: Change this to a real popup.
         }
         else {
             flag = 1;

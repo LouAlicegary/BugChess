@@ -4,7 +4,7 @@
     
     showLoginHeader();
     showLoginBody();
-    showLoginScript();
+    //showLoginScript();
     showLoginFooter();
 
     function showLoginHeader() {

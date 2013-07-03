@@ -125,7 +125,9 @@
         echo "        <div id='in_game_popup'>\n";
         echo "              <div id='in_game_header'></div>\n"; 
         echo "              <div id='in_game_text'></div>\n";  
-        echo "        </div>    \n";     
+        echo "        </div>    \n";
+        echo "        <div id='curtain'>\n";
+        echo "        </div>    \n";             
         echo "          \n"; 
         echo "  </div>\n";    
     }
@@ -152,8 +154,7 @@
                 echo "BLACK_PLAYER_NAME = '(none)';\n";
             }       
             echo "var SOLO_GAME = 0;";
-            
-            //echo "if (!GAME_ID) {SOLO_GAME = 1; BLACK_PLAYER_NAME = 'Computer';}";
+            echo "if (!GAME_ID) {SOLO_GAME = 1; BLACK_PLAYER_NAME = 'Computer';}";
             echo "$(document).ready(CONTROLLER_MAIN);\n";
         }
         else {

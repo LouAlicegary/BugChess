@@ -19,7 +19,7 @@ function MODEL_GRIDARRAY_getGridArray() {
     return arrayCloner(GRID_ARRAY);
 }
 /**
- * Insert function description here. 
+ * 
  * @param   {String} h1
  * @param   {String} h2
  */
@@ -35,7 +35,7 @@ function MODEL_GRIDARRAY_addPiece(destination_string, piece_id)
         GRID_ARRAY[x_ind][y_ind] = piece_id;
     
     NUM_MOVES++;
-    }
+}
     
 /**
  * Removes top piece from cell in GRID_ARRAY.
@@ -63,7 +63,7 @@ function MODEL_GRIDARRAY_removePiece(source_point)
 }
 
 /**
- * Insert function description here. 
+ * 
  */
 function MODEL_eraseGameFromGridArray() {
     for (var i=0; i < GRID_ARRAY.length; i++) {
@@ -165,4 +165,28 @@ function MODEL_GRIDARRAY_getTopPieceAtLocation(in_loc_string, in_grid) {
     }
     
     return top_piece;    
+}
+
+function MODEL_GRIDARRAY_getAllPiecesAtLocation(in_loc_string, in_grid) {
+    var loc_array = in_loc_string.split(",");
+    var x_val = loc_array[0];
+    var y_val = loc_array[1];
+    var cell = in_grid[x_val][y_val];
+    
+    return cell;    
+}
+
+function MODEL_GRIDARRAY_getNumberOfPiecesAtLocation(in_loc_string, in_grid) {
+    var loc_array = in_loc_string.split(",");
+    var x_val = loc_array[0];
+    var y_val = loc_array[1];
+    var cell = in_grid[x_val][y_val];
+    var count = 0;
+    
+    if (cell != "") {
+        var temp = cell.split(",").length - 1;
+        count = temp.length - 1;
+    }
+    
+    return count;    
 }

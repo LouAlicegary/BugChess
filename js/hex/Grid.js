@@ -2,11 +2,10 @@
  * A Grid is the model of the playfield containing hexes
  * @constructor
  */
-HT.Grid = function(/*double*/ width, /*double*/ height) {
+HT.Grid = function(width, height) {
 	
 	this.Hexes = [];
-	//setup a dictionary for use later for assigning the X or Y CoOrd (depending on Orientation)
-	var HexagonsByXOrYCoOrd = {}; //Dictionary<int, List<Hexagon>>
+	var HexagonsByXOrYCoOrd = {}; 
 
 	var row = 0;
 	var y = 0.0;
@@ -131,10 +130,10 @@ HT.Grid.prototype.GetHexById = function(id) {
  *          Returns hexagon at a given location
  */
 HT.Grid.prototype.GetHexByXYIndex = function(xy_string) {
-	xy_array = xy_string.split(",");
-	for(var i in this.Hexes)
+	var xy_array = xy_string.split(",");
+	for (var i in this.Hexes)
 	{
-		if(this.Hexes[i].PathCoOrdX == xy_array[0] && this.Hexes[i].PathCoOrdY == xy_array[1])
+		if( (this.Hexes[i].PathCoOrdX == xy_array[0]) && (this.Hexes[i].PathCoOrdY == xy_array[1]) )
 		{
 			return this.Hexes[i];
 		}

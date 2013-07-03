@@ -37,7 +37,7 @@ function MODEL_PIECEARRAY_initialize() {
   
 
 /**
- * Insert function description here. 
+ * 
  * @param   {String} destination_string
  * @param   {String} piece_id
  */

@@ -105,86 +105,64 @@ HT.Hexagon.prototype.draw = function(ctx) {
  * @this {HT.Hexagon}
  */
 HT.Hexagon.prototype.drawPieceOnCanvas = function(ctx, in_width, in_height) {
-		var location = this.PathCoOrdX + "," + this.PathCoOrdY;
-		top_piece = MODEL_GRIDARRAY_getTopPieceAtLocation(location, MODEL_GRIDARRAY_getGridArray()); //piece_stack[piece_stack.length-1];
-   		var midPoint = this.MidPoint;
-   		if (top_piece != "") {
-            ctx.drawImage(IMG_OBJ_ARRAY[top_piece.substring(0, top_piece.length-1)], midPoint.X-(in_width/2), midPoint.Y-(in_height/2), in_width, in_height);      		    
-   		}
-   		else {
-            ctx.strokeStyle = "grey";
-            ctx.fillStyle = "white";
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(this.Points[0].X, this.Points[0].Y);
-            for (var i = 1; i < this.Points.length; i++) {
-                var p = this.Points[i];
-                ctx.lineTo(p.X, p.Y);
-            }
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();       
-        
-            ctx.fillStyle = "red";
-            ctx.font = "bolder 8pt Trebuchet MS,Tahoma,Verdana,Arial,sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = 'middle';
-            ctx.fillText("(" + this.PathCoOrdX + "," + this.PathCoOrdY + ")", this.MidPoint.X, this.MidPoint.Y);       		    
-   		}
+    in_width = $(".game_piece").width();
+    in_height = $(".game_piece").height();
+	var location = this.PathCoOrdX + "," + this.PathCoOrdY;
+	top_piece = MODEL_GRIDARRAY_getTopPieceAtLocation(location, MODEL_GRIDARRAY_getGridArray()); //piece_stack[piece_stack.length-1];
+	var midPoint = this.MidPoint;
+	if (top_piece != "") {
+        ctx.drawImage(IMG_OBJ_ARRAY[top_piece.substring(0, top_piece.length-1)], midPoint.X-(in_width/2), midPoint.Y-(in_height/2), in_width, in_height);      		    
+	}
+	else {
+        this.drawEmptyHexOnCanvas(ctx);       		    
+	}
 };
 
 /**
- * draws this Hexagon to the canvas
+ * OBSOLETE
  * @this {HT.Hexagon}
  */
 HT.Hexagon.prototype.removePieceFromCanvas = function(ctx, in_width, in_height) {
-
-    var grid_array = MODEL_GRIDARRAY_getGridArray();
-    var array_val = grid_array[this.PathCoOrdX][this.PathCoOrdY];
-	
-	if ( array_val.indexOf(",") != -1) { // fill hexagon in canvas if another piece exists there
-		
-		var piece_stack = array_val.split(",");
-					
-		for (var i=0; i<piece_stack.length; i++) {
-			$("#" + piece_stack[i]).hide();
-		}
-		
-		top_piece = piece_stack[piece_stack.length-2];
-
-   		var midPoint = this.MidPoint;
-   		var imageObj = new Image();
-   		imageObj.src = "pieces/" + top_piece.substring(0, top_piece.length-1) + ".png";
-		imageObj.onload = function() {
-        	ctx.drawImage(imageObj, midPoint.X-(in_width/2), midPoint.Y-(in_height/2));
-      	};
-      	
-	}
-	else { // draw co-ordinates (3, 6), (5, 9), etc
-		ctx.strokeStyle = "grey";
-		ctx.fillStyle = "white";
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.moveTo(this.Points[0].X, this.Points[0].Y);
-		for(var i = 1; i < this.Points.length; i++)
-		{
-			var p = this.Points[i];
-			ctx.lineTo(p.X, p.Y);
-		}
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();		
-
-		ctx.fillStyle = "red";
-		ctx.font = "bolder 8pt Trebuchet MS,Tahoma,Verdana,Arial,sans-serif";
-		ctx.textAlign = "center";
-		ctx.textBaseline = 'middle';
-		ctx.fillText("(" + this.PathCoOrdX + "," + this.PathCoOrdY + ")", this.MidPoint.X, this.MidPoint.Y);	
-	}
+    in_width = $(".game_piece").width();
+    in_height = $(".game_piece").height();
+    var location = this.PathCoOrdX + "," + this.PathCoOrdY;
+    var the_grid = MODEL_GRIDARRAY_getGridArray();
+    var the_cell = MODEL_GRIDARRAY_getAllPiecesAtLocation(location, the_grid)
+    var the_count = MODEL_GRIDARRAY_getNumberOfPiecesAtLocation(location, the_grid);
+    var second_piece; 
+    var midPoint = this.MidPoint;
+    if (the_count > 1) {
+        second_piece = the_cell.substr(0, the_cell.lastIndexOf(","))
+        second_piece = second_piece.substr(second_piece.lastIndexOf(",")+1, second_piece.length-1);
+        ctx.drawImage(IMG_OBJ_ARRAY[second_piece], midPoint.X-(in_width/2), midPoint.Y-(in_height/2), in_width, in_height);               
+    }
+    else {
+        this.drawEmptyHexOnCanvas(ctx);                
+    }
 };
 
+/**
+ * OBSOLETE 
+ */
 HT.Hexagon.prototype.drawEmptyHexOnCanvas = function(ctx) {
+    ctx.strokeStyle = "grey";
+    ctx.fillStyle = "white";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(this.Points[0].X, this.Points[0].Y);
+    for (var i = 1; i < this.Points.length; i++) {
+        var p = this.Points[i];
+        ctx.lineTo(p.X, p.Y);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();       
 
+    ctx.fillStyle = "red";
+    ctx.font = "bolder 8pt Trebuchet MS,Tahoma,Verdana,Arial,sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = 'middle';
+    ctx.fillText("(" + this.PathCoOrdX + "," + this.PathCoOrdY + ")", this.MidPoint.X, this.MidPoint.Y);
 };
 
 /**
@@ -254,13 +232,6 @@ HT.Hexagon.prototype.GetXYLocation = function() {
 	return the_string;
 }
 
-/**
- * 
- */
-HT.Hexagon.Orientation = {
-	Normal: 0,
-	Rotated: 1
-};
 
 /**
  * 
@@ -269,8 +240,7 @@ HT.Hexagon.Static = {
 	// THIS GETS SET DYNAMICALLY IN VIEW
 	HEIGHT:91.14378277661477, 
 	WIDTH:91.14378277661477, 
-	SIDE:50.0, 
-	ORIENTATION:HT.Hexagon.Orientation.Normal, 
+	SIDE:50.0,  
 	DRAWSTATS: false
 };
 

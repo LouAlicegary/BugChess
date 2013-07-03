@@ -1,20 +1,19 @@
-OUTPUT_CONSOLE_LOG = 0;
-OUTPUT_LOGGER_WINDOW = 1;
-
+OUTPUT_CONSOLE_LOG = 1;
+OUTPUT_LOGGER_WINDOW = 0;
 SHOW_TIME = 0;
 
 var LOG_ARRAY = new Array(15);
 
 if (OUTPUT_LOGGER_WINDOW) {
     $(document).ready(function(){
-        $("body").append("<div id='logger_window' draggable='true' style='position: absolute; overflow: auto; font-family: Arial; font-size: 16px; font-face: bold; top: 0; left: 0; height: 30%; width: 60%; margin: 0% 20%; background: rgba(0,0,0,.7); color: rgba(255,255,255,1);'>Logger window initialized.\n</div>")
+        $("body").append("<div id='logger_window' style='position: absolute; overflow: auto; font-family: Arial; font-size: 16px; font-face: bold; top: 0; left: 0; height: 30%; width: 60%; margin: 0% 20%; background: rgba(0,0,0,.7); color: rgba(255,255,255,1);'>Logger window initialized.\n</div>")
         $("#logger_window").draggable();
     });
     
     window.onerror=function(msg, url, linenumber){
         url = url.substr(url.lastIndexOf("/")+1);
-        //$('#logger_window').html($('#logger_window').html() + '<div style="color:rgba(255,0,0,1)">' + msg + ' [' + url + ': ' + linenumber + "]</div>");
-        alert(msg + ' [' + url + ': ' + linenumber + "]");
+        $('#logger_window').html($('#logger_window').html() + '<div style="color:rgba(255,0,0,1)">' + msg + ' [' + url + ': ' + linenumber + "]</div>");
+        //alert(msg + ' [' + url + ': ' + linenumber + "]");
         return true;
     }
     
@@ -25,8 +24,8 @@ if (OUTPUT_LOGGER_WINDOW) {
 if (OUTPUT_CONSOLE_LOG) {
     window.onerror=function(msg, url, linenumber){
         url = url.substr(url.lastIndexOf("/")+1);
-        //console.log(msg + ' [' + url + ': ' + linenumber + ']');
-        alert(msg + ' [' + url + ': ' + linenumber + "]");
+        console.log(msg + ' [' + url + ': ' + linenumber + ']');
+        //alert(msg + ' [' + url + ': ' + linenumber + "]");
         return true;
     }
 }
@@ -136,21 +135,53 @@ function printNiceArray(in_array) {
  * Based on Fisher-Yates randomization algorithm
  */
 function randomizeArray(in_array) {
-  var myArray = arrayCloner(in_array);
-  var i = myArray.length;
-  var j;
-  var temp;
+    var myArray = arrayCloner(in_array);
+    var i = myArray.length;
+    var j;
+    var temp;
   
-  if ( i === 0 ) 
-    myArray = [];
-  while ( --i ) {
-     j = Math.floor( Math.random() * ( i + 1 ) );
-     temp = myArray[i];
-     myArray[i] = myArray[j]; 
-     myArray[j] = temp;
-   }
-   return myArray;    
+    if ( i === 0 ) 
+        myArray = [];
+    while ( --i ) {
+        j = Math.floor( Math.random() * ( i + 1 ) );
+        temp = myArray[i];
+        myArray[i] = myArray[j]; 
+        myArray[j] = temp;
+    }
+    
+    return myArray;    
 }
+
+var beep = (function () {
+    
+    var ctx = new(window.audioContext || window.webkitAudioContext);
+    var duration = 20; // 10ms duration for beep
+    
+    // beep can be called like this -- beep(callbackFunction) or beep(function(){ //do stuff here }), and the callback will run after the beep
+    return function (finishedCallback) {        
+        
+        // if argument provided that's not actually a function, make a null function to run as callback instead
+        if (typeof finishedCallback != "function") {
+            finishedCallback = function () {};
+        }
+
+        // Create a gain node. Connect the source to the gain node. Connect the gain node to the destination. Reduce the volume.
+        // Plus create oscillator to make a 10 ms tone.
+        var osc = ctx.createOscillator();
+        var gainNode = ctx.createGainNode();
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination); // osc -> gainNode -> destination (ctx.destination = sound hardware)
+        gainNode.gain.value = 0.5;        
+        
+        osc.type = 0; // 0-3 are valid types. 0 = sine wave; 1 = square; 2 = sawtooth; 3 = triangle
+        osc.noteOn(0);
+
+        setTimeout(function () {
+            osc.noteOff(0);
+            finishedCallback();
+        }, duration);
+    };
+})();
 
 /**
  * jQuery.browser.mobile (http://detectmobilebrowser.com/)

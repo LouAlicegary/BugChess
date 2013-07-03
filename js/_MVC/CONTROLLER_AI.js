@@ -4,7 +4,7 @@
  * Computer is always black right now...
  */
 function CONTROLLER_doComputerMove(in_color) {
-    var thinking_time = 200;
+    var thinking_time = 2000;
     var origin_hex = "";
     var dest_array = new Array();
     var dest_hex;
@@ -17,79 +17,69 @@ function CONTROLLER_doComputerMove(in_color) {
     
     // This takes care of iterating through strategies and choosing a successful move       
     setTimeout(function(){            
-        // OPENING
-        if (NUM_MOVES < 8) {
+        if (NUM_MOVES < 8)
             doOpening();    
-        }
-        // MIDGAME
-        else if (0) {
-            // NO MIDGAME THAT'S DIFFERENT FROM ENDGAME
-        }
-        // ENDGAME
-        else {
-            doEndgame();
-        }
-        
-                 
+        else
+            doEndgame();                         
         CONTROLLER_EVENT_attemptMove(origin_hex, dest_hex, the_piece);        
-        origin_hex = (origin_hex == "") ? ("off the board") : (PIECE_ARRAY[the_piece] != "");                
-        var message = "A " + the_piece.substr(0, 5) + " " + the_piece.substring(6, the_piece.length-1) + " was moved from " + origin_hex + " to [" + dest_hex + "]";            
-        //VIEW_showInGamePopup("COMPUTER HAS MOVED", message, 3500),                         
-    
+        //origin_hex = (origin_hex == "") ? ("off the board") : (PIECE_ARRAY[the_piece] != "");                
+        //var message = "A " + the_piece.substr(0, 5) + " " + the_piece.substring(6, the_piece.length-1) + " was moved from " + origin_hex + " to [" + dest_hex + "]";            
+        //VIEW_showInGamePopup("COMPUTER HAS MOVED", message, 3500),                             
     }, thinking_time);   
                     
 
     function doOpening() {
-        
-        //MOVE 1 - Randomly choose between beetle and spider...no bee or ant.
-        if (NUM_MOVES == 0) { // THIS DOESNT WORK YET -- TRYING TO MAKE IT SO COMPUTER CAN BE FIRST AS WELL
-            var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
-            the_index = Math.floor((Math.random()*2)+2);
-            the_piece = computer_color + starting_array[the_index];
-            dest_hex = HIVE_ORIGIN;
-        }
-        else if (NUM_MOVES == 1) {
-            var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
-            the_index = Math.floor((Math.random()*2)+2);
-            the_piece = computer_color + starting_array[the_index];  
-            dest_array = getPotentialDestinations(the_piece, in_grid);
-            dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)];             
-        }
-        
-        // MOVE 2 - Randomly choose between leftovers among bee, ant, beetle, and spider
-        else if (NUM_MOVES < 4) {
-            var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
-            do {
-                the_index = Math.floor((Math.random()*4));
+        do {
+            //MOVE 1 - Randomly choose between beetle and spider...no bee or ant.
+            if (NUM_MOVES == 0) { // THIS DOESNT WORK YET -- TRYING TO MAKE IT SO COMPUTER CAN BE FIRST AS WELL
+                var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
+                the_index = Math.floor((Math.random()*2)+2);
                 the_piece = computer_color + starting_array[the_index];
+                dest_hex = HIVE_ORIGIN;
+            }
+            else if (NUM_MOVES == 1) {
+                var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
+                the_index = Math.floor((Math.random()*2)+2);
+                the_piece = computer_color + starting_array[the_index];  
                 dest_array = getPotentialDestinations(the_piece, in_grid);
-                dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)]; }
-            while (PIECE_ARRAY[the_piece] != "");            
-        }
-        
-        // MOVE 3 - Randomly choose between leftover among bee, ant, beetle, and spider
-        else if (NUM_MOVES < 6) {
-            var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
-            // Loop runs again if piece already on board or if no potential destination hexes for it
-            do {
-                the_index = Math.floor(Math.random()*4);
-                the_piece = computer_color + starting_array[the_index];
-                dest_array = getPotentialDestinations(the_piece, in_grid);               
-                dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)]; }                        
-            while ((PIECE_ARRAY[the_piece] != "") || (dest_array.length == 0));
-        }
-        
-        // MOVE 4 - Choose leftover one between bee, grasshopper, beetle, and spider
-        else if (NUM_MOVES < 8) {        
-            var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
-            // Loop runs again if piece already on board or if no potential destination hexes for it
-            do {
-                the_index = Math.floor(Math.random()*4);
-                the_piece = computer_color + starting_array[the_index];
-                dest_array = getPotentialDestinations(the_piece, in_grid);
-                dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)]; }
-            while ((PIECE_ARRAY[the_piece] != "") || (dest_array.length == 0));                                    
-        }
+                dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)];             
+            }
+            
+            // MOVE 2 - Randomly choose between leftovers among bee, ant, beetle, and spider
+            else if (NUM_MOVES < 4) {
+                var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
+                do {
+                    the_index = Math.floor((Math.random()*4));
+                    the_piece = computer_color + starting_array[the_index];
+                    dest_array = getPotentialDestinations(the_piece, in_grid);
+                    dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)]; }
+                while (PIECE_ARRAY[the_piece] != "");            
+            }
+            
+            // MOVE 3 - Randomly choose between leftover among bee, ant, beetle, and spider
+            else if (NUM_MOVES < 6) {
+                var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
+                // Loop runs again if piece already on board or if no potential destination hexes for it
+                do {
+                    the_index = Math.floor(Math.random()*4);
+                    the_piece = computer_color + starting_array[the_index];
+                    dest_array = getPotentialDestinations(the_piece, in_grid);               
+                    dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)]; }                        
+                while ((PIECE_ARRAY[the_piece] != "") || (dest_array.length == 0));
+            }
+            
+            // MOVE 4 - Choose leftover one between bee, grasshopper, beetle, and spider
+            else if (NUM_MOVES < 8) {        
+                var starting_array = Array("_bee1", "_ant1", "_beetle1", "_spider1");
+                // Loop runs again if piece already on board or if no potential destination hexes for it
+                do {
+                    the_index = Math.floor(Math.random()*4);
+                    the_piece = computer_color + starting_array[the_index];
+                    dest_array = getPotentialDestinations(the_piece, in_grid);
+                    dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)]; }
+                while ((PIECE_ARRAY[the_piece] != "") || (dest_array.length == 0));                                    
+            }
+        } while ( isMoveValid("", dest_hex, the_piece, in_grid) != 1 );
         
         Logger("**Move " + Math.ceil((NUM_MOVES+1)/2) + " for " + getCurrentColorByMove(NUM_MOVES) + " (opening strategy): " + the_piece + ": [" + origin_hex + "] -> [" + dest_hex + "]");
     }
@@ -163,7 +153,6 @@ function CONTROLLER_doComputerMove(in_color) {
                 dest_array = Array();
                 the_piece = computer_color + "_bee1";
                 origin_hex = PIECE_ARRAY[the_piece];
-                Logger("D1 ORIGIN HEX = " + origin_hex + " " + the_piece);
                 if ( is_my_queen_trapped == 0 ) {
                     dest_array = getEmptyHexesSurroundingPiece(the_piece, in_grid);
                     for (var i in dest_array) {
@@ -257,7 +246,6 @@ function CONTROLLER_doComputerMove(in_color) {
             if (is_opp_queen_trapped == 0) {
                 var the_queen = opponent_color + "_bee1";
                 var my_board_pieces = getPiecesOnBoardByColor(computer_color);
-                Logger("O1 MYBOARDPIECES = " + printNiceArray(my_board_pieces));
                 var pin_hexes = getPinHexes(the_queen, in_grid);
                 for (var i in my_board_pieces) {
                     for (var j in pin_hexes) {
@@ -416,7 +404,7 @@ function CONTROLLER_doComputerMove(in_color) {
             priority_list = randomizeArray(priority_list); // algorithm was looping otherwise
             var board_pieces = getPiecesOnBoardByColor(computer_color); // contains piece IDs
             var temp_array = new Array();
-            dest_array = new Array();
+            dest_array = [];
             origin_hex = "";
             
             for (var h in priority_list) {               
@@ -425,15 +413,15 @@ function CONTROLLER_doComputerMove(in_color) {
                         if (board_pieces[i].indexOf(priority_list[h]) != -1) {
                             the_piece = board_pieces[i];
                             origin_hex = PIECE_ARRAY[board_pieces[i]];
-                            dest_array = getPotentialDestinations(the_piece, in_grid);
-                            for (var j in dest_array) {
-                                if ( isMoveValid(origin_hex, dest_array[j], the_piece, in_grid) == 1) {
-                                    dest_hex = dest_array[j];
-                                    breakflag++;
-                                    break;
+                            temp_array = getPotentialDestinations(the_piece, in_grid);
+                            for (var j in temp_array) {
+                                if ( isMoveValid(origin_hex, temp_array[j], the_piece, in_grid) == 1) {
+                                    dest_array.push(temp_array[j]);
                                 }                    
                             }
-                            if (breakflag) {
+                            if (dest_array.length) {
+                                dest_hex = dest_array[Math.floor(Math.random()*dest_array.length)];
+                                breakflag++;
                                 break;
                             }
                         }
@@ -445,7 +433,7 @@ function CONTROLLER_doComputerMove(in_color) {
             }
         }
 
-        // strategy O-7: Move piece on board (but not one that's already touching opponent's queen)
+        // strategy O-7: Move piece on board
         if (!breakflag) {
             //Logger("O7");
             strategy_string += ("O7->");

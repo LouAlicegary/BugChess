@@ -1,259 +1,374 @@
-
-    
 /**
  * Initializes window buttons, click events, etc.
  * Calls VIEW_SUPPORT_drawEmptyGrid, VIEW_repositionUnplayedPieces() when finished.
  */
-function VIEW_initGameWindow() {
-    
+function VIEW_initGameWindow() {    
     PIECE_HEIGHT = $(".game_piece").height();
     PIECE_WIDTH = $(".game_piece").width();    
-    VIEW_SUPPORT_drawEmptyGrid();
-   	 	
+    
+    VIEW_SUPPORT_drawEmptyGrid(1);
+   	
+   	// SET UP DROPPABLE BOARD 	
 	$("#container").droppable({ 
-	    drop: VIEW_EVENT_dropPiece, 
-	    out: function( event, ui ) {
-	        // When a draggable piece leaves the container, this function scrolls the board
-	        var draggable_x = ui.position.left;
-	        var draggable_y = ui.position.top;
-	        var box_top = document.getElementById("container").getBoundingClientRect().top;
-	        var box_bottom = document.getElementById("container").getBoundingClientRect().bottom;
-	        var box_left = document.getElementById("container").getBoundingClientRect().left;
-	        var box_right = document.getElementById("container").getBoundingClientRect().right;
-	        
-	        if (draggable_y < box_top) {
-	            the_scroller.scroller.scrollBy(0, -50, false);
-	            top_timer = setInterval(function(){
-	                the_scroller.scroller.scrollBy(0, -10, false);
-	            }, 50);   
-	        }
-            if ( (draggable_y + PIECE_HEIGHT/2) > box_bottom) {
-                bottom_timer = setInterval(function(){
-                    the_scroller.scroller.scrollBy(0, 10, false);
-                }, 50); 
-            }	        
-            if (draggable_x < box_left) {
-                left_timer = setInterval(function(){
-                    the_scroller.scroller.scrollBy(-10, 0, false);
-                }, 50); 
-            }
-            if ( (draggable_x + PIECE_WIDTH/2) > box_right) {
-                right_timer = setInterval(function(){
-                    the_scroller.scroller.scrollBy(10, 0, false);
-                }, 50);                     
-            }	         
-	    },
-	    over: function( event, ui ) {
-	       clearInterval(top_timer);
-	       clearInterval(bottom_timer);
-	       clearInterval(left_timer);
-	       clearInterval(right_timer);
-	    },
-	    deactivate: function( event, ui ) {
-           clearInterval(top_timer);
-           clearInterval(bottom_timer);
-           clearInterval(left_timer);
-           clearInterval(right_timer);	        
-	    }
+	    drop: VIEW_EVENT_draggableDrop, 
+	    out: VIEW_SUPPORT_setScrollerTimers,
+	    over: VIEW_SUPPORT_clearScrollerTimers,
+        deactivate: VIEW_SUPPORT_clearScrollerTimers 
 	});
-	
+
+    // SET UP DRAGGABLE GAME PIECES
+    $(".game_piece").each(function (i, obj) {
+        $(obj).attr('origin', "");
+        $(obj).show();   
+    });          
+    $('[class*=" ' + getPlayerColor() + '"]').draggable({
+        revert: "invalid", 
+        distance: PIECE_WIDTH/2, 
+        cursorAt: {'top': PIECE_HEIGHT/2, 'left': PIECE_WIDTH/2},
+        start: function() { MID_DRAG = 1; },
+        stop: function() { setTimeout(function() {MID_DRAG = 0;}, 100); }
+    });
+    VIEW_drawUnplayedPieces();
+       
+	// SET UP BUTTONS ON SCREEN
     $("#undo_move_button").button();    	
 	$("#cancel_game_button").button();
     $("#lobby_button").button();
     $("#resign_button").button();
 	$("#clear_board_button").button();
-	$("#game_over_return_button").button();
+	$("#game_over_return_button").button();	
 	
-	$("#clear_board_button").hide();
-	$("#resign_button").hide();
-    if (!SOLO_GAME) {
-        $("#resign_button").show();
-    }
-
-	$("#in_game_popup").hide();
-	$("#game_over_popup").hide();
-	
+	// SETS PLAYER NAMES IN WINDOW	
     $('#white_player_name').text(WHITE_PLAYER_NAME);
 	$('#black_player_name').text(BLACK_PLAYER_NAME);
+		      	
+	// EVENT BINDINGS
+    $('#undo_move_button').bind(startclickevent, CONTROLLER_EVENT_undoMove);
+    $('#cancel_game_button').bind(startclickevent, CONTROLLER_EVENT_cancelGame);
+    $('#resign_button').bind(startclickevent, CONTROLLER_EVENT_resignGame);
+    $('#lobby_button').bind(startclickevent, CONTROLLER_EVENT_returnToLobby);
+    $('#game_over_return_button').bind(startclickevent, CONTROLLER_EVENT_returnToLobby);
+    
+    $('#in_game_popup').bind(startclickevent, VIEW_EVENT_dismissInGamePopup);
+    
+    $('#hexCanvas').bind(startclickevent, VIEW_EVENT_clickCanvas);
+    $('.game_piece').bind("mouseenter", VIEW_EVENT_popHoveredPieceForward);
+    $('.game_piece').bind("mouseleave", VIEW_EVENT_pushHoveredPieceBack);    
+    
+    $(window).bind("resize", VIEW_EVENT_resizeWindow);   
+    $(document).bind("touchmove", function(event) {event.preventDefault()});  // STOPS BOUNCE ON MOBILE DEVICES WHEN SWIPING       
+}
 
 
-	$(".game_piece").attr('origin', '');
-	$(".game_piece").unbind("mouseenter");
-	$(".game_piece").unbind("mouseleave");
-	$(".game_piece").show();	
-	
-	
-	// RELOAD PAGE FROM SCRATCH ON ORIENTATION CHANGE / WINDOW RESIZE
-    window.onresize = function(event) {
-        var grid_array = MODEL_GRIDARRAY_getGridArray();
-        VIEW_SUPPORT_redrawHexGrid(grid_array);
-        VIEW_SUPPORT_scrollToOrigin(); 
-        VIEW_positionUnplacedPieces();
-    };
+/**
+ * Fires when a piece on the board is clicked.
+ * @param   {Event} event
+ *          Contains x- and y-coordinates of window location where click occurred. 
+ */
+function VIEW_EVENT_clickCanvas(event, ui) {      
+    Logger("click canvas : this + event.target = " + $(this).attr("id") + " " + $(event.target).attr("id") + " " + event.type);
+    swipe_start = Date.now();
     
-    // STOPS BOUNCE ON MOBILE DEVICES WHEN DRAGGING
-    document.ontouchmove = function(e) {e.preventDefault()};
-       	
-	$('#hexCanvas').bind(clicktouchevent, VIEW_EVENT_clickPieceOnBoard);
-    $('#undo_move_button').bind(clicktouchevent, CONTROLLER_EVENT_undoMove);
-    $('#cancel_game_button').bind(clicktouchevent, CONTROLLER_EVENT_cancelGame);
-    $('#resign_button').bind(clicktouchevent, CONTROLLER_EVENT_resignGame);
-    $('#lobby_button').bind(clicktouchevent, CONTROLLER_EVENT_returnToLobby);
-    $('#game_over_return_button').bind(clicktouchevent, CONTROLLER_EVENT_returnToLobby);
+    // Added to handle iPad clicks
+    var touch = (typeof event.pageX === "undefined") ? (event.originalEvent.touches[0] || event.originalEvent.changedTouches[0]) : (event);        
     
-    $('#in_game_popup').bind(clicktouchevent, function(){
-        $(this).hide();
-        window.clearTimeout(POPUP_TIMER);
-    });
+    var grid_array;
+    var hex_contents;
+    var hex_array;
+    var this_piece;    
+    var clicked_hex = VIEW_SUPPORT_getHexByWindowCoords(touch.pageX, touch.pageY);        
+    var current_color = getCurrentColorByMove(NUM_MOVES);
     
-    VIEW_EVENT_mouseoverUnplayedPiece();
-    
-    VIEW_positionUnplacedPieces(); 
-
-    /**
-     * Floats hovered-over unplayed piece to top of z-index stack
-     */ 
-    function VIEW_EVENT_mouseoverUnplayedPiece() {
+    if (clicked_hex) {
+        grid_array = MODEL_GRIDARRAY_getGridArray();
+        hex_contents = grid_array[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
+        hex_array = hex_contents.split(",");
+        this_piece = (hex_array.length > 1) ? (hex_array[hex_array.length-1]) : (hex_array[0]);         
+        CLICKED_ON = clicked_hex.GetXYLocation();
         
-        var zdex = 0;
-        
-        if (WHITE_PLAYER_NAME == NAME) {
-            $('[class*=" white"]').draggable({revert: "invalid", distance: PIECE_WIDTH/2, cursorAt: {'top': PIECE_HEIGHT/2, 'left': PIECE_WIDTH/2}, start: function() {MID_DRAG_FLAG = 1;}});
-                          
-            $('[class*=" white"]:visible').mouseenter(function(){
-                $("#white_mask_box").show();
-                zdex = $(this).css('zIndex');
-                $(this).css({'z-index': 50});   
-            });
-            
-            $('[class*=" white"]:visible').mouseleave(function(){
-                $(this).css({'z-index': zdex});
-                $("#white_mask_box").hide();
-            });  
+        // IF ACTUAL HEX IS CLICKED AND NOT BLANK AND CONTAINS PIECE(S) OF THE PLAYER'S COLOR
+        if ( (hex_contents != "") && (this_piece.indexOf(current_color) != -1) && (current_color == getPlayerColor()) ) {    
+            $('#hexCanvas').bind(stopclickevent, function (e, u) {    
+                swipe_end = Date.now();
+                // if piece actually clicked and not just a swipe across it
+                Logger("click canvas stopclick : this + event.target = " + $(this).attr("id") + " " + $(event.target).attr("id") + " " + event.type);
+                if ((swipe_end - swipe_start) < 300) {
+                    VIEW_removePieceFromCanvas(clicked_hex);
+                    VIEW_showDraggablePiece(this_piece, VIEW_SUPPORT_gridToPageCoords(clicked_hex.MidPoint.X, clicked_hex.MidPoint.Y));           
+                    $("#hexCanvas").unbind();
+                    $("#hexCanvas").bind(startclickevent, VIEW_EVENT_dropPieceByClick);
+                    $(".game_piece").bind(stopclickevent, function(event) {
+                        VIEW_SUPPORT_clearAnimationTimer();
+                        $(this).unbind(event);
+                        $('#hexCanvas').unbind().bind(startclickevent, VIEW_EVENT_clickCanvas);
+                        VIEW_updateHex(CLICKED_ON);
+                        $(this).hide();         
+                    })        
+                }
+                else {
+                    $('#hexCanvas').unbind().bind(startclickevent);    
+                }
+                             
+            });             
+        }          
+    }
+    
+    function VIEW_showDraggablePiece(top_piece, new_point) {      
+        VIEW_SUPPORT_setupDraggable(top_piece);
+        $("#" + top_piece).css({ 
+            top: new_point.Y-(PIECE_HEIGHT/2),
+            left: new_point.X-(PIECE_WIDTH/2)
+        });    
+        $("#" + top_piece).show();        
+        VIEW_SUPPORT_setPieceAnimationTimer(top_piece);        
+    }    
+}   
+
+function VIEW_EVENT_dropPieceByClick(event) {
+    Logger("drop piece by click : this + event.target = " + $(this).attr("id") + " " + $(event.target).attr("id") + " " + event.type);
+    swipe_start = Date.now();
+    $('#hexCanvas').bind(stopclickevent, function (e, u) {
+        swipe_end = Date.now();
+        Logger("drop piece stopclick : this + event.target = " + $(this).attr("id") + " " + $(event.target).attr("id") + " " + event.type);
+        // if click on hex/blinking piece and not a swipe
+        if ((swipe_end - swipe_start) < 300) {            
+            if (MID_DRAG == 0) { // THIS ONLY FIRES IF THE CANVAS CLICK EVENT ISN'T THE RESULT OF DRAGGING A PIECE (BECAUSE DROPPABLE'S DROP EVENT WILL ALREADY FIRE INDEPENDENTLY)
+
+                VIEW_SUPPORT_clearAnimationTimer();
+                
+                var xy_array = CLICKED_ON.split(",");
+                var piece_id = getTopPieceFromGridArrayCell(xy_array[0], xy_array[1]);
+                var origin = $("#" + piece_id).attr('origin');
+                var touch = (typeof event.pageX === "undefined") ? (event.originalEvent.touches[0] || event.originalEvent.changedTouches[0]) : (event);
+                var the_hex = VIEW_SUPPORT_getHexByWindowCoords(touch.pageX, touch.pageY);
+                var dest = the_hex.GetXYLocation();            
+
+                // IF DROPPED ON AN ACTUAL HEX AND PIECE ACTUALLY MOVED / INTRODUCED        
+                if (the_hex) {              
+                    VIEW_SUPPORT_clearAnimationTimer();
+                    Logger("origin -> dest : " + origin + " -> " + dest);                                        
+                    if (origin != dest) {
+                        CONTROLLER_EVENT_attemptMove(origin, dest, piece_id);    
+                    }      
+                    else {
+                        $("#" + piece_id).hide();
+                        VIEW_updateHex(origin);    
+                    }                        
+                }                                            
+            }            
         }
-        if (BLACK_PLAYER_NAME == NAME) {
-            $('[class*=" black"]').draggable({revert: "invalid", distance: PIECE_WIDTH/2, cursorAt: {'top': PIECE_HEIGHT/2, 'left': PIECE_WIDTH/2 }, start: function() {MID_DRAG_FLAG = 1;}}); 
-            
-            $('[class*=" black"]:visible').mouseenter(function(){
-                $("#black_mask_box").show(); 
-                zdex = $(this).css('zIndex');
-                $(this).css({'z-index': 50});   
-            });
-            
-            $('[class*=" black"]:visible').mouseleave(function(){
-                $("#black_mask_box").hide(); 
-                $(this).css({'z-index': zdex});
-            });            
-        }
+        $("#hexCanvas").unbind();        
+        $("#hexCanvas").bind(startclickevent, VIEW_EVENT_clickCanvas);   
+        //$("#hexCanvas").unbind(stopclickevent, e);                  
+    }); 
+}
+
+
+
+/**
+ * Processes the move when a piece is dropped on the gameboard. Fires on piece drag/drop and also on straightforward click on destination hex.
+ * @param   {Event} event
+ *          The type of event, because this fires on a drop and also on a click. 
+ * @param   {} ui
+ *          Contains information about the draggable object (we use position).
+ */
+function VIEW_EVENT_draggableDrop(event, ui) {     
+    //Logger("draggable drop");
+    var piece_id = $(ui.draggable).attr('id');
+    var origin = $(ui.draggable).attr('origin'); 
+    var pos = $(ui.draggable).position();
+    var the_hex = VIEW_SUPPORT_getHexByWindowCoords(event.pageX, event.pageY);//( (pos.left + PIECE_WIDTH/2), (pos.top + PIECE_HEIGHT/2) );
+    var dest = the_hex.GetXYLocation();
+    Logger("piece, origin, dest, $(ui.draggable).position().left: " + piece_id + " " + origin + " " + dest + " " + event.pageX + "" + pos.left);
+                   
+    // IF DROPPED ON AN ACTUAL HEX AND PIECE ACTUALLY MOVED / INTRODUCED        
+    if (the_hex) {              
+        VIEW_SUPPORT_clearAnimationTimer();
+        VIEW_SUPPORT_clearScrollerTimers();
+        $("#hexCanvas").unbind().bind(startclickevent, VIEW_EVENT_clickCanvas);                                       
+        if (origin != dest) {
+            CONTROLLER_EVENT_attemptMove(origin, dest, piece_id);    
+        }      
+        else {
+            $("#" + piece_id).hide();
+            VIEW_updateHex(origin);    
+        }                                
     }
 }
+
+
+
+
+
+
+function VIEW_EVENT_popHoveredPieceForward(event, ui) {    
+    if ( (getPlayerColor() == "white") && ($(this).attr("origin") == "") ) {
+        $("#white_mask_box").show();
+        gamepiece_z = $(this).css('z-index');
+        $(this).css({'z-index': 50});
+    }
+    else if ( (getPlayerColor() == "black") && ($(this).attr("origin") == "") ) {
+        $("#black_mask_box").show(); 
+        gamepiece_z = $(this).css('z-index');
+        $(this).css({'z-index': 50});     
+    }      
+}
+
+function VIEW_EVENT_pushHoveredPieceBack(event, ui) {
+    if ( (getPlayerColor() == "white") && ($(this).attr("origin") == "") ) {
+        $(this).css({'z-index': gamepiece_z});
+        $("#white_mask_box").hide();
+    }
+    else if ( (getPlayerColor() == "black") && ($(this).attr("origin") == "") ) {
+        $(this).css({'z-index': gamepiece_z});
+        $("#white_mask_box").hide();    
+    }      
+}
+
+function VIEW_EVENT_dismissInGamePopup(event, ui) {
+    $(this).hide();
+    window.clearTimeout(POPUP_TIMER);    
+}
+
+function VIEW_EVENT_resizeWindow(event) {
+    $(".game_piece").hide();
+    VIEW_SUPPORT_redrawHexGrid(MODEL_GRIDARRAY_getGridArray());
+    VIEW_SUPPORT_scrollToOrigin();         
+}
+
+/**
+ * Displays popup window with winner name, message, and buttons. 
+ */
+function VIEW_EVENT_showWinnerPopup() {
+    $(".game_button").hide();
+    $("#game_over_popup").show();
+    $("#game_over_popup .game_button").show();    
+}
+
+ 
 
 /**
  * Displays unplayed pieces on the side of the board and masks them to indicate whose turn it is.
  */
-function VIEW_positionUnplacedPieces() {
+function VIEW_drawUnplayedPieces() {
+    var effective_mbh;
+    var PIECE_OVERLAP;
+    var pieces_length;
+    var pieces_top_offset;
+    var y_offset;
+    var x_offset;   
+    
+    // Hides all played pieces and shows all unplayed ones...
+    for (var key in PIECE_ARRAY) { 
+        if (PIECE_ARRAY[key] == "")
+            $("#" + key).show();    
+        else
+            $("#" + key).hide();
+    }                    
     var num_unplayed_white_pieces = $('[class*=" white"]:visible').length;
     var num_unplayed_black_pieces = $('[class*=" black"]:visible').length;
-    
-    //turns off hover effects on hidden game pieces (Is this necessary?)
-    $('.game_piece:hidden').unbind('mouseenter');
-    $('.game_piece:hidden').unbind('mouseleave');
-    
-    // SHOWS ALL WHITE PIECES
+     
+    // SHOWS ALL UNPLAYED WHITE PIECES
     $('[class*=" white"]:visible').each(function(i, obj) {
         // Arrange pieces for landscape mode
         if ( $(window).height() < $(window).width() ) {
-            var effective_mbh = parseInt($('#white_piece_box').css('height').slice(0,-2));
-            var PIECE_OVERLAP = (effective_mbh - $(".game_piece").height()) / (NUM_PIECES - 1);
-            var pieces_length = ((num_unplayed_white_pieces-1) * PIECE_OVERLAP) + PIECE_HEIGHT;
-            var pieces_top_offset = parseInt($('#white_piece_box').css('top').slice(0,-2)) + parseInt($('#white_piece_box').css('padding-top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
-            var y_offset = (i * PIECE_OVERLAP) + pieces_top_offset;
-            var x_offset = document.getElementById('white_piece_box').getBoundingClientRect().left + parseInt($('#white_piece_box').css('padding-left').slice(0,-2)) + parseInt($('#white_piece_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;                
+            effective_mbh = parseInt($('#white_piece_box').css('height').slice(0,-2));
+            piece_overlap = (effective_mbh - $(".game_piece").height()) / (NUM_PIECES - 1);
+            pieces_length = ((num_unplayed_white_pieces-1) * piece_overlap) + PIECE_HEIGHT;
+            pieces_top_offset = parseInt($('#white_piece_box').css('top').slice(0,-2)) + parseInt($('#white_piece_box').css('padding-top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
+            y_offset = (i * piece_overlap) + pieces_top_offset;
+            x_offset = document.getElementById('white_piece_box').getBoundingClientRect().left + parseInt($('#white_piece_box').css('padding-left').slice(0,-2)) + parseInt($('#white_piece_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;                
         }
         // Arrange pieces for portrait mode TODO: WHY THE HARD CODED NUMBERS BELOW? THIS IS WHY IT OVERLAPS NAME. 
         else {
-            var pieces_length = $(window).width() - 170 - $(".game_piece").width();
-            var PIECE_OVERLAP = pieces_length / (NUM_PIECES-1);
-            x_offset = (i * PIECE_OVERLAP) + 150;
+            pieces_length = $(window).width() - 170 - $(".game_piece").width();
+            piece_overlap = pieces_length / (NUM_PIECES-1);
+            x_offset = (i * piece_overlap) + 150;
             y_offset = document.getElementById('game_title').getBoundingClientRect().bottom + 10;
         }
+        
         $('#' + obj.getAttribute('id')).css({ 'top': y_offset + 'px', 'left': x_offset + 'px', 'z-index': i+2 });
     }); 
     
-    // SHOWS ALL BLACK PIECES
+    // SHOWS ALL UNPLAYED BLACK PIECES
     $('[class*=" black"]:visible').each(function(i, obj) {
+        // Arrange pieces for landscape mode
         if ( $(window).height() < $(window).width() ) {
-            var effective_mbh = parseInt($('#black_piece_box').css('height').slice(0,-2));
-            var PIECE_OVERLAP = (effective_mbh - $(".game_piece").height()) / (NUM_PIECES - 1);
-            var pieces_length = ((num_unplayed_black_pieces-1) * PIECE_OVERLAP) + PIECE_HEIGHT;
-            var pieces_top_offset = parseInt($('#black_piece_box').css('top').slice(0,-2)) + parseInt($('#black_piece_box').css('padding-top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
-            var y_offset = (i * PIECE_OVERLAP) + pieces_top_offset;
-            var x_offset = document.getElementById('black_piece_box').getBoundingClientRect().left + parseInt($('#black_piece_box').css('padding-left').slice(0,-2)) + parseInt($('#black_piece_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;                
+            effective_mbh = parseInt($('#black_piece_box').css('height').slice(0,-2));
+            piece_overlap = (effective_mbh - $(".game_piece").height()) / (NUM_PIECES - 1);
+            pieces_length = ((num_unplayed_black_pieces-1) * piece_overlap) + PIECE_HEIGHT;
+            pieces_top_offset = parseInt($('#black_piece_box').css('top').slice(0,-2)) + parseInt($('#black_piece_box').css('padding-top').slice(0,-2)) + ((effective_mbh-pieces_length)/2);
+            y_offset = (i * piece_overlap) + pieces_top_offset;
+            x_offset = document.getElementById('black_piece_box').getBoundingClientRect().left + parseInt($('#black_piece_box').css('padding-left').slice(0,-2)) + parseInt($('#black_piece_box').css('width').slice(0,-2))/2 - parseInt($("#" + obj.getAttribute('id')).css('width').slice(0,-2))/2;                
         }
+        // Arrange pieces for portrait mode TODO: WHY THE HARD CODED NUMBERS BELOW? THIS IS WHY IT OVERLAPS NAME.
         else {
-            var pieces_length = $(window).width() - 170 - $(".game_piece").width(); // ((num_unplayed_white_pieces-1) * PIECE_OVERLAP) + PIECE_HEIGHT;
-            var PIECE_OVERLAP = pieces_length / (NUM_PIECES-1);
-            x_offset = (i * PIECE_OVERLAP) + 150;
+            pieces_length = $(window).width() - 170 - $(".game_piece").width(); // ((num_unplayed_white_pieces-1) * piece_overlap) + PIECE_HEIGHT;
+            piece_overlap = pieces_length / (NUM_PIECES-1);
+            x_offset = (i * piece_overlap) + 150;
             y_offset = document.getElementById('container').getBoundingClientRect().bottom + 10;
-        }    
+        } 
+           
         $('#' + obj.getAttribute('id')).css({ 'top': y_offset + 'px', 'left': x_offset + 'px', 'z-index': i+2 }); 
+    
     });
-                             
-    // BLACK TURN -> MASK GAME PIECE BARS FOR WHITE + HIDE BLACK UNDO
-    if (NUM_MOVES % 2 == 1) {
-        $('#white_mask_box').show();
-        $('#black_mask_box').hide();
+    
+    if (getCurrentColorByMove(NUM_MOVES) == "white") {
+        $("#black_mask_box").css({  'z-index': 100 });
+        $("#black_mask_box").show();    
     }
-     // WHITE TURN -> MASK GAME PIECE BARS FOR BLACK + HIDE WHITE UNDO
-    else {
-        $('#black_mask_box').show();
-        $('#white_mask_box').hide();   
+    else if (getCurrentColorByMove(NUM_MOVES) == "black") {
+        $("#white_mask_box").show();    
+        $("#white_mask_box").css({  'z-index': 50 });        
     }
     
-    // DISALLOWS DRAGGING FOR OPPONENTS PIECES
-    if (WHITE_PLAYER_NAME != NAME) {
-        // Masks white pieces so black can't drag
-        $("#white_mask_box").show(); 
-        $("#white_mask_box").css({'z-index': 500, 'opacity': 0});
-        if ((NUM_MOVES % 2) == 1)
-            $("#white_mask_box").css({'opacity': .5});               
-    }   
-    if (BLACK_PLAYER_NAME != NAME) {
-        // Masks black pieces so white can't drag
-        $("#black_mask_box").show(); 
-        $("#black_mask_box").css({'z-index': 500, 'opacity': 0});
-        if ((NUM_MOVES % 2) == 0)
-            $("#black_mask_box").css({'opacity': .5});            
+    if ( getCurrentColorByMove(NUM_MOVES) != getPlayerColor() ) {
+        $("#" + getCurrentColorByMove(NUM_MOVES) + "_mask_box").show();
+        $("#" + getCurrentColorByMove(NUM_MOVES) + "_mask_box").css({  'z-index': 50, 'opacity': .1 });
     }
     
+    if ( getCurrentColorByMove(NUM_MOVES) == getPlayerColor() ) {
+        $("#" + getPlayerColor() + "_mask_box").hide();
+        $("#" + getOpponentColor() + "_mask_box").show();
+        $("#" + getOpponentColor() + "_mask_box").css({  'z-index': 50, 'opacity': .5 });
+    }        
+                            
+    VIEW_redrawButtons();
+     
+}
+
+function VIEW_redrawButtons() {
     // HIDES LOTS OF BUTTONS IF SOLO GAME
     if (SOLO_GAME) {
+        //$("#clear_board_button").hide();
         $("#cancel_game_button").hide();
-        $("#resign_button").hide();
-        $("#undo_move_button").hide();
+        //$("#resign_button").hide();
+        //$("#undo_move_button").hide();
     }
     else {
         // SHOWS CANCEL GAME BUTTON ON EITHER PLAYER'S FIRST TURN      
         if (NUM_MOVES < 2) {
-            $("#resign_button").hide();
+            //$("#resign_button").hide();
             $("#cancel_game_button").show();
         }
         // SHOWS RESIGN BUTTON IF SECOND TURN OR LATER
         else {
-            $('#resign_button').show();
+            //$('#resign_button').show();
             $('#cancel_game_button').hide();
         }
         // HIDES UNDO BUTTON IF MY TURN, IF BEE SURROUNDED, OR IF FIRST MOVE OF GAME
-        if ( ((NUM_MOVES % 2 == 0) && (NAME == WHITE_PLAYER_NAME)) || ((NUM_MOVES % 2 == 1) && (NAME == BLACK_PLAYER_NAME)) || isBeeSurrounded(MODEL_GRIDARRAY_getGridArray()) || (NUM_MOVES == 0) )
-            $("#undo_move_button").hide();
-        else
-            $("#undo_move_button").show();            
-    }
-           
+        if ( (getPlayerColor() == getCurrentColorByMove()) || (NUM_MOVES == 0) ) {
+            //$("#undo_move_button").hide();    
+        }
+        else {
+            //$("#undo_move_button").show();    
+        }                  
+    }    
 }
+
   
 /**
- * Adds piece to canvas and calls VIEW_positionUnplacedPieces() upon finishing.
+ * Adds piece to canvas
  * @param {HT.Hexagon} the_hex
  */
 function VIEW_drawPieceOnCanvas(the_hex) {
@@ -267,11 +382,11 @@ function VIEW_drawPieceOnCanvas(the_hex) {
 	var the_height = $(".game_piece").height();
 	the_hex.drawPieceOnCanvas(ctx, the_width, the_height);	
 	
-	VIEW_positionUnplacedPieces();
+	//VIEW_drawUnplayedPieces();
 }
 
 /**
- * Removes piece from canvas and calls VIEW_positionUnplacedPieces() upon finishing.
+ * Removes piece from canvas.
  * @param {HT.Hexagon} the_hex
  */
 function VIEW_removePieceFromCanvas(the_hex) {
@@ -285,11 +400,11 @@ function VIEW_removePieceFromCanvas(the_hex) {
     var the_height = $(".game_piece").height();
 	the_hex.removePieceFromCanvas(ctx, the_width, the_height);	
 
-	VIEW_positionUnplacedPieces();
+	//VIEW_drawUnplayedPieces();
 }
 
 /**
- * Adds piece to canvas and calls VIEW_positionUnplacedPieces() upon finishing.
+ * Updates a hex's appearance depending on its current value
  * @param   {String} in_loc_string
  */
 function VIEW_updateHex(in_loc_string) {    
@@ -302,7 +417,7 @@ function VIEW_updateHex(in_loc_string) {
         var the_height = $(".game_piece").height();
         the_hex.drawPieceOnCanvas(ctx, the_width, the_height);          
     }
-    VIEW_positionUnplacedPieces();
+    //VIEW_drawUnplayedPieces();
 
 }
 
@@ -313,210 +428,6 @@ function VIEW_updateOpponentName() {
 	$('#black_player_name').text(BLACK_PLAYER_NAME);
 }
 
-/**
- * Displays popup window with winner name, message, and buttons. 
- */
-function VIEW_showWinnerPopup() {
-    $(".game_button").hide();
-    $("#game_over_popup").show();
-    $("#game_over_popup .game_button").show();    
-}
-   
-/**
- * Fires when a piece on the board is clicked.
- * @param   {Event} event
- *          Contains x- and y-coordinates of window location where click occurred. 
- */
-function VIEW_EVENT_clickPieceOnBoard(event) {
-    
-    var break_flag = 0;    
-    if (MID_MOVE_FLAG)
-        break_flag = 1;      
-    MID_MOVE_FLAG = Math.abs(MID_MOVE_FLAG-1); // toggle flag no matter what    
-    if (break_flag)
-        return;
-    
-    // Added to handle iPad clicks
-    var touch;
-    if (typeof event.pageX === "undefined") {
-        event.preventDefault();
-        touch = event.originalEvent.touches[0] || event.originalEvent.changedTouches[0];        
-    }
-    else {
-        touch = event;
-    }
-
-    var clicked_hex = VIEW_SUPPORT_getHexByWindowCoords(touch.pageX, touch.pageY);
-    
-    // IF ACTUAL HEX IS CLICKED AND NOT BLANK SPACE
-    if (clicked_hex) {
-        CLICKED_ON = clicked_hex.GetXYLocation();
-        var grid_array = MODEL_GRIDARRAY_getGridArray();
-        var hex_contents = grid_array[clicked_hex.PathCoOrdX][clicked_hex.PathCoOrdY];
-        var hex_midpoint = VIEW_SUPPORT_gridToPageCoords(clicked_hex.MidPoint.X, clicked_hex.MidPoint.Y);        
-        var this_piece;
-        
-        // IF HEX CONTAINS PIECE(S)
-        if ( hex_contents != 0) {
-            var hex_array = hex_contents.split(",");
-            if (hex_array.length > 1) {
-                this_piece = hex_array[hex_array.length-1];
-            }
-            else {
-                this_piece = hex_array[0];
-            }
-            
-            // IF PIECE IS PLAYER'S COLOR
-            if ( ((NUM_MOVES % 2 == 1) && (this_piece.indexOf("black") != -1)) || ( ((NUM_MOVES % 2) == 0) && (this_piece.indexOf("white") != -1)) ) {   
-                $(".game_piece").bind(clicktouchevent, VIEW_EVENT_dropPieceByClick);
-                document.getElementById('hexCanvas').removeEventListener(clicktouchevent, VIEW_EVENT_clickPieceOnBoard);
-                document.getElementById('hexCanvas').addEventListener(clicktouchevent, VIEW_EVENT_dropPieceByClick, false);
-                $("#" + this_piece).attr('origin', clicked_hex.GetXYLocation());
-                VIEW_removePieceFromCanvas(clicked_hex);
-                VIEW_showDraggablePiece(this_piece, hex_midpoint);
-            }
-
-        }   
-    }  
-
-    /**
-     * 
-     * @param   {String} arr_value
-     *          String containing all pieces present in a given array cell representing a board hex location.
-     * @param   {HT.Point} new_point
-     *          Point structure containing the window coordinate of the piece's initial location.
-     *          
-     */
-    function VIEW_showDraggablePiece(arr_value, new_point) {
-        var multiple_pieces = arr_value.lastIndexOf(",");
-        var top_piece = ""; 
-        
-        if (multiple_pieces != -1) // IF HEX HAS 2+ PIECES    
-            top_piece = arr_value.substring(multiple_pieces+1); 
-        else
-            top_piece = arr_value;
-            
-        var new_bg = "selected" + top_piece.substring(5, top_piece.length-1) + ".png";
-    
-        $("#" + top_piece).css({ 
-            top: new_point.Y-(PIECE_HEIGHT/2),
-            left: new_point.X-(PIECE_WIDTH/2),
-            height: PIECE_HEIGHT,
-            width: PIECE_WIDTH
-        });
-        
-        //var counterrr = 0;
-        $("#" + top_piece).show();
-        
-        PIECE_ANIMATION_INTERVAL = setInterval(function() {
-            $("#" + top_piece).animate({'opacity': '1', 'height': '+=10', 'width': '+=10'}, 500);
-            $("#" + top_piece).animate({'opacity': '1', 'height': '-=20', 'width': '-=20'}, 1000);
-            $("#" + top_piece).animate({'opacity': '1', 'height': '+=10', 'width': '+=10'}, 500);
-        }, 2000);
-        
-        // This part is here so there's not a 2000ms delay on the animation.
-        $("#" + top_piece).animate({'opacity': '1', 'height': '+=10', 'width': '+=10'}, 500);
-        $("#" + top_piece).animate({'opacity': '1', 'height': '-=20', 'width': '-=20'}, 1000);
-        $("#" + top_piece).animate({'opacity': '1', 'height': '+=10', 'width': '+=10'}, 500);
-    }    
-     
-}   
-
-/**
- * 
- */
-function VIEW_EVENT_dropPieceByClick(event) {    
-
-    MID_DRAG_FLAG = 0;    
-    var x_val = parseInt(CLICKED_ON.substring(0, CLICKED_ON.indexOf(",")));
-    var y_val = parseInt(CLICKED_ON.substring(CLICKED_ON.indexOf(",") + 1));
-    var the_piece = "#" + getTopPieceFromGridArrayCell(x_val,y_val); //"#" + this.id;
-    var origin = $(the_piece).attr('origin');
-    var hex_midpoint = new HT.Point(event.pageX, event.pageY);    
-    var the_hex = VIEW_SUPPORT_getHexByWindowCoords(hex_midpoint.X, hex_midpoint.Y);
-    var grid = new HT.Grid($("#hexCanvas").width(), $("#hexCanvas").height());
-            
-    clearInterval(PIECE_ANIMATION_INTERVAL);
-    document.getElementById('hexCanvas').removeEventListener(clicktouchevent, VIEW_EVENT_dropPieceByClick, false);
-    document.getElementById('hexCanvas').addEventListener(clicktouchevent, VIEW_EVENT_clickPieceOnBoard, false);
-    $('.game_piece').unbind(clicktouchevent);
-        
-    $(the_piece).trigger('mouseleave');
-    
-    // IF DROPPED ON AN ACTUAL HEX ON GRID 
-    if (the_hex) { 
-        // IF PIECE UNMOVED FROM ORIGINAL SPOT, REDRAW PIECE
-        if (the_hex.GetXYLocation() == origin) { 
-            //$(the_piece).hide();        
-            var the_hex = grid.GetHexByXYIndex(origin);
-            VIEW_drawPieceOnCanvas(the_hex);
-        }
-        // IF PIECE ACTUALLY MOVED / INTRODUCED
-        else { 
-            //$(the_piece).hide();  TODO: Is this hidden for a reason?
-            var dest = the_hex.GetXYLocation();
-            var piece_id = $(the_piece).attr("id");
-            CONTROLLER_EVENT_attemptMove(origin, dest, piece_id);
-        }               
-
-    }
-    // IF DROPPED FROM BOARD TO BLANK SPACE ON EDGE OF CANVAS, REDRAW IN ORIGINAL PLACE
-    else if (origin) { 
-        $(the_piece).hide();        
-        var the_hex = grid.GetHexByXYIndex(origin);
-        VIEW_drawPieceOnCanvas(the_hex);    
-    }
-        
-}
-
-/**
- * Processes the move when a piece is dropped on the gameboard. Fires on piece drag/drop and also on straightforward click on destination hex.
- * @param   {Event} event
- *          The type of event, because this fires on a drop and also on a click. 
- * @param   {} ui
- *          Contains information about the draggable object (we use position).
- */
-function VIEW_EVENT_dropPiece(event, ui) {
-       
-    MID_DRAG_FLAG = 0;
-    var the_piece = ui.draggable;
-    var piece_id = $(the_piece).attr("id");
-    var origin = $(the_piece).attr('origin'); 
-    var pos = $(the_piece).position();
-    var hex_midpoint = new HT.Point(pos.left + (PIECE_WIDTH/2), pos.top + (PIECE_HEIGHT/2));
-    
-    // these are the scroll timers from on drag
-    clearInterval(top_timer);
-    clearInterval(bottom_timer);
-    clearInterval(left_timer);
-    clearInterval(right_timer);
-   
-    clearInterval(PIECE_ANIMATION_INTERVAL);
-    document.getElementById('hexCanvas').removeEventListener(clicktouchevent, VIEW_EVENT_dropPieceByClick, false);
-    document.getElementById('hexCanvas').addEventListener(clicktouchevent, VIEW_EVENT_clickPieceOnBoard, false);    
-    $(the_piece).trigger('mouseleave');
-    
-    var the_hex = VIEW_SUPPORT_getHexByWindowCoords(hex_midpoint.X, hex_midpoint.Y);
-    
-    // IF DROPPED ON AN ACTUAL HEX ON GRID
-    if (the_hex) {  
-        if (the_hex.GetXYLocation() == origin) { // IF PIECE NOT MOVED
-            $(the_piece).hide();        
-            var the_hex = grid.GetHexByXYIndex(origin);
-            VIEW_drawPieceOnCanvas(the_hex);
-        }
-        else { // IF PIECE ACTUALLY MOVED / INTRODUCED
-            var dest = the_hex.GetXYLocation();
-            CONTROLLER_EVENT_attemptMove(origin, dest, piece_id);
-        }               
-    }
-    // IF DROPPED FROM BOARD TO BLANK SPACE ON EDGE OF CANVAS
-    else if (origin) { 
-        $(the_piece).hide();        
-        var the_hex = grid.GetHexByXYIndex(origin);
-        VIEW_drawPieceOnCanvas(the_hex);    
-    }   
-}
 
 function VIEW_showInGamePopup(in_title, in_text, in_duration) {
     $('#in_game_header').html(in_title);
@@ -530,4 +441,14 @@ function VIEW_showInGamePopup(in_title, in_text, in_duration) {
 
 function VIEW_showGameOverPopup(in_message) {
     $("#game_over_text").html(in_message);
+    $("#game_over_popup").show();
+}
+
+/**
+ * origin is used right now to keep track of the origin location at the beginning of a click/drag sequence
+ * @param {Object} in_piece_id
+ * @param {Object} in_dest
+ */
+function VIEW_setPieceOrigin(in_piece_id, in_dest) {
+    $("#" + in_piece_id).attr('origin', in_dest);
 }

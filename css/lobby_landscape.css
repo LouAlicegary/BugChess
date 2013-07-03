@@ -3,7 +3,7 @@
  *****************************************************************/
 
 /* Most computers */
-@media (min-width: 1025px) and (min-height: 600px) {
+@media (min-width: 1024px) and (min-height: 600px) {
     .mini_menu_div {
         display: none;
     }    

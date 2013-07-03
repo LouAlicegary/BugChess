@@ -309,8 +309,7 @@ function isHexInStack(in_hex, in_stack) {
  */
 function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
     var current_color = getCurrentColorByMove(NUM_MOVES);
-    var dest_x = in_dest.substring(0, in_dest.indexOf(",")); 
-    var dest_y = in_dest.substring(in_dest.indexOf(",")+1);
+    var dest_xy_array = in_dest.split(",");
     var invalid_flag = 0;
     var error_string = "";
     
@@ -326,33 +325,32 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
             return 0;
         }       
         // RULE CHECK: MAKE SURE BEE IS PLACED BY COMPLETION OF 4TH MOVE   
-        if ( (invalid_flag == 0) && (current_color = "white") && (NUM_MOVES == 6) && (in_piece_id.indexOf("white_bee1")==-1) && (PIECE_ARRAY["white_bee1"] == "") ) {
+        if ( (invalid_flag == 0) && (current_color == "white") && (NUM_MOVES == 6) && (in_piece_id.indexOf("white_bee1") == -1) && (PIECE_ARRAY["white_bee1"] == "") ) {
             invalid_flag -= 8192;
         }
-        else if ( (invalid_flag == 0) && (current_color = "black") && (NUM_MOVES == 7) && (in_piece_id.indexOf("black_bee1")==-1) && (PIECE_ARRAY["black_bee1"] == "") ) {
+        else if ( (invalid_flag == 0) && (current_color == "black") && (NUM_MOVES == 7) && (in_piece_id.indexOf("black_bee1") == -1) && (PIECE_ARRAY["black_bee1"] == "") ) {
             invalid_flag -= 8192;
         }
         
         // RULE CHECK: MAKE SURE HEX ISN'T ALREADY OCCUPIED WHEN FIRST PLACING PIECE
-        if ((invalid_flag == 0) && in_grid_array[dest_x][dest_y] && NUM_MOVES != 0) { 
+        if ( (invalid_flag == 0) && (in_grid_array[dest_xy_array[0]][dest_xy_array[1]] != "") && (NUM_MOVES != 0) ) { 
             invalid_flag -= 4096;
         }
 
         // RULE CHECK: MAKE SURE DESTINATION HEX IS CONNECTED TO BOARD
-        if ((invalid_flag == 0) && !isHexConnectedToBoard(in_origin, in_dest, in_grid_array) && NUM_MOVES != 0) {
+        if ( (invalid_flag == 0) && !(isHexConnectedToBoard(in_origin, in_dest, in_grid_array)) && (NUM_MOVES != 0) ) {
             invalid_flag -= 2048;
         } 
                     
         // RULE CHECK: MAKE SURE PIECE NOT TOUCHING OPPONENT'S COLOR WHEN PLACED
-        if ((invalid_flag == 0) && isHexTouchingOpponent(in_piece_id, in_dest) && NUM_MOVES > 1) {
+        if ( (invalid_flag == 0) && (isHexTouchingOpponent(in_piece_id, in_dest)) && (NUM_MOVES > 1) ) {
             invalid_flag -= 1024;
         }
                   
 
     }
     else { // IF PIECE ALREADY ON BOARD
-        var origin_x = parseInt(in_origin.substring(0, in_origin.indexOf(","))); 
-        var origin_y = parseInt(in_origin.substring(in_origin.indexOf(",")+1));
+        var origin_xy_array = in_origin.split(",");
               
         // RULE CHECK: MAKE SURE PIECE ISN'T TRAPPED AND CAN'T SLIDE OUT
         if ( (invalid_flag == 0) && (isPieceTrapped(in_origin, in_piece_id, in_grid_array) == 1) ) {
@@ -366,28 +364,30 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
         }
         
         // RULE CHECK: MAKE SURE MOVE DOESN'T VIOLATE ONE-HIVE RULE UPON PICKING UP PIECE
-        if ((invalid_flag == 0) && !isOneHiveMaintained(in_origin, in_grid_array)) {
+        if ( (invalid_flag == 0) && !(isOneHiveMaintained(in_origin, in_grid_array)) ) {
             invalid_flag -= 256;
             $("#" + in_piece_id).hide();
         }
         
         // RULE CHECK: TRICKY ONE HIVE SITUATION
-        if ( (invalid_flag == 0) && ((in_piece_id.indexOf("beetle") != -1) || (in_piece_id.indexOf("bee1") != -1))  ) {
-            if (isMoveTrickyViolation(in_origin, in_dest, in_grid_array)) {
+        if ( (invalid_flag == 0) && ((in_piece_id.indexOf("beetle") != -1) || (in_piece_id.indexOf("bee1") != -1)) ) {
+            var fake_grid = arrayCloner(in_grid_array);
+            removePieceFromGenericGridArray(fake_grid, in_origin);
+            if (isMoveTrickyViolation(in_origin, in_dest, fake_grid)) {
                 invalid_flag -= 256;
                 $("#" + in_piece_id).hide();                
             }
         }         
                         
         // RULE CHECK: CANT MOVE PIECE ON BOARD UNTIL QUEEN PLACED
-        if ( ( (invalid_flag == 0) && (current_color == "white") && (PIECE_ARRAY["black_bee1"] == "") ) || ( (invalid_flag == 0) && (current_color == "black") && (PIECE_ARRAY["black_bee1"] == "") ) ) {
+        if ( (invalid_flag == 0) && (((current_color == "white") && (PIECE_ARRAY["white_bee1"] == "")) || ((current_color == "black") && (PIECE_ARRAY["black_bee1"] == ""))) ) {
             invalid_flag -= 128;
             $("#" + in_piece_id).hide();                    
         }
         
         // RULE CHECK: CANNOT CLIMB ATOP OTHER PIECE (ONLY BEETLE)
         if ((invalid_flag == 0) && (in_piece_id.indexOf("beetle") == -1) ) {
-            if (in_grid_array[dest_x][dest_y]) {
+            if (in_grid_array[dest_xy_array[0]][dest_xy_array[1]] != "") {
                 invalid_flag -= 64;
                 $("#" + in_piece_id).hide();
             }
@@ -438,7 +438,7 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
             if (in_piece_id.indexOf("ant") != -1) {
                 var outerStringHive = getHexesOutsideHiveWithoutPiece(in_origin, in_grid_array);
                 var outerHive = convertHexStringArrayTo2DArray(outerStringHive);
-                if (isHexInStack(new Array(dest_x, dest_y), outerHive) == 0)  {
+                if (isHexInStack(dest_xy_array, outerHive) == 0)  {
                     invalid_flag -= 1;
                 }     
             }
@@ -459,10 +459,6 @@ function isMoveValid(in_origin, in_dest, in_piece_id, in_grid_array) {
 function getMoveErrorCode(return_value) {
     var error_string = "";
     if (return_value != 1) {
-        if (return_value <= -32768) {
-            error_string += "SPECIAL SLIDING FLAG.<br/>";
-            return_value += 32768;
-        }
         if (return_value <= -16384) {
             error_string += "The piece you are trying to move is trapped. It can't leave its space right now.<br/>";
             return_value += 16384;
@@ -672,6 +668,9 @@ function isSpiderPathValid(in_origin, in_dest, in_grid) {
     
     var outside_hive = getHexesOutsideHiveWithoutPiece(in_origin, in_grid);
     
+    var fake_grid = arrayCloner(in_grid);
+    removePieceFromGenericGridArray(fake_grid, in_origin);
+    
     var h1 = "";
     var h2 = "";
     var h3 = "";
@@ -681,7 +680,7 @@ function isSpiderPathValid(in_origin, in_dest, in_grid) {
         h1 = origin_x + "," + origin_y;
         h2 = outside_hive[i];
         
-        if ( (getDistanceBetweenHexes(h1, h2) == 1) ) {
+        if ( (getDistanceBetweenHexes(h1, h2) == 1) && (isMoveTrickyViolation(h1, h2, fake_grid) == 0) ) {
             skip_index = i;
             
             for (var j in outside_hive) {
@@ -689,7 +688,7 @@ function isSpiderPathValid(in_origin, in_dest, in_grid) {
                 
                 if (j != skip_index) {
                    
-                    if (getDistanceBetweenHexes(h2, h3) == 1) {
+                    if ( (getDistanceBetweenHexes(h2, h3) == 1) && (isMoveTrickyViolation(h2, h3, fake_grid) == 0) ) {
                         skip_index_2 = j;
                      
                         for (var k in outside_hive) {
@@ -697,7 +696,7 @@ function isSpiderPathValid(in_origin, in_dest, in_grid) {
                         
                             if ( (k != skip_index) && (k != skip_index_2) ) {
                         
-                                if (getDistanceBetweenHexes(h3, h4) == 1) {
+                                if ( (getDistanceBetweenHexes(h3, h4) == 1) && (isMoveTrickyViolation(h3, h4, fake_grid) == 0) ) {
                         
                                     if (h4 == in_dest) {
                                         return 1;
@@ -800,6 +799,10 @@ function isPieceTrapped(in_origin, in_piece_id, in_grid) {
     var origin_y = parseInt(in_origin.substring(in_origin.indexOf(",")+1));
     
     if (in_origin == "") {
+        return 0;
+    }
+    
+    if (NUM_MOVES < 3) {
         return 0;
     }
     
@@ -1111,7 +1114,6 @@ function getSurroundingPiecesByColor(in_color, in_piece_id, in_grid) {
  */
 function isMoveTrickyViolation(in_origin, in_dest, in_grid_array) {
     var fake_grid = arrayCloner(in_grid_array);
-    removePieceFromGenericGridArray(fake_grid, in_origin);
     var surround_a = getAllSurroundingPieces(in_origin, fake_grid);
     var surround_b = getAllSurroundingPieces(in_dest, fake_grid);
     if ( (getNumberOfPiecesSurroundingHex(in_origin, fake_grid) == 1) && (getNumberOfPiecesSurroundingHex(in_dest, fake_grid) == 1) ) {
@@ -1122,9 +1124,38 @@ function isMoveTrickyViolation(in_origin, in_dest, in_grid_array) {
     return 0;    
 }
 
+function getPlayerColor() {
+    if (NAME == WHITE_PLAYER_NAME) {
+        return "white";
+    }
+    else if (NAME == BLACK_PLAYER_NAME) {
+        return "black";
+    }
+    else {
+        return "";
+    }
+}
 
+function getOpponentColor() {
+    if (getPlayerColor() == "white") {
+        return "black";
+    }
+    else if (getPlayerColor() == "black") {
+        return "white";
+    }
+    else {
+        return "";
+    }
+}
 
-
+function isGameWon() {
+    if ( isBeeSurrounded(MODEL_GRIDARRAY_getGridArray()) ) {
+        return 1;
+    }     
+    else {
+        return 0; 
+    }               
+}
 
 
 /**
